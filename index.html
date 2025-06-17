@@ -1,156 +1,201 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-TT" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TATIL Rater Hub</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <title>TATIL Premium Rater Hub | Motor & Health Insurance</title>
+    <meta name="description" content="A suite of insurance premium raters for TATIL. Get instant estimates for your Motor and Health insurance needs.">
+    <meta name="keywords" content="TATIL, motor insurance calculator, health insurance rater, Trinidad and Tobago insurance, car insurance quote, health plan quote">
+    <meta name="author" content="Kyron Marchan">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Source+Serif+Pro:wght@600;700&display=swap" rel="stylesheet">
+
     <style>
         :root {
-            --bg-main: #f4f6f9; 
+            --bg-main: #f4f6f9;
             --bg-bento-box: #ffffff;
-            --text-primary: #1d2d35; 
-            --text-secondary: #4a5568; 
-            --border-color: #dce1e7; 
-            --primary-accent: #005f73; 
-            --secondary-accent: #ae8625; 
+            --text-primary: #1d2d35;
+            --text-secondary: #4a5568;
+            --border-color: #dce1e7;
+            --primary-accent: #005f73;
+            --primary-accent-darker: #003d4d;
+            --secondary-accent: #ae8625;
             --shadow-soft: 0 3px 6px rgba(0,0,0,0.04);
             --shadow-medium: 0 5px 15px rgba(0,0,0,0.06);
-            --shadow-strong: 0 8px 25px rgba(0,0,0,0.08);
             --font-body: 'Montserrat', sans-serif;
-            --font-heading: 'Source Serif Pro', serif; 
+            --font-heading: 'Source Serif Pro', serif;
         }
+
         .dark-mode {
-            --bg-main: #1f2937; 
-            --bg-bento-box: #2b3c4d; 
-            --text-primary: #f0f4f8; 
-            --text-secondary: #d1d5db; 
-            --border-color: #4b5f71; 
-            --primary-accent: #25a1af; 
-            --secondary-accent: #daa520; 
+            --bg-main: #1f2937;
+            --bg-bento-box: #2b3c4d;
+            --text-primary: #f0f4f8;
+            --text-secondary: #d1d5db;
+            --border-color: #4b5f71;
+            --primary-accent: #25a1af;
+            --primary-accent-darker: #1e838f;
+            --secondary-accent: #daa520;
         }
-        body { font-family: var(--font-body); background-color: var(--bg-main); color: var(--text-primary); }
-        h1, h2, h3, h4 { font-family: var(--font-heading); color: var(--primary-accent); }
-        .bento-box { background-color: var(--bg-bento-box); border-radius: 0.75rem; padding: 1.75rem; box-shadow: var(--shadow-medium); transition: all 0.3s ease; border: 1px solid var(--border-color); }
-        .bento-box:hover { transform: translateY(-5px); box-shadow: var(--shadow-strong); }
-        .bento-link { display: block; text-decoration: none; color: inherit; }
-        .bento-link.disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
-        .theme-switch-wrapper { display: flex; align-items: center; position: fixed; top: 1rem; right: 1rem; z-index: 101; background-color: var(--bg-bento-box); padding: 0.5rem 0.75rem; border-radius: 999px; box-shadow: var(--shadow-medium); border: 1px solid var(--border-color); }
-        .theme-switch { position: relative; display: inline-block; width: 40px; height: 20px; } 
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            transition: background-color 0.3s ease, color 0.3s ease;
+            overflow-x: hidden;
+        }
+
+        .page-title { font-family: var(--font-heading); color: var(--primary-accent); font-weight: 700; }
+        .page-subtitle { font-family: var(--font-body); font-weight: 600; color: var(--text-secondary); }
+        .bento-box {
+            background-color: var(--bg-bento-box);
+            border-radius: 0.75rem;
+            padding: 1.75rem;
+            box-shadow: var(--shadow-medium);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.25s ease;
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        .bento-box:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-strong);
+        }
+        .calculator-card-content { flex-grow: 1; }
+        .button-base {
+            display: inline-block;
+            font-weight: 600;
+            padding: 0.85rem 1.5rem;
+            border-radius: 0.375rem;
+            transition: background-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+            box-shadow: var(--shadow-soft);
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+            text-align: center;
+            text-decoration: none;
+        }
+        .button-base:hover { transform: translateY(-2px); }
+        .main-action-button { background-color: var(--primary-accent); color: white; }
+        .dark-mode .main-action-button { color: var(--text-primary); }
+        .main-action-button:hover { background-color: var(--primary-accent-darker); }
+
+        .theme-switch-wrapper {
+            display: flex; align-items: center; background-color: var(--bg-bento-box); padding: 0.5rem 0.75rem;
+            border-radius: 999px; box-shadow: var(--shadow-medium); border: 1px solid var(--border-color);
+        }
+        .theme-switch { position: relative; display: inline-block; width: 40px; height: 20px; }
         .theme-switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 20px; }
         .dark-mode .slider { background-color: var(--primary-accent); }
         .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
         input:checked + .slider:before { transform: translateX(20px); }
+        #themeToggleLabel { color: var(--text-secondary); font-size: 0.7rem; font-weight: 600; letter-spacing: 0.025em;}
     </style>
 </head>
 <body class="min-h-screen p-4 md:p-6 lg:p-8">
 
-    <div class="theme-switch-wrapper">
-        <span class="mr-2 text-xs font-semibold" id="themeToggleLabel">LIGHT</span>
-        <label class="theme-switch" for="themeToggleCheckbox">
-            <input type="checkbox" id="themeToggleCheckbox" />
-            <div class="slider round"></div>
-        </label>
-    </div>
+    <div class="w-full max-w-5xl mx-auto my-8">
+        <header class="mb-10 md:mb-14 text-center">
+            <h1 class="page-title text-4xl sm:text-5xl md:text-6xl mb-3">
+                TATIL Premium Rater Hub
+            </h1>
+            <h2 class="page-subtitle text-xl sm:text-2xl md:text-3xl">
+                Instant Insurance Estimates
+            </h2>
+            <p class="text-[var(--text-secondary)] mt-5 text-md md:text-lg max-w-3xl mx-auto">
+                Your central location for TATIL's motor and health insurance premium raters. Get quick and accurate estimates to help you make informed decisions.
+            </p>
+        </header>
 
-    <div class="w-full max-w-6xl mx-auto my-8">
-        <div id="hub-page">
-            <header class="mb-10 text-center">
-                <h1 class="text-4xl sm:text-5xl font-bold mb-3">TATIL Insurance Rater Hub</h1>
-                <p class="text-xl text-[var(--text-secondary)]">Select a calculator to get started.</p>
-            </header>
-            <main class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <a href="motor_rater.html" data-target="calculator-content" class="bento-link">
-                    <div class="bento-box h-full flex flex-col">
-                        <h2 class="text-2xl font-bold mb-2">Motor Rate Calculator</h2>
-                        <p class="text-[var(--text-secondary)] mb-4 flex-grow">Calculate premiums for Private, Platinum, and Commercial vehicles.</p>
-                        <div class="mt-auto text-right font-bold text-[var(--primary-accent)]">Open Rater &rarr;</div>
-                    </div>
-                </a>
-                <a href="health_rater.html" data-target="calculator-content" class="bento-link">
-                    <div class="bento-box h-full flex flex-col">
-                        <h2 class="text-2xl font-bold mb-2">Health Insurance Rater</h2>
-                        <p class="text-[var(--text-secondary)] mb-4 flex-grow">Calculate premiums for COVERCARE health insurance plans.</p>
-                        <div class="mt-auto text-right font-bold text-[var(--primary-accent)]">Open Rater &rarr;</div>
-                    </div>
-                </a>
-                <a href="#" class="bento-link disabled">
-                     <div class="bento-box h-full flex flex-col relative">
-                        <span class="absolute top-4 right-4 bg-gray-200 text-gray-600 dark:bg-gray-600 dark:text-gray-200 text-xs font-bold px-2 py-1 rounded-full">Coming Soon</span>
-                        <h2 class="text-2xl font-bold mb-2">Life Insurance Rater</h2>
-                        <p class="text-[var(--text-secondary)] mb-4 flex-grow">Estimate premiums for life insurance policies.</p>
-                        <div class="mt-auto text-right font-bold text-[var(--primary-accent)]">Open Rater &rarr;</div>
-                    </div>
-                </a>
-            </main>
+        <div class="w-full flex justify-center my-4 md:my-8">
+            <div class="theme-switch-wrapper">
+                <span class="mr-2 text-xs" id="themeToggleLabel">LIGHT</span>
+                <label class="theme-switch" for="themeToggleCheckbox">
+                    <input type="checkbox" id="themeToggleCheckbox" />
+                    <div class="slider round"></div>
+                </label>
+            </div>
         </div>
-        
-        <div id="calculator-content" class="hidden">
-             <!-- Calculator content will be loaded here -->
-        </div>
+
+        <main class="space-y-12">
+            <section>
+                <h2 class="text-2xl md:text-3xl font-bold text-center mb-8 text-[var(--primary-accent)]">Our Rater Suite</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+                    <!-- Motor Rater Card -->
+                    <div class="bento-box">
+                        <div class="calculator-card-content">
+                            <h3 class="text-2xl font-bold text-[var(--primary-accent)] mb-4">Motor Insurance Rater</h3>
+                            <p class="text-[var(--text-secondary)] text-sm mb-6">
+                                Get a premium estimate for your private or commercial vehicle. Covers comprehensive and third-party options with various discounts and benefits.
+                            </p>
+                        </div>
+                        <a href="./motor-rater.html" class="main-action-button button-base mt-4">Open Motor Rater</a>
+                    </div>
+
+                    <!-- Health Rater Card -->
+                    <div class="bento-box">
+                        <div class="calculator-card-content">
+                             <h3 class="text-2xl font-bold text-[var(--primary-accent)] mb-4">COVERCARE Health Rater</h3>
+                            <p class="text-[var(--text-secondary)] text-sm mb-6">
+                               Calculate premiums for TATIL's COVERCARE health insurance plans. Customize for individual or family coverage, including major medical, dental, and vision.
+                            </p>
+                        </div>
+                        <a href="./health-rater.html" class="main-action-button button-base mt-4">Open Health Rater</a>
+                    </div>
+                </div>
+            </section>
+        </main>
 
         <footer class="text-center mt-12 text-xs text-[var(--text-muted)]">
-            <p>&copy; <span id="currentYear"></span> TATIL. Your Future, Secured.</p>
+            <p>&copy; <span id="currentYear"></span> TATIL Premium Rater Hub. Your Future, Secured.</p>
         </footer>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const hubPage = document.getElementById('hub-page');
-            const calculatorContentDiv = document.getElementById('calculator-content');
-            
-            document.querySelectorAll('a[data-target]').forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const url = this.getAttribute('href');
-                    
-                    fetch(url)
-                        .then(response => response.text())
-                        .then(html => {
-                            calculatorContentDiv.innerHTML = html;
-                            hubPage.classList.add('hidden');
-                            calculatorContentDiv.classList.remove('hidden');
-                            window.scrollTo(0, 0);
-
-                            // Execute scripts from the loaded content
-                            const scripts = calculatorContentDiv.querySelectorAll('script');
-                            scripts.forEach(script => {
-                                const newScript = document.createElement('script');
-                                newScript.textContent = script.textContent;
-                                document.body.appendChild(newScript).parentNode.removeChild(newScript);
-                            });
-                            
-                            // Attach event listener for the back button inside the loaded content
-                             const backButton = calculatorContentDiv.querySelector('.back-to-hub-btn');
-                             if(backButton){
-                                 backButton.addEventListener('click', () => {
-                                     calculatorContentDiv.classList.add('hidden');
-                                     hubPage.classList.remove('hidden');
-                                     calculatorContentDiv.innerHTML = ''; // Clear content
-                                 });
-                             }
-                        })
-                        .catch(error => console.error('Error loading page:', error));
-                });
-            });
-
-            // Theme Toggle Logic
+        document.addEventListener('DOMContentLoaded', function() {
             const themeToggle = document.getElementById('themeToggleCheckbox');
             const themeToggleLabel = document.getElementById('themeToggleLabel');
-            function applyTheme(isDark) {
-                document.documentElement.classList.toggle('dark-mode', isDark);
-                document.body.classList.toggle('dark-mode', isDark);
-                if(themeToggleLabel) themeToggleLabel.textContent = isDark ? 'DARK' : 'LIGHT';
-                if(themeToggle) themeToggle.checked = isDark;
-                localStorage.setItem('theme', isDark ? 'dark' : 'light');
+
+            function initializeTheme() {
+                const savedTheme = localStorage.getItem('theme');
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                const root = document.documentElement;
+
+                if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+                    root.classList.add('dark-mode');
+                    if (themeToggle) themeToggle.checked = true;
+                    if (themeToggleLabel) themeToggleLabel.textContent = 'DARK';
+                } else {
+                    root.classList.remove('dark-mode');
+                    if (themeToggle) themeToggle.checked = false;
+                    if (themeToggleLabel) themeToggleLabel.textContent = 'LIGHT';
+                }
             }
-            themeToggle.addEventListener('change', () => applyTheme(themeToggle.checked));
-            const savedTheme = localStorage.getItem('theme');
-            applyTheme(savedTheme === 'dark' || (savedTheme === null && window.matchMedia('(prefers-color-scheme: dark)').matches));
+
+            function toggleTheme() {
+                const root = document.documentElement;
+                const isDarkMode = root.classList.contains('dark-mode');
+
+                if (isDarkMode) {
+                    root.classList.remove('dark-mode');
+                    localStorage.setItem('theme', 'light');
+                    if (themeToggleLabel) themeToggleLabel.textContent = 'LIGHT';
+                } else {
+                    root.classList.add('dark-mode');
+                    localStorage.setItem('theme', 'dark');
+                    if (themeToggleLabel) themeToggleLabel.textContent = 'DARK';
+                }
+            }
 
             document.getElementById('currentYear').textContent = new Date().getFullYear();
+            initializeTheme();
+            if (themeToggle) {
+                themeToggle.addEventListener('change', toggleTheme);
+            }
         });
     </script>
 </body>
