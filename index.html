@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TATIL Rater Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Source+Serif+Pro:wght@600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -14,12 +12,9 @@
             --bg-bento-box: #ffffff;
             --text-primary: #1d2d35; 
             --text-secondary: #4a5568; 
-            --text-muted: #718096;    
             --border-color: #dce1e7; 
             --primary-accent: #005f73; 
-            --primary-accent-darker: #003d4d;
             --secondary-accent: #ae8625; 
-            --secondary-accent-darker: #8c6c1d;
             --shadow-soft: 0 3px 6px rgba(0,0,0,0.04);
             --shadow-medium: 0 5px 15px rgba(0,0,0,0.06);
             --shadow-strong: 0 8px 25px rgba(0,0,0,0.08);
@@ -31,47 +26,23 @@
             --bg-bento-box: #2b3c4d; 
             --text-primary: #f0f4f8; 
             --text-secondary: #d1d5db; 
-            --text-muted: #9ca3af;    
             --border-color: #4b5f71; 
             --primary-accent: #25a1af; 
-            --primary-accent-darker: #1e838f;
             --secondary-accent: #daa520; 
-            --secondary-accent-darker: #b8860b;
         }
-        body { font-family: var(--font-body); background-color: var(--bg-main); color: var(--text-primary); transition: background-color 0.3s ease, color 0.3s ease; }
+        body { font-family: var(--font-body); background-color: var(--bg-main); color: var(--text-primary); }
         h1, h2, h3, h4 { font-family: var(--font-heading); color: var(--primary-accent); }
         .bento-box { background-color: var(--bg-bento-box); border-radius: 0.75rem; padding: 1.75rem; box-shadow: var(--shadow-medium); transition: all 0.3s ease; border: 1px solid var(--border-color); }
         .bento-box:hover { transform: translateY(-5px); box-shadow: var(--shadow-strong); }
         .bento-link { display: block; text-decoration: none; color: inherit; }
         .bento-link.disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
-        .page-container { display: none; }
-        input, select { border: 1px solid var(--border-color); padding: 0.85rem 1.15rem; border-radius: 0.375rem; transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.3s ease, color 0.3s ease; background-color: var(--bg-main); color: var(--text-primary); font-weight: 500; }
-        input:focus, select:focus { border-color: var(--primary-accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-accent) 25%, transparent); outline: none; background-color: var(--bg-bento-box); }
-        .form-section { display: none; }
-        .form-section.active { display: block; }
-        .disabled-benefit { opacity: 0.5; cursor: not-allowed; }
-        .advanced-section { display: none; background-color: color-mix(in srgb, var(--secondary-accent) 10%, transparent); border: 1px solid var(--secondary-accent); border-radius: 0.5rem; padding: 1rem; margin-top: 1.5rem; }
-        .button-base { font-weight: 600; padding-top: 0.85rem; padding-bottom: 0.85rem; border-radius: 0.375rem; transition: background-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease; box-shadow: var(--shadow-soft); text-transform: uppercase; letter-spacing: 0.025em; }
-        .button-base:hover { transform: translateY(-2px); box-shadow: var(--shadow-medium); }
-        .primary-btn { background-color: var(--primary-accent); color: white; }
-        .primary-btn:hover { background-color: var(--primary-accent-darker); }
-        .dark-mode .primary-btn { color: var(--bg-bento-box); }
-        .secondary-btn { background-color: var(--secondary-accent); color: white; }
-        .secondary-btn:hover { background-color: var(--secondary-accent-darker); }
-        .dark-mode .secondary-btn { color: var(--text-primary); }
-        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(29, 45, 53, 0.7); display: none; align-items: center; justify-content: center; z-index: 50; backdrop-filter: blur(5px); }
-        .modal-content { background-color: var(--bg-bento-box); margin: auto; padding: 2rem; border: 1px solid var(--border-color); width: 90%; max-width: 560px; border-radius: 0.75rem; position: relative; box-shadow: var(--shadow-strong); }
         .theme-switch-wrapper { display: flex; align-items: center; position: fixed; top: 1rem; right: 1rem; z-index: 101; background-color: var(--bg-bento-box); padding: 0.5rem 0.75rem; border-radius: 999px; box-shadow: var(--shadow-medium); border: 1px solid var(--border-color); }
         .theme-switch { position: relative; display: inline-block; width: 40px; height: 20px; } 
         .theme-switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 20px; }
         .dark-mode .slider { background-color: var(--primary-accent); }
         .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider:before { transform: translateX(20px); } 
-        .toggle-checkbox:checked + .toggle-label .dot { transform: translateX(1.5rem); }
-        .toggle-checkbox:checked + .toggle-label { background-color: var(--primary-accent); }
-        .whatsapp-float { position: fixed; width: 60px; height: 60px; bottom: 40px; right: 40px; background-color: #25d366; color: #FFF; border-radius: 50px; text-align: center; font-size: 30px; box-shadow: 2px 2px 6px rgba(0,0,0,0.25); z-index: 100; display: flex; align-items: center; justify-content: center; transition: transform 0.2s ease; }
-        .whatsapp-float:hover { transform: scale(1.1); }
+        input:checked + .slider:before { transform: translateX(20px); }
     </style>
 </head>
 <body class="min-h-screen p-4 md:p-6 lg:p-8">
@@ -85,28 +56,27 @@
     </div>
 
     <div class="w-full max-w-6xl mx-auto my-8">
-        
-        <div id="hub-page" class="page-container" style="display: block;">
+        <div id="hub-page">
             <header class="mb-10 text-center">
                 <h1 class="text-4xl sm:text-5xl font-bold mb-3">TATIL Insurance Rater Hub</h1>
                 <p class="text-xl text-[var(--text-secondary)]">Select a calculator to get started.</p>
             </header>
             <main class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <a href="#" id="open-motor-calculator" class="bento-link">
+                <a href="motor_rater.html" data-target="calculator-content" class="bento-link">
                     <div class="bento-box h-full flex flex-col">
                         <h2 class="text-2xl font-bold mb-2">Motor Rate Calculator</h2>
                         <p class="text-[var(--text-secondary)] mb-4 flex-grow">Calculate premiums for Private, Platinum, and Commercial vehicles.</p>
                         <div class="mt-auto text-right font-bold text-[var(--primary-accent)]">Open Rater &rarr;</div>
                     </div>
                 </a>
-                <a href="#" id="open-health-calculator" class="bento-link">
+                <a href="health_rater.html" data-target="calculator-content" class="bento-link">
                     <div class="bento-box h-full flex flex-col">
                         <h2 class="text-2xl font-bold mb-2">Health Insurance Rater</h2>
                         <p class="text-[var(--text-secondary)] mb-4 flex-grow">Calculate premiums for COVERCARE health insurance plans.</p>
                         <div class="mt-auto text-right font-bold text-[var(--primary-accent)]">Open Rater &rarr;</div>
                     </div>
                 </a>
-                 <a href="#" class="bento-link disabled">
+                <a href="#" class="bento-link disabled">
                      <div class="bento-box h-full flex flex-col relative">
                         <span class="absolute top-4 right-4 bg-gray-200 text-gray-600 dark:bg-gray-600 dark:text-gray-200 text-xs font-bold px-2 py-1 rounded-full">Coming Soon</span>
                         <h2 class="text-2xl font-bold mb-2">Life Insurance Rater</h2>
@@ -116,484 +86,9 @@
                 </a>
             </main>
         </div>
-
-        <div id="motor-calculator-page" class="page-container">
-            <header class="mb-10 text-center relative">
-                 <button class="back-to-hub-btn absolute left-0 top-1/2 -translate-y-1/2 text-[var(--primary-accent)] hover:text-[var(--primary-accent-darker)] font-semibold transition-colors">&larr; Back to Hub</button>
-                <h1 class="text-4xl sm:text-5xl font-bold mb-3">TATIL Motor Insurance Premium Rater</h1>
-                <p class="text-xl text-[var(--text-secondary)]">Motor Vehicle Premiums, Simplified.</p>
-            </header>
-            <main class="space-y-8">
-                 <div id="step1-motor" class="bento-box">
-                    <h2 class="text-2xl font-bold mb-4"><span class="inline-block bg-[var(--secondary-accent)] text-white rounded-full h-8 w-8 text-center leading-8 mr-3 text-lg">1</span>Select Your Vehicle Type</h2>
-                    <select id="vehicle-type-selector" class="w-full text-lg p-3">
-                        <option value="">-- Please select --</option>
-                        <option value="private">Private Car</option>
-                        <option value="platinum">Platinum Drive (Luxury Private Car)</option>
-                        <option value="commercial">Commercial Vehicle / Pick-up</option>
-                    </select>
-                </div>
-                <div id="calculators-motor">
-                    <div id="private-calculator" class="form-section bento-box">
-                        <div class="flex justify-between items-center mb-6">
-                             <h2 class="text-2xl font-bold"><span class="inline-block bg-[var(--secondary-accent)] text-white rounded-full h-8 w-8 text-center leading-8 mr-3 text-lg">2</span>Private Car Details</h2>
-                             <div class="flex items-center">
-                                <label for="p-advanced-mode-check" class="flex items-center cursor-pointer">
-                                    <span class="mr-3 text-sm font-medium">Advanced Mode</span>
-                                    <div class="relative">
-                                        <input type="checkbox" id="p-advanced-mode-check" class="toggle-checkbox sr-only">
-                                        <div class="toggle-label block bg-gray-300 dark:bg-gray-700 w-12 h-6 rounded-full"></div>
-                                        <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform"></div>
-                                    </div>
-                                </label>
-                            </div>
-                        </div>
-                         <div id="p-advanced-section" class="advanced-section">
-                            <h4 class="font-semibold text-[var(--text-primary)] mb-2">Base Premium Rate Override</h4>
-                            <div class="grid grid-cols-1">
-                                <label for="p-override-rate" class="block text-sm font-medium mb-1">Custom Rate (%)</label>
-                                <input type="number" id="p-override-rate" class="w-full p-2" placeholder="e.g., 7.5">
-                            </div>
-                        </div>
-                        <div class="space-y-6 mt-6">
-                            <h3 class="text-lg font-bold text-[var(--text-secondary)]">Vehicle Information</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <label for="p-coverage-type" class="block text-sm font-medium text-[var(--text-muted)]">Coverage Type</label>
-                                    <select id="p-coverage-type" class="mt-1 w-full p-2.5">
-                                        <option value="comprehensive">Comprehensive</option>
-                                        <option value="third-party">Third Party Only</option>
-                                    </select>
-                                </div>
-                                <div id="p-sum-insured-container">
-                                    <label for="p-sum-insured" class="block text-sm font-medium text-[var(--text-muted)]">Sum Insured ($)</label>
-                                    <input type="number" id="p-sum-insured" class="mt-1 w-full p-2.5" placeholder="e.g., 80000" min="50000">
-                                </div>
-                                <div>
-                                    <label for="p-engine-cc" class="block text-sm font-medium text-[var(--text-muted)]">Engine Capacity</label>
-                                    <select id="p-engine-cc" class="mt-1 w-full p-2.5">
-                                        <option value="under-2000">Under 2000cc</option>
-                                        <option value="over-2000">Over 2000cc</option>
-                                    </select>
-                                </div>
-                                 <div>
-                                    <label for="p-vehicle-model" class="block text-sm font-medium text-[var(--text-muted)]">Vehicle Model Type</label>
-                                    <select id="p-vehicle-model" class="mt-1 w-full p-2.5">
-                                        <option value="standard">Standard</option>
-                                        <option value="honda-city">Honda City</option>
-                                        <option value="hybrid">Hybrid</option>
-                                        <option value="electric">Electric</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <h3 class="text-lg font-bold text-[var(--text-secondary)] border-t border-[var(--border-color)] pt-6 mt-6">Driver Details</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                 <div>
-                                    <label for="p-driver-age" class="block text-sm font-medium text-[var(--text-muted)]">Driver's Age</label>
-                                    <input type="number" id="p-driver-age" class="mt-1 w-full p-2.5" placeholder="e.g., 35">
-                                </div>
-                                <div>
-                                    <label for="p-driving-exp" class="block text-sm font-medium text-[var(--text-muted)]">Driving Experience (Years)</label>
-                                    <input type="number" id="p-driving-exp" class="mt-1 w-full p-2.5" placeholder="e.g., 10">
-                                </div>
-                                 <div>
-                                    <label for="p-occupation" class="block text-sm font-medium text-[var(--text-muted)]">Occupation</label>
-                                    <select id="p-occupation" class="mt-1 w-full p-2.5">
-                                        <option value="standard">Standard</option>
-                                        <option value="travelling">Travelling Officer / Salesman</option>
-                                        <option value="music">Musician / DJ</option>
-                                        <option value="shift">Shift Worker / Bartender</option>
-                                        <option value="protective">Protective Services</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <h3 class="text-lg font-bold text-[var(--text-secondary)] border-t border-[var(--border-color)] pt-6 mt-6">Extra Loadings</h3>
-                            <div id="p-extra-loadings-container" class="space-y-2"></div>
-                            <button id="p-add-loading-btn" class="mt-2 text-sm secondary-btn button-base px-3 py-1">Add Loading</button>
-    
-                            <h3 class="text-lg font-bold text-[var(--text-secondary)] border-t border-[var(--border-color)] pt-6 mt-6">Discounts</h3>
-                            <div class="space-y-4">
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div>
-                                        <label for="p-ncd" class="block text-sm font-medium text-[var(--text-muted)]">No Claim Discount</label>
-                                        <select id="p-ncd" class="mt-1 w-full p-2.5">
-                                            <option value="0">0 Years</option>
-                                            <option value="1">1 Year</option>
-                                            <option value="2">2 Years</option>
-                                            <option value="3">3 Years</option>
-                                            <option value="4">4+ Years (Max)</option>
-                                        </select>
-                                    </div>
-                                    <div class="grid grid-cols-1 gap-2">
-                                         <div class="flex items-center">
-                                            <input id="p-ansa-staff-check" type="checkbox" class="h-4 w-4 text-[var(--primary-accent)] bg-gray-700 border-gray-600 rounded">
-                                            <label for="p-ansa-staff-check" class="ml-3 block text-sm font-medium">ANSA Staff (10%)</label>
-                                        </div>
-                                        <div class="flex items-center">
-                                            <input id="p-other-motor-check" type="checkbox" class="h-4 w-4 text-[var(--primary-accent)] bg-gray-700 border-gray-600 rounded">
-                                            <label for="p-other-motor-check" class="ml-3 block text-sm font-medium">Other Motor Policy (10%)</label>
-                                        </div>
-                                        <div class="flex items-center">
-                                            <input id="p-multi-client-check" type="checkbox" class="h-4 w-4 text-[var(--primary-accent)] bg-gray-700 border-gray-600 rounded">
-                                            <label for="p-multi-client-check" class="ml-3 block text-sm font-medium">Multi-Client / Other Business (15%)</label>
-                                        </div>
-                                    </div>
-                                </div>
-                                <h4 class="text-md font-bold text-[var(--text-secondary)] pt-2 border-t border-[var(--border-color)] mt-4">Special Discounts</h4>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-                                    <div class="flex items-center">
-                                        <input id="p-csr-check" type="checkbox" class="h-4 w-4 text-[var(--primary-accent)] bg-gray-700 border-gray-600 rounded">
-                                        <label for="p-csr-check" class="ml-3 block text-sm font-medium">CSR / Agent</label>
-                                        <input type="number" id="p-csr-value" class="ml-auto w-24 p-1.5" placeholder="%" disabled>
-                                    </div>
-                                    <div class="flex items-center">
-                                        <input id="p-underwriter-check" type="checkbox" class="h-4 w-4 text-[var(--primary-accent)] bg-gray-700 border-gray-600 rounded">
-                                        <label for="p-underwriter-check" class="ml-3 block text-sm font-medium">Underwriter</label>
-                                        <input type="number" id="p-underwriter-value" class="ml-auto w-24 p-1.5" placeholder="%" disabled>
-                                    </div>
-                                    <div class="flex items-center">
-                                        <input id="p-manager-check" type="checkbox" class="h-4 w-4 text-[var(--primary-accent)] bg-gray-700 border-gray-600 rounded">
-                                        <label for="p-manager-check" class="ml-3 block text-sm font-medium">Manager Special</label>
-                                        <input type="number" id="p-manager-value" class="ml-auto w-24 p-1.5" placeholder="%" disabled>
-                                    </div>
-                                    <div class="flex items-center">
-                                        <input id="p-fleet-check" type="checkbox" class="h-4 w-4 text-[var(--primary-accent)] bg-gray-700 border-gray-600 rounded">
-                                        <label for="p-fleet-check" class="ml-3 block text-sm font-medium">Fleet Discount</label>
-                                        <input type="number" id="p-fleet-value" class="ml-auto w-24 p-1.5" placeholder="%" disabled>
-                                    </div>
-                                </div>
-                            </div>
-                             <h3 class="text-lg font-bold text-[var(--text-secondary)] border-t border-[var(--border-color)] pt-6 mt-6">Optional Benefits</h3>
-                            <div id="p-benefits-container" class="space-y-4">
-                                <div class="flex items-center">
-                                    <input id="p-windscreen-check" type="checkbox" class="h-4 w-4 text-[var(--primary-accent)] bg-gray-700 border-gray-600 rounded">
-                                    <label for="p-windscreen-check" class="ml-3 block text-sm font-medium">Windscreen Cover (First $5,000 Free)</label>
-                                    <input type="number" id="p-windscreen-value" class="ml-4 w-40 p-1.5" placeholder="Total Value ($)" disabled>
-                                </div>
-                                 <div id="p-woe-container" class="flex items-center">
-                                    <input id="p-woe-check" type="checkbox" class="h-4 w-4 text-[var(--primary-accent)] bg-gray-700 border-gray-600 rounded">
-                                    <label id="p-woe-label" for="p-woe-check" class="ml-3 block text-sm font-medium">Waiver of Excess</label>
-                                 </div>
-                                 <div id="p-lou-container" class="flex items-center">
-                                    <input id="p-lou-check" type="checkbox" class="h-4 w-4 text-[var(--primary-accent)] bg-gray-700 border-gray-600 rounded">
-                                    <label for="p-lou-check" class="ml-3 block text-sm font-medium">Loss of Use</label>
-                                </div>
-                                <div class="flex items-center">
-                                    <input id="p-pa-check" type="checkbox" class="h-4 w-4 text-[var(--primary-accent)] bg-gray-700 border-gray-600 rounded">
-                                    <label id="p-pa-label" for="p-pa-check" class="ml-3 block text-sm font-medium">Personal Accident ($200k Coverage)</label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-    
-                    <div id="platinum-calculator" class="form-section bento-box">
-                         <div class="flex justify-between items-center mb-6">
-                             <h2 class="text-2xl font-bold"><span class="inline-block bg-[var(--secondary-accent)] text-white rounded-full h-8 w-8 text-center leading-8 mr-3 text-lg">2</span>Platinum Drive Details</h2>
-                             <div class="flex items-center">
-                                <label for="pl-advanced-mode-check" class="flex items-center cursor-pointer">
-                                    <span class="mr-3 text-sm font-medium">Advanced Mode</span>
-                                    <div class="relative">
-                                        <input type="checkbox" id="pl-advanced-mode-check" class="toggle-checkbox sr-only">
-                                        <div class="toggle-label block bg-gray-300 dark:bg-gray-700 w-12 h-6 rounded-full"></div>
-                                        <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform"></div>
-                                    </div>
-                                </label>
-                            </div>
-                        </div>
-                         <div id="pl-advanced-section" class="advanced-section">
-                            <h4 class="font-semibold text-[var(--text-primary)] mb-2">Base Premium Rate Override</h4>
-                            <div class="grid grid-cols-1">
-                                <label for="pl-override-rate" class="block text-sm font-medium mb-1">Custom Rate (%)</label>
-                                <input type="number" id="pl-override-rate" class="w-full p-2" placeholder="e.g., 3.5">
-                            </div>
-                        </div>
-                        <div class="space-y-6 mt-6">
-                            <h3 class="text-lg font-bold text-[var(--text-secondary)]">Vehicle Information</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                 <div>
-                                    <label for="pl-sum-insured" class="block text-sm font-medium text-[var(--text-muted)]">Sum Insured ($)</label>
-                                    <input type="number" id="pl-sum-insured" class="mt-1 w-full p-2.5" placeholder="Min $650,000" min="650000">
-                                </div>
-                                 <div>
-                                    <label for="pl-vehicle-age" class="block text-sm font-medium text-[var(--text-muted)]">Vehicle Age (Years)</label>
-                                    <input type="number" id="pl-vehicle-age" class="mt-1 w-full p-2.5" placeholder="Max 2" max="2">
-                                </div>
-                                 <div>
-                                    <label for="pl-engine-cc" class="block text-sm font-medium text-[var(--text-muted)]">Engine Capacity</label>
-                                    <select id="pl-engine-cc" class="mt-1 w-full p-2.5">
-                                        <option value="under-2000">Under 2000cc</option>
-                                        <option value="over-2000">Over 2000cc</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label for="pl-vehicle-model" class="block text-sm font-medium text-[var(--text-muted)]">Vehicle Model Type</label>
-                                    <select id="pl-vehicle-model" class="mt-1 w-full p-2.5">
-                                        <option value="standard">Standard</option>
-                                        <option value="hybrid">Hybrid</option>
-                                        <option value="electric">Electric</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <h3 class="text-lg font-bold text-[var(--text-secondary)] border-t border-[var(--border-color)] pt-6 mt-6">Driver Details</h3>
-                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                 <div>
-                                    <label for="pl-driver-age" class="block text-sm font-medium text-[var(--text-muted)]">Driver's Age</label>
-                                    <input type="number" id="pl-driver-age" class="mt-1 w-full p-2.5" placeholder="e.g., 35">
-                                </div>
-                                <div>
-                                    <label for="pl-driving-exp" class="block text-sm font-medium text-[var(--text-muted)]">Driving Experience (Years)</label>
-                                    <input type="number" id="pl-driving-exp" class="mt-1 w-full p-2.5" placeholder="e.g., 10">
-                                </div>
-                                 <div>
-                                    <label for="pl-occupation" class="block text-sm font-medium text-[var(--text-muted)]">Occupation</label>
-                                    <select id="pl-occupation" class="mt-1 w-full p-2.5">
-                                        <option value="standard">Standard</option>
-                                        <option value="travelling">Travelling Officer / Salesman</option>
-                                        <option value="music">Musician / DJ</option>
-                                        <option value="shift">Shift Worker / Bartender</option>
-                                        <option value="protective">Protective Services</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <h3 class="text-lg font-bold text-[var(--text-secondary)] border-t border-[var(--border-color)] pt-6 mt-6">Extra Loadings</h3>
-                            <div id="pl-extra-loadings-container" class="space-y-2"></div>
-                            <button id="pl-add-loading-btn" class="mt-2 text-sm secondary-btn button-base px-3 py-1">Add Loading</button>
-    
-                            <h3 class="text-lg font-bold text-[var(--text-secondary)] border-t border-[var(--border-color)] pt-6 mt-6">Discounts</h3>
-                             <p class="text-xs text-[var(--text-muted)] -mt-4">Note: Maximum NCD is required for Platinum Drive.</p>
-                            <div class="space-y-4">
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div>
-                                        <label for="pl-ncd" class="block text-sm font-medium text-[var(--text-muted)]">No Claim Discount</label>
-                                        <select id="pl-ncd" class="mt-1 w-full p-2.5">
-                                            <option value="4">4+ Years (Max)</option>
-                                            <option value="0">0 Years</option>
-                                            <option value="1">1 Year</option>
-                                            <option value="2">2 Years</option>
-                                            <option value="3">3 Years</option>
-                                        </select>
-                                    </div>
-                                    <div class="grid grid-cols-1 gap-2">
-                                         <div class="flex items-center">
-                                            <input id="pl-ansa-staff-check" type="checkbox" class="h-4 w-4 text-[var(--primary-accent)] bg-gray-700 border-gray-600 rounded">
-                                            <label for="pl-ansa-staff-check" class="ml-3 block text-sm font-medium">ANSA Staff (10%)</label>
-                                        </div>
-                                        <div class="flex items-center">
-                                            <input id="pl-other-motor-check" type="checkbox" class="h-4 w-4 text-[var(--primary-accent)] bg-gray-700 border-gray-600 rounded">
-                                            <label for="pl-other-motor-check" class="ml-3 block text-sm font-medium">Other Motor Policy (10%)</label>
-                                        </div>
-                                        <div class="flex items-center">
-                                            <input id="pl-multi-client-check" type="checkbox" class="h-4 w-4 text-[var(--primary-accent)] bg-gray-700 border-gray-600 rounded">
-                                            <label for="pl-multi-client-check" class="ml-3 block text-sm font-medium">Multi-Client / Other Business (15%)</label>
-                                        </div>
-                                    </div>
-                                </div>
-                                 <h4 class="text-md font-bold text-[var(--text-secondary)] pt-2 border-t border-[var(--border-color)] mt-4">Special Discounts</h4>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-                                    <div class="flex items-center">
-                                        <input id="pl-csr-check" type="checkbox" class="h-4 w-4 text-[var(--primary-accent)] bg-gray-700 border-gray-600 rounded">
-                                        <label for="pl-csr-check" class="ml-3 block text-sm font-medium">CSR / Agent</label>
-                                        <input type="number" id="pl-csr-value" class="ml-auto w-24 p-1.5" placeholder="%" disabled>
-                                    </div>
-                                    <div class="flex items-center">
-                                        <input id="pl-underwriter-check" type="checkbox" class="h-4 w-4 text-[var(--primary-accent)] bg-gray-700 border-gray-600 rounded">
-                                        <label for="pl-underwriter-check" class="ml-3 block text-sm font-medium">Underwriter</label>
-                                        <input type="number" id="pl-underwriter-value" class="ml-auto w-24 p-1.5" placeholder="%" disabled>
-                                    </div>
-                                    <div class="flex items-center">
-                                        <input id="pl-manager-check" type="checkbox" class="h-4 w-4 text-[var(--primary-accent)] bg-gray-700 border-gray-600 rounded">
-                                        <label for="pl-manager-check" class="ml-3 block text-sm font-medium">Manager Special</label>
-                                        <input type="number" id="pl-manager-value" class="ml-auto w-24 p-1.5" placeholder="%" disabled>
-                                    </div>
-                                    <div class="flex items-center">
-                                        <input id="pl-fleet-check" type="checkbox" class="h-4 w-4 text-[var(--primary-accent)] bg-gray-700 border-gray-600 rounded">
-                                        <label for="pl-fleet-check" class="ml-3 block text-sm font-medium">Fleet Discount</label>
-                                        <input type="number" id="pl-fleet-value" class="ml-auto w-24 p-1.5" placeholder="%" disabled>
-                                    </div>
-                                </div>
-                            </div>
-                            <h3 class="text-lg font-bold text-[var(--text-secondary)] border-t border-[var(--border-color)] pt-6 mt-6">Optional Benefits</h3>
-                            <div class="space-y-4">
-                                 <p class="text-sm text-[var(--text-muted)] -mt-2">Loss of Use and Windscreen (up to $20,000) are included free.</p>
-                                <div class="flex items-center">
-                                    <input id="pl-windscreen-check" type="checkbox" class="h-4 w-4 text-[var(--primary-accent)] bg-gray-700 border-gray-600 rounded">
-                                    <label for="pl-windscreen-check" class="ml-3 block text-sm font-medium">Increase Windscreen Cover (> $20,000)</label>
-                                    <input type="number" id="pl-windscreen-value" class="ml-4 w-40 p-1.5" placeholder="Total Value ($)" disabled>
-                                </div>
-                                 <div id="pl-woe-container" class="flex items-center">
-                                    <input id="pl-woe-check" type="checkbox" class="h-4 w-4 text-[var(--primary-accent)] bg-gray-700 border-gray-600 rounded">
-                                    <label id="pl-woe-label" for="pl-woe-check" class="ml-3 block text-sm font-medium">Waiver of Excess</label>
-                                 </div>
-                                 <div class="flex items-center">
-                                    <input id="pl-pa-check" type="checkbox" class="h-4 w-4 text-[var(--primary-accent)] bg-gray-700 border-gray-600 rounded">
-                                    <label for="pl-pa-check" class="ml-3 block text-sm font-medium">Personal Accident ($200k Coverage)</label>
-                                </div>
-                                 <div class="flex items-center">
-                                    <input id="pl-tpl-check" type="checkbox" class="h-4 w-4 text-[var(--primary-accent)] bg-gray-700 border-gray-600 rounded">
-                                    <label for="pl-tpl-check" class="ml-3 block text-sm font-medium">Increased Third Party Limits</label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div id="commercial-calculator" class="form-section bento-box">
-                         <div class="flex justify-between items-center mb-6">
-                             <h2 class="text-2xl font-bold"><span class="inline-block bg-[var(--secondary-accent)] text-white rounded-full h-8 w-8 text-center leading-8 mr-3 text-lg">2</span>Commercial Details</h2>
-                              <div class="flex items-center">
-                                <label for="c-advanced-mode-check" class="flex items-center cursor-pointer">
-                                    <span class="mr-3 text-sm font-medium">Advanced Mode</span>
-                                    <div class="relative">
-                                        <input type="checkbox" id="c-advanced-mode-check" class="toggle-checkbox sr-only">
-                                        <div class="toggle-label block bg-gray-300 dark:bg-gray-700 w-12 h-6 rounded-full"></div>
-                                        <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform"></div>
-                                    </div>
-                                </label>
-                            </div>
-                        </div>
-                         <div id="c-advanced-section" class="advanced-section">
-                            <h4 class="font-semibold text-[var(--text-primary)] mb-2">Base Premium Rate Override</h4>
-                            <div class="grid grid-cols-1">
-                                <label for="c-override-rate" class="block text-sm font-medium mb-1">Custom Rate (%)</label>
-                                <input type="number" id="c-override-rate" class="w-full p-2" placeholder="e.g., 8.5">
-                            </div>
-                        </div>
-                         <div class="space-y-6 mt-6">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <label for="c-coverage-type" class="block text-sm font-medium text-[var(--text-muted)]">Coverage Type</label>
-                                    <select id="c-coverage-type" class="mt-1 w-full p-2.5">
-                                        <option value="comprehensive">Comprehensive</option>
-                                        <option value="third-party">Third Party Only</option>
-                                    </select>
-                                </div>
-                                <div id="c-sum-insured-container">
-                                    <label for="c-sum-insured" class="block text-sm font-medium text-[var(--text-muted)]">Sum Insured ($)</label>
-                                    <input type="number" id="c-sum-insured" class="mt-1 w-full p-2.5" placeholder="e.g., 90000" min="50000">
-                                </div>
-                                <div id="c-usage-container">
-                                    <label for="c-usage" class="block text-sm font-medium text-[var(--text-muted)]">Vehicle Usage</label>
-                                    <select id="c-usage" class="mt-1 w-full p-2.5">
-                                        <option value="private-pickup">Private Use Pick-up</option>
-                                        <option value="own-goods">Own Goods</option>
-                                        <option value="other">All Other Usages</option>
-                                    </select>
-                                </div>
-                                <div id="c-hp-container" class="hidden">
-                                    <label for="c-hp" class="block text-sm font-medium text-[var(--text-muted)]">Horsepower (HP)</label>
-                                    <select id="c-hp" class="mt-1 w-full p-2.5">
-                                        <option value="upto-30">Up to 30 HP</option>
-                                        <option value="31-50">31 - 50 HP</option>
-                                        <option value="over-50">Over 50 HP</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <h3 class="text-lg font-bold text-[var(--text-secondary)] border-t border-[var(--border-color)] pt-6 mt-6">Driver Details</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                 <div>
-                                    <label for="c-driver-age" class="block text-sm font-medium text-[var(--text-muted)]">Driver's Age</label>
-                                    <input type="number" id="c-driver-age" class="mt-1 w-full p-2.5" placeholder="e.g., 35">
-                                </div>
-                                <div>
-                                    <label for="c-driving-exp" class="block text-sm font-medium text-[var(--text-muted)]">Driving Experience (Years)</label>
-                                    <input type="number" id="c-driving-exp" class="mt-1 w-full p-2.5" placeholder="e.g., 10">
-                                </div>
-                                 <div>
-                                    <label for="c-occupation" class="block text-sm font-medium text-[var(--text-muted)]">Occupation</label>
-                                    <select id="c-occupation" class="mt-1 w-full p-2.5">
-                                        <option value="standard">Standard</option>
-                                        <option value="travelling">Travelling Officer / Salesman</option>
-                                        <option value="music">Musician / DJ</option>
-                                        <option value="shift">Shift Worker / Bartender</option>
-                                        <option value="protective">Protective Services</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <h3 class="text-lg font-bold text-[var(--text-secondary)] border-t border-[var(--border-color)] pt-6 mt-6">Extra Loadings</h3>
-                            <div id="c-extra-loadings-container" class="space-y-2"></div>
-                            <button id="c-add-loading-btn" class="mt-2 text-sm secondary-btn button-base px-3 py-1">Add Loading</button>
-                            <h3 class="text-lg font-bold text-[var(--text-secondary)] border-t border-[var(--border-color)] pt-6 mt-6">Discounts</h3>
-                            <div id="c-discounts-section" class="space-y-4">
-                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div>
-                                        <label for="c-ncd" class="block text-sm font-medium text-[var(--text-muted)]">No Claim Discount</label>
-                                        <select id="c-ncd" class="mt-1 w-full p-2.5">
-                                            <option value="0">0 Years</option>
-                                            <option value="1">1 Year</option>
-                                            <option value="2">2 Years</option>
-                                            <option value="3">3 Years</option>
-                                            <option value="4">4+ Years (Max)</option>
-                                        </select>
-                                    </div>
-                                    <div class="grid grid-cols-1 gap-2">
-                                         <div class="flex items-center">
-                                            <input id="c-ansa-staff-check" type="checkbox" class="h-4 w-4 text-[var(--primary-accent)] bg-gray-700 border-gray-600 rounded">
-                                            <label for="c-ansa-staff-check" class="ml-3 block text-sm font-medium">ANSA Staff (10%)</label>
-                                        </div>
-                                        <div class="flex items-center">
-                                            <input id="c-other-motor-check" type="checkbox" class="h-4 w-4 text-[var(--primary-accent)] bg-gray-700 border-gray-600 rounded">
-                                            <label for="c-other-motor-check" class="ml-3 block text-sm font-medium">Other Motor Policy (10%)</label>
-                                        </div>
-                                        <div class="flex items-center">
-                                            <input id="c-multi-client-check" type="checkbox" class="h-4 w-4 text-[var(--primary-accent)] bg-gray-700 border-gray-600 rounded">
-                                            <label for="c-multi-client-check" class="ml-3 block text-sm font-medium">Multi-Client / Other Business (15%)</label>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div id="c-private-pickup-discount-container" class="hidden">
-                                    <label for="c-private-pickup-discount" class="block text-sm font-medium text-[var(--text-muted)]">Private Use Pick-Up Discount</label>
-                                    <select id="c-private-pickup-discount" class="mt-1 w-full p-2.5">
-                                        <option value="0">None</option>
-                                        <option value="0.10">10%</option>
-                                        <option value="0.15">15%</option>
-                                        <option value="0.20">20%</option>
-                                        <option value="0.25">25%</option>
-                                    </select>
-                                </div>
-                                 <h4 class="text-md font-bold text-[var(--text-secondary)] pt-2 border-t border-[var(--border-color)] mt-4">Special Discounts</h4>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-                                    <div class="flex items-center">
-                                        <input id="c-csr-check" type="checkbox" class="h-4 w-4 text-[var(--primary-accent)] bg-gray-700 border-gray-600 rounded">
-                                        <label for="c-csr-check" class="ml-3 block text-sm font-medium">CSR / Agent</label>
-                                        <input type="number" id="c-csr-value" class="ml-auto w-24 p-1.5" placeholder="%" disabled>
-                                    </div>
-                                    <div class="flex items-center">
-                                        <input id="c-underwriter-check" type="checkbox" class="h-4 w-4 text-[var(--primary-accent)] bg-gray-700 border-gray-600 rounded">
-                                        <label for="c-underwriter-check" class="ml-3 block text-sm font-medium">Underwriter</label>
-                                        <input type="number" id="c-underwriter-value" class="ml-auto w-24 p-1.5" placeholder="%" disabled>
-                                    </div>
-                                    <div class="flex items-center">
-                                        <input id="c-manager-check" type="checkbox" class="h-4 w-4 text-[var(--primary-accent)] bg-gray-700 border-gray-600 rounded">
-                                        <label for="c-manager-check" class="ml-3 block text-sm font-medium">Manager Special</label>
-                                        <input type="number" id="c-manager-value" class="ml-auto w-24 p-1.5" placeholder="%" disabled>
-                                    </div>
-                                    <div class="flex items-center">
-                                        <input id="c-fleet-check" type="checkbox" class="h-4 w-4 text-[var(--primary-accent)] bg-gray-700 border-gray-600 rounded">
-                                        <label for="c-fleet-check" class="ml-3 block text-sm font-medium">Fleet Discount</label>
-                                        <input type="number" id="c-fleet-value" class="ml-auto w-24 p-1.5" placeholder="%" disabled>
-                                    </div>
-                                </div>
-                            </div>
-                         </div>
-                    </div>
-    
-                    <div id="results-section-motor" class="hidden mt-8">
-                         <div class="bento-box text-center">
-                            <h2 class="text-2xl font-bold mb-2"><span class="inline-block bg-[var(--secondary-accent)] text-white rounded-full h-8 w-8 text-center leading-8 mr-3 text-lg">3</span>Premium Summary</h2>
-                            <p id="total-premium" class="text-4xl font-bold text-[var(--primary-accent)] mt-4">$0.00</p>
-                            <p class="text-sm text-[var(--text-muted)]">(Grand Total)</p>
-                            <div id="premium-breakdown-motor" class="text-left mt-6 pt-4 border-t border-[var(--border-color)] text-[var(--text-secondary)] text-sm space-y-1"></div>
-                            <p id="manager-referral-motor" class="text-red-500 font-semibold mt-4"></p>
-                            <button id="generate-quote-btn-motor" class="mt-6 w-full primary-btn button-base py-3">
-                                Generate Official Quote
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </main>
-        </div>
-
-        <div id="health-calculator-page" class="page-container">
-            <!-- Health rater content from user's index.html -->
+        
+        <div id="calculator-content" class="hidden">
+             <!-- Calculator content will be loaded here -->
         </div>
 
         <footer class="text-center mt-12 text-xs text-[var(--text-muted)]">
@@ -601,57 +96,47 @@
         </footer>
     </div>
 
-    <div id="client-info-modal-motor" class="modal-overlay">
-        <div class="modal-content">
-            <h3 class="text-xl font-bold leading-6 mb-4">Client & Vehicle Information</h3>
-            <div class="space-y-4">
-                <input type="text" id="client-name-motor" placeholder="Client's Full Name" class="w-full">
-                <input type="text" id="client-address-motor" placeholder="Client's Address" class="w-full">
-                <input type="text" id="client-contact-motor" placeholder="Client's Contact Number" class="w-full">
-                <input type="text" id="vehicle-license-motor" placeholder="Vehicle License Plate #" class="w-full">
-                <div class="flex items-center">
-                    <input id="mortgaged-check-motor" type="checkbox" class="h-4 w-4 text-[var(--primary-accent)] bg-gray-700 border-gray-600 rounded">
-                    <label for="mortgaged-check-motor" class="ml-2 block text-sm">Vehicle is Mortgaged</label>
-                </div>
-                <div id="mortgage-details-motor" class="hidden grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <input type="text" id="financial-institution-motor" placeholder="Financial Institution" class="w-full">
-                    <input type="text" id="financial-branch-motor" placeholder="Branch" class="w-full">
-                </div>
-            </div>
-            <div class="mt-6 flex justify-end space-x-3">
-                <button id="close-client-modal-btn-motor" type="button" class="button-base bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200 py-2 px-4">Cancel</button>
-                <button id="submit-quote-btn-motor" type="button" class="button-base primary-btn py-2 px-4">Generate</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="final-quote-modal-motor" class="modal-overlay">
-        <div class="modal-content max-w-2xl">
-            <h3 class="text-xl font-bold leading-6 mb-4">Official Insurance Quotation</h3>
-            <div id="quote-output-container-motor" class="w-full h-96 overflow-y-auto bg-[var(--bg-main)] p-4 border border-[var(--border-color)] rounded-md">
-                <pre id="quote-output-motor" class="whitespace-pre-wrap text-sm font-mono"></pre>
-            </div>
-            <div class="mt-6 flex justify-end space-x-3">
-                <button id="close-quote-modal-btn-motor" type="button" class="button-base bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200 py-2 px-4">Close</button>
-                <button id="download-pdf-btn-motor" type="button" class="button-base secondary-btn py-2 px-4">Download as PDF</button>
-                <button id="copy-quote-btn-motor" type="button" class="button-base primary-btn py-2 px-4">Copy Quote</button>
-            </div>
-        </div>
-    </div>
-    
-    <a href="https://wa.me/18687981014" class="whatsapp-float" target="_blank" rel="noopener noreferrer">
-        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-whatsapp" viewBox="0 0 16 16">
-            <path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592zm3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.1-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.729.729 0 0 0-.529.247c-.182.198-.691.677-.691 1.654 0 .977.71 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943s-.182-.133-.38-.232z"/>
-        </svg>
-    </a>
-
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // --- GLOBAL & NAVIGATION SCRIPT ---
-            (function() {
-                emailjs.init('Jh4IovuJz5JmRBKOc');
-            })();
-    
+            const hubPage = document.getElementById('hub-page');
+            const calculatorContentDiv = document.getElementById('calculator-content');
+            
+            document.querySelectorAll('a[data-target]').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const url = this.getAttribute('href');
+                    
+                    fetch(url)
+                        .then(response => response.text())
+                        .then(html => {
+                            calculatorContentDiv.innerHTML = html;
+                            hubPage.classList.add('hidden');
+                            calculatorContentDiv.classList.remove('hidden');
+                            window.scrollTo(0, 0);
+
+                            // Execute scripts from the loaded content
+                            const scripts = calculatorContentDiv.querySelectorAll('script');
+                            scripts.forEach(script => {
+                                const newScript = document.createElement('script');
+                                newScript.textContent = script.textContent;
+                                document.body.appendChild(newScript).parentNode.removeChild(newScript);
+                            });
+                            
+                            // Attach event listener for the back button inside the loaded content
+                             const backButton = calculatorContentDiv.querySelector('.back-to-hub-btn');
+                             if(backButton){
+                                 backButton.addEventListener('click', () => {
+                                     calculatorContentDiv.classList.add('hidden');
+                                     hubPage.classList.remove('hidden');
+                                     calculatorContentDiv.innerHTML = ''; // Clear content
+                                 });
+                             }
+                        })
+                        .catch(error => console.error('Error loading page:', error));
+                });
+            });
+
+            // Theme Toggle Logic
             const themeToggle = document.getElementById('themeToggleCheckbox');
             const themeToggleLabel = document.getElementById('themeToggleLabel');
             function applyTheme(isDark) {
@@ -664,237 +149,8 @@
             themeToggle.addEventListener('change', () => applyTheme(themeToggle.checked));
             const savedTheme = localStorage.getItem('theme');
             applyTheme(savedTheme === 'dark' || (savedTheme === null && window.matchMedia('(prefers-color-scheme: dark)').matches));
-    
-            const pageContainers = document.querySelectorAll('.page-container');
-            const openMotorCalculatorBtn = document.getElementById('open-motor-calculator');
-            const openHealthCalculatorBtn = document.getElementById('open-health-calculator');
-            const backToHubBtns = document.querySelectorAll('.back-to-hub-btn');
-    
-            function showPage(pageId) {
-                pageContainers.forEach(page => {
-                    page.style.display = page.id === pageId ? 'block' : 'none';
-                });
-                window.scrollTo(0, 0);
-            }
-    
-            openMotorCalculatorBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                showPage('motor-calculator-page');
-            });
-    
-            openHealthCalculatorBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                alert("The health calculator is not yet integrated. Please use the Motor Rater.");
-                // showPage('health-calculator-page'); // This would be enabled when health script is added
-            });
-    
-            backToHubBtns.forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    showPage('hub-page');
-                });
-            });
-    
+
             document.getElementById('currentYear').textContent = new Date().getFullYear();
-            
-            // --- END OF GLOBAL & NAVIGATION SCRIPT ---
-    
-    
-            // --- MOTOR RATER SCRIPT ---
-            (function initMotorRater() {
-                const NCD_RATES = {
-                    private: { comprehensive: [0, 0.25, 0.35, 0.45, 0.60, 0.60], 'third-party': [0, 0.15, 0.20, 0.25, 0.35, 0.35] },
-                    platinum: { comprehensive: [0, 0.25, 0.35, 0.45, 0.60, 0.60] },
-                    commercial: { comprehensive: [0, 0.15, 0.20, 0.25, 0.35, 0.35], 'third-party': [0, 0.15, 0.20, 0.25, 0.35, 0.35] }
-                };
-                const SPECIAL_DISCOUNTS = { 'CSR / Agent': 'csr', 'Underwriter': 'underwriter', 'Manager Special': 'manager', 'Fleet Discount': 'fleet' };
-                const calculators = { private: document.getElementById('private-calculator'), platinum: document.getElementById('platinum-calculator'), commercial: document.getElementById('commercial-calculator') };
-                const resultsSection = document.getElementById('results-section-motor');
-                const totalPremiumEl = document.getElementById('total-premium');
-                const premiumBreakdownEl = document.getElementById('premium-breakdown-motor');
-                const managerReferralEl = document.getElementById('manager-referral-motor');
-                const clientInfoModal = document.getElementById('client-info-modal-motor');
-                const finalQuoteModal = document.getElementById('final-quote-modal-motor');
-                let fullQuoteText = '';
-
-                function getElement(id) { return document.getElementById(id); }
-                function getFloatValue(id) { return parseFloat(getElement(id).value) || 0; }
-                function formatCurrency(value) { return value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
-
-                const allMotorInputs = document.querySelectorAll('#motor-calculator-page input, #motor-calculator-page select');
-                allMotorInputs.forEach(input => {
-                    input.addEventListener('input', calculatePremium);
-                    input.addEventListener('change', calculatePremium);
-                });
-
-                getElement('vehicle-type-selector').addEventListener('change', () => {
-                    const selectedType = getElement('vehicle-type-selector').value;
-                    Object.values(calculators).forEach(calc => calc.classList.remove('active'));
-                    resultsSection.classList.add('hidden');
-                    if (selectedType && calculators[selectedType]) {
-                        calculators[selectedType].classList.add('active');
-                        calculatePremium(); 
-                    }
-                });
-
-                function calculatePremium() {
-                    const selectedType = getElement('vehicle-type-selector').value;
-                    if (!selectedType) return;
-                    
-                    const typePrefix = selectedType === 'platinum' ? 'pl' : selectedType.substring(0, 1);
-                    if (selectedType !== 'commercial') checkWoeEligibility(typePrefix);
-
-                    let result = {};
-                    if (selectedType === 'private') result = calculatePrivatePremium();
-                    else if (selectedType === 'platinum') result = calculatePlatinumPremium();
-                    else if (selectedType === 'commercial') result = calculateCommercialPremium();
-                    
-                    let { corePremium, optionalPremiums, optionalBreakdown, referralMessage, excess } = result;
-                    
-                    const woeLabel = getElement(typePrefix + '-woe-label');
-                    const coverageTypeEl = getElement(typePrefix + '-coverage-type');
-                    const isComprehensive = (selectedType === 'platinum') || (coverageTypeEl && coverageTypeEl.value === 'comprehensive');
-
-                    if (woeLabel && isComprehensive) woeLabel.textContent = `Waiver of Excess (Vehicle Excess: $${formatCurrency(excess)})`;
-
-                    const loadingPercentages = getLoadingPercentages(selectedType, typePrefix);
-                    let totalLoadingAmount = 0;
-                    let loadingBreakdown = '';
-                    Object.entries(loadingPercentages).forEach(([key, value]) => {
-                        if (value > 0) {
-                            const loadingAmount = corePremium * value;
-                            totalLoadingAmount += loadingAmount;
-                            loadingBreakdown += `<p>+ ${key} Loading (${(value * 100).toFixed(0)}%): <strong class="float-right">$${formatCurrency(loadingAmount)}</strong></p>`;
-                        }
-                    });
-
-                    const extraLoadingRows = document.querySelectorAll(`#${typePrefix}-extra-loadings-container .extra-loading-row`);
-                    extraLoadingRows.forEach(row => {
-                        const name = row.querySelector('.loading-name').value;
-                        const percent = parseFloat(row.querySelector('.loading-percent').value) || 0;
-                        if (name && percent > 0) {
-                            const loadingAmount = corePremium * (percent / 100);
-                            totalLoadingAmount += loadingAmount;
-                            loadingBreakdown += `<p>+ ${name} Loading (${percent}%): <strong class="float-right">$${formatCurrency(loadingAmount)}</strong></p>`;
-                        }
-                    });
-
-                    const premiumAfterLoadings = corePremium + totalLoadingAmount;
-                    const { totalDiscountAmount, discountBreakdown } = calculateDiscounts(selectedType, typePrefix, premiumAfterLoadings);
-                    const premiumAfterDiscounts = premiumAfterLoadings - totalDiscountAmount;
-                    const subtotalWithBenefits = premiumAfterDiscounts + optionalPremiums;
-
-                    let minPremium = 0;
-                    if (selectedType === 'private') minPremium = getElement('p-coverage-type').value === 'comprehensive' ? 2000 : 1150;
-                    else if (selectedType === 'platinum') minPremium = 7500;
-                    else if (selectedType === 'commercial') minPremium = getElement('c-coverage-type').value === 'comprehensive' ? 2000 : 1150;
-
-                    const premiumBeforeTax = Math.max(subtotalWithBenefits, minPremium);
-                    const driverAge = getFloatValue(typePrefix + '-driver-age');
-                    let taxAmount = (driverAge > 0 && driverAge <= 60) ? premiumBeforeTax * 0.06 : 0;
-                    const finalTotal = premiumBeforeTax + taxAmount;
-                    
-                    resultsSection.classList.remove('hidden');
-                    totalPremiumEl.textContent = `$${formatCurrency(finalTotal)}`;
-                    managerReferralEl.textContent = referralMessage;
-
-                    let htmlBreakdown = '';
-                    const isAdvanced = getElement(typePrefix + '-advanced-mode-check')?.checked;
-                    const overrideRate = getFloatValue(typePrefix + '-override-rate');
-                    const baseLabel = (isAdvanced && overrideRate > 0) ? `Base Premium (at ${overrideRate}% rate)` : 'Base Premium';
-                    htmlBreakdown += `<p>${baseLabel}: <strong class="float-right">$${formatCurrency(corePremium)}</strong></p>`;
-                    if (loadingBreakdown) htmlBreakdown += loadingBreakdown + `<p class="font-semibold border-t border-[var(--border-color)] pt-1 mt-1">Subtotal after Loadings: <strong class="float-right">$${formatCurrency(premiumAfterLoadings)}</strong></p>`;
-                    if (discountBreakdown) htmlBreakdown += discountBreakdown + `<p class="font-semibold border-t border-[var(--border-color)] pt-1 mt-1">Subtotal after Discounts: <strong class="float-right">$${formatCurrency(premiumAfterDiscounts)}</strong></p>`;
-                    if (optionalPremiums > 0) {
-                        htmlBreakdown += `<div class="border-t border-[var(--border-color)] pt-2 mt-2"><p class="font-semibold">Optional Benefits:</p>${optionalBreakdown}</div>`;
-                        htmlBreakdown += `<p class="font-semibold">Optional Benefits Subtotal: <strong class="float-right">$${formatCurrency(optionalPremiums)}</strong></p>`;
-                        htmlBreakdown += `<p class="font-semibold border-t border-[var(--border-color)] pt-1 mt-1">Premium with Benefits (before Tax): <strong class="float-right">$${formatCurrency(subtotalWithBenefits)}</strong></p>`;
-                    } else {
-                         htmlBreakdown += `<p class="font-semibold border-t border-[var(--border-color)] pt-1 mt-1">Premium before Tax: <strong class="float-right">$${formatCurrency(premiumAfterDiscounts)}</strong></p>`;
-                    }
-                    if (premiumBeforeTax > subtotalWithBenefits && subtotalWithBenefits > 0) htmlBreakdown += `<p class="mt-2 font-semibold">Premium Before Tax (Min. Applied): <strong class="float-right">$${formatCurrency(premiumBeforeTax)}</strong></p>`;
-                    if (taxAmount > 0) htmlBreakdown += `<p>+ Tax (6%): <strong class="float-right">$${formatCurrency(taxAmount)}</strong></p>`;
-                    else if (driverAge > 60) htmlBreakdown += `<p>+ Tax (6%): <strong class="float-right">$0.00 (Exempt)</strong></p>`;
-                    htmlBreakdown += `<p class="font-bold text-lg border-t border-[var(--border-color)] pt-2 mt-2">Grand Total: <strong class="float-right">$${formatCurrency(finalTotal)}</strong></p>`;
-                    premiumBreakdownEl.innerHTML = htmlBreakdown;
-                }
-
-                // ... other motor calculator functions (calculateDiscounts, getLoadingPercentages, etc.) would go here ...
-                // For brevity, the full logic is elided but assumed to be present and correct.
-                // The key functions are defined below to show the structure.
-                function calculateDiscounts(selectedType, typePrefix, premiumToDiscount) { /* ... full logic ... */ return { totalDiscountAmount: 0, discountBreakdown: '' }; }
-                function getLoadingPercentages(type, typePrefix) { /* ... full logic ... */ return {}; }
-                function calculateCorePremium(prefix, sumInsured, standardRate, standardBase) { /* ... full logic ... */ return (sumInsured * standardRate) + standardBase; }
-                function calculatePrivatePremium() { /* ... full logic ... */ return { corePremium: 100, optionalPremiums: 0, optionalBreakdown: '', referralMessage: '', excess: 0 }; }
-                function calculatePlatinumPremium() { /* ... full logic ... */ return { corePremium: 200, optionalPremiums: 0, optionalBreakdown: '', referralMessage: '', excess: 0 }; }
-                function calculateCommercialPremium() { /* ... full logic ... */ return { corePremium: 300, optionalPremiums: 0, optionalBreakdown: '', referralMessage: '', excess: 0 }; }
-                function checkWoeEligibility(typePrefix) { /* ... full logic ... */ }
-                function addExtraLoading(prefix) {
-                    const container = getElement(`${prefix}-extra-loadings-container`);
-                    const loadingRow = document.createElement('div');
-                    loadingRow.className = 'grid grid-cols-3 gap-2 items-center extra-loading-row';
-                    loadingRow.innerHTML = `<input type="text" placeholder="Loading Name" class="col-span-2 p-2 loading-name"><input type="number" placeholder="%" class="p-2 loading-percent">`;
-                    container.appendChild(loadingRow);
-                    loadingRow.querySelectorAll('input').forEach(input => input.addEventListener('input', calculatePremium));
-                }
-
-                function setupAdvancedMode(prefix) {
-                    const checkbox = getElement(prefix + '-advanced-mode-check'); if(!checkbox) return;
-                    checkbox.addEventListener('change', e => { getElement(prefix + '-advanced-section').style.display = e.target.checked ? 'block' : 'none'; calculatePremium(); });
-                }
-                function setupDiscountToggle(prefix, id) {
-                    const check = getElement(prefix + '-' + id + '-check'); if(!check) return;
-                    check.addEventListener('change', e => { getElement(prefix + '-' + id + '-value').disabled = !e.target.checked; if (!e.target.checked) getElement(prefix + '-' + id + '-value').value = ''; calculatePremium(); });
-                }
-                function setupCheckboxToggle(checkboxId, inputId) {
-                    getElement(checkboxId).addEventListener('change', (e) => { getElement(inputId).disabled = !e.target.checked; if (!e.target.checked) getElement(inputId).value = ''; calculatePremium(); });
-                }
-
-                 // Connect generate button to modal
-                getElement('generate-quote-btn-motor').addEventListener('click', () => clientInfoModal.style.display = 'flex');
-                getElement('close-client-modal-btn-motor').addEventListener('click', () => clientInfoModal.style.display = 'none');
-                getElement('submit-quote-btn-motor').addEventListener('click', generateFinalQuoteMotor);
-                getElement('close-quote-modal-btn-motor').addEventListener('click', () => finalQuoteModal.style.display = 'none');
-                getElement('copy-quote-btn-motor').addEventListener('click', () => { /* copy logic */ });
-                getElement('download-pdf-btn-motor').addEventListener('click', generateAndDownloadPDFMotor);
-
-                function generateFinalQuoteMotor() {
-                    const clientName = getElement('client-name-motor').value || 'N/A';
-                    fullQuoteText = `...`; // Full quote text generation logic
-                    getElement('quote-output-motor').textContent = fullQuoteText.trim();
-                    clientInfoModal.style.display = 'none';
-                    finalQuoteModal.style.display = 'flex';
-                    const pdfDataUri = generatePdfAsBase64Motor(fullQuoteText.trim(), clientName);
-                    sendEmailMotor(clientName, fullQuoteText.trim(), pdfDataUri);
-                }
-
-                function generatePdfAsBase64Motor(quoteText) {
-                    const { jsPDF } = window.jspdf; const doc = new jsPDF();
-                    doc.setFont("courier", "normal"); doc.setFontSize(10); doc.text(quoteText, 10, 10);
-                    return doc.output('datauristring');
-                }
-
-                function sendEmailMotor(clientName, quoteText, pdfDataUri) {
-                    const serviceID = 'service_kyrondirect'; const templateID = 'template_quotedetails';
-                    const templateParams = { to_email: 'kyron.marchan@tatil.co.tt', from_name: 'TATIL Motor Insurance Premium Rater', subject: `Insurance Quotation for ${clientName}`, message: quoteText, attachment: pdfDataUri, filename: `Insurance_Quote_For_${clientName.replace(/\s/g, '_')}.pdf` };
-                    emailjs.send(serviceID, templateID, templateParams).then(res => console.log('SUCCESS!', res.status), err => console.log('FAILED...', err));
-                }
-
-                function generateAndDownloadPDFMotor() {
-                    const clientName = getElement('client-name-motor').value || 'Client';
-                    const pdfData = generatePdfAsBase64Motor(fullQuoteText.trim(), clientName);
-                    const link = document.createElement('a'); link.href = pdfData; link.download = `Insurance_Quote_For_${clientName.replace(/\s/g, '_')}.pdf`;
-                    document.body.appendChild(link); link.click(); document.body.removeChild(link);
-                }
-            })();
-            // --- END OF MOTOR RATER SCRIPT ---
-    
-    
-            // --- HEALTH RATER SCRIPT ---
-            (function initHealthRater() {
-                // The health rater script would go here, similarly isolated.
-            })();
-            // --- END OF HEALTH RATER SCRIPT ---
         });
     </script>
 </body>
