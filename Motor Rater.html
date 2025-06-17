@@ -6,7 +6,6 @@
     <title>TATIL Motor Insurance Premium Rater</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <!-- EmailJS for sending emails -->
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Source+Serif+Pro:wght@600;700&display=swap" rel="stylesheet">
     <style>
@@ -161,7 +160,6 @@
         </header>
 
         <main class="space-y-8">
-            <!-- Step 1: Vehicle Selection -->
             <div id="step1" class="bento-box">
                 <h2 class="text-2xl font-bold mb-4"><span class="inline-block bg-[var(--secondary-accent)] text-white rounded-full h-8 w-8 text-center leading-8 mr-3 text-lg">1</span>Select Your Vehicle Type</h2>
                 <select id="vehicle-type-selector" class="w-full text-lg p-3">
@@ -172,9 +170,7 @@
                 </select>
             </div>
 
-            <!-- Calculator Forms Container -->
             <div id="calculators">
-                <!-- Private Car Calculator -->
                 <div id="private-calculator" class="form-section bento-box">
                     <div class="flex justify-between items-center mb-6">
                          <h2 class="text-2xl font-bold"><span class="inline-block bg-[var(--secondary-accent)] text-white rounded-full h-8 w-8 text-center leading-8 mr-3 text-lg">2</span>Private Car Details</h2>
@@ -197,7 +193,6 @@
                         </div>
                     </div>
                     <div class="space-y-6 mt-6">
-                        <!-- Vehicle Details -->
                         <h3 class="text-lg font-bold text-[var(--text-secondary)]">Vehicle Information</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
@@ -228,7 +223,6 @@
                                 </select>
                             </div>
                         </div>
-                        <!-- Driver Details -->
                         <h3 class="text-lg font-bold text-[var(--text-secondary)] border-t border-[var(--border-color)] pt-6 mt-6">Driver Details</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                              <div>
@@ -250,12 +244,10 @@
                                 </select>
                             </div>
                         </div>
-                        <!-- Extra Loadings -->
                         <h3 class="text-lg font-bold text-[var(--text-secondary)] border-t border-[var(--border-color)] pt-6 mt-6">Extra Loadings</h3>
                         <div id="p-extra-loadings-container" class="space-y-2"></div>
                         <button id="p-add-loading-btn" class="mt-2 text-sm secondary-btn button-base px-3 py-1">Add Loading</button>
 
-                        <!-- Discounts -->
                         <h3 class="text-lg font-bold text-[var(--text-secondary)] border-t border-[var(--border-color)] pt-6 mt-6">Discounts</h3>
                         <div class="space-y-4">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -308,8 +300,7 @@
                                 </div>
                             </div>
                         </div>
-                         <!-- Optional Benefits -->
-                        <h3 class="text-lg font-bold text-[var(--text-secondary)] border-t border-[var(--border-color)] pt-6 mt-6">Optional Benefits</h3>
+                         <h3 class="text-lg font-bold text-[var(--text-secondary)] border-t border-[var(--border-color)] pt-6 mt-6">Optional Benefits</h3>
                         <div id="p-benefits-container" class="space-y-4">
                             <div class="flex items-center">
                                 <input id="p-windscreen-check" type="checkbox" class="h-4 w-4 text-[var(--primary-accent)] bg-gray-700 border-gray-600 rounded">
@@ -332,7 +323,6 @@
                     </div>
                 </div>
 
-                <!-- Platinum Drive Calculator -->
                 <div id="platinum-calculator" class="form-section bento-box">
                     <div class="flex justify-between items-center mb-6">
                          <h2 class="text-2xl font-bold"><span class="inline-block bg-[var(--secondary-accent)] text-white rounded-full h-8 w-8 text-center leading-8 mr-3 text-lg">2</span>Platinum Drive Details</h2>
@@ -355,7 +345,6 @@
                         </div>
                     </div>
                     <div class="space-y-6 mt-6">
-                        <!-- Vehicle Details -->
                         <h3 class="text-lg font-bold text-[var(--text-secondary)]">Vehicle Information</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                              <div>
@@ -382,7 +371,6 @@
                                 </select>
                             </div>
                         </div>
-                        <!-- Driver Details -->
                         <h3 class="text-lg font-bold text-[var(--text-secondary)] border-t border-[var(--border-color)] pt-6 mt-6">Driver Details</h3>
                          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                              <div>
@@ -404,12 +392,10 @@
                                 </select>
                             </div>
                         </div>
-                        <!-- Extra Loadings -->
                         <h3 class="text-lg font-bold text-[var(--text-secondary)] border-t border-[var(--border-color)] pt-6 mt-6">Extra Loadings</h3>
                         <div id="pl-extra-loadings-container" class="space-y-2"></div>
                         <button id="pl-add-loading-btn" class="mt-2 text-sm secondary-btn button-base px-3 py-1">Add Loading</button>
 
-                        <!-- Discounts -->
                         <h3 class="text-lg font-bold text-[var(--text-secondary)] border-t border-[var(--border-color)] pt-6 mt-6">Discounts</h3>
                          <p class="text-xs text-[var(--text-muted)] -mt-4">Note: Maximum NCD is required for Platinum Drive.</p>
                         <div class="space-y-4">
@@ -463,7 +449,6 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- Optional Benefits -->
                         <h3 class="text-lg font-bold text-[var(--text-secondary)] border-t border-[var(--border-color)] pt-6 mt-6">Optional Benefits</h3>
                         <div class="space-y-4">
                              <p class="text-sm text-[var(--text-muted)] -mt-2">Loss of Use and Windscreen (up to $20,000) are included free.</p>
@@ -488,7 +473,6 @@
                     </div>
                 </div>
                 
-                <!-- Commercial Vehicle Calculator -->
                 <div id="commercial-calculator" class="form-section bento-box">
                     <div class="flex justify-between items-center mb-6">
                          <h2 class="text-2xl font-bold"><span class="inline-block bg-[var(--secondary-accent)] text-white rounded-full h-8 w-8 text-center leading-8 mr-3 text-lg">2</span>Commercial Details</h2>
@@ -561,11 +545,9 @@
                                 </select>
                             </div>
                         </div>
-                        <!-- Extra Loadings -->
                         <h3 class="text-lg font-bold text-[var(--text-secondary)] border-t border-[var(--border-color)] pt-6 mt-6">Extra Loadings</h3>
                         <div id="c-extra-loadings-container" class="space-y-2"></div>
                         <button id="c-add-loading-btn" class="mt-2 text-sm secondary-btn button-base px-3 py-1">Add Loading</button>
-                        <!-- Discounts for Commercial -->
                         <h3 class="text-lg font-bold text-[var(--text-secondary)] border-t border-[var(--border-color)] pt-6 mt-6">Discounts</h3>
                         <div id="c-discounts-section" class="space-y-4">
                              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -631,7 +613,6 @@
                      </div>
                 </div>
 
-                <!-- Results Section -->
                 <div id="results-section" class="hidden mt-8">
                      <div class="bento-box text-center">
                         <h2 class="text-2xl font-bold mb-2"><span class="inline-block bg-[var(--secondary-accent)] text-white rounded-full h-8 w-8 text-center leading-8 mr-3 text-lg">3</span>Premium Summary</h2>
@@ -651,7 +632,6 @@
         </footer>
     </div>
 
-    <!-- Client Info Modal -->
     <div id="client-info-modal" class="modal-overlay hidden">
         <div class="modal-content">
             <h3 class="text-xl font-bold leading-6 mb-4">Client & Vehicle Information</h3>
@@ -676,7 +656,6 @@
         </div>
     </div>
 
-    <!-- Final Quote Modal -->
     <div id="final-quote-modal" class="modal-overlay hidden">
         <div class="modal-content max-w-2xl">
             <h3 class="text-xl font-bold leading-6 mb-4">Official Insurance Quotation</h3>
@@ -691,7 +670,6 @@
         </div>
     </div>
     
-    <!-- WhatsApp Floating Button -->
     <a href="https://wa.me/18687981014" class="whatsapp-float" target="_blank" rel="noopener noreferrer">
         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-whatsapp" viewBox="0 0 16 16">
             <path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592zm3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.1-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.729.729 0 0 0-.529.247c-.182.198-.691.677-.691 1.654 0 .977.71 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943s-.182-.133-.38-.232z"/>
