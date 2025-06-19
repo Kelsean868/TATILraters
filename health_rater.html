@@ -6,9 +6,15 @@
     <title>TATIL COVERCARE Premium Rater</title>
     
     <!-- PWA Manifest Link -->
-    <link rel="manifest" href="/manifest.json">
+    <link rel="manifest" href="./manifest.json">
     <!-- Theme color for browser UI -->
     <meta name="theme-color" content="#005f73">
+    <!-- Add to home screen for Safari on iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="TATIL Raters">
+    <link rel="apple-touch-icon" href="https://placehold.co/192x192/005f73/FFFFFF?text=TATIL">
+
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -279,13 +285,13 @@
     </a>
     
     <!-- Load the rate data from an external file BEFORE the main logic script -->
-    <script src="health_rater_data.js"></script>
+    <script src="./health_rater_data.js"></script>
 
     <script>
         // --- Register Service Worker ---
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
+                navigator.serviceWorker.register('./sw.js')
                     .then(registration => {
                         console.log('Service Worker registered successfully:', registration);
                     })
@@ -298,7 +304,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             // --- EMAILJS INITIALIZATION ---
             (function() {
-                emailjs.init('Jh4IovuJz5JmRBKOc');
+                // emailjs.init('YOUR_PUBLIC_KEY');
             })();
 
             // --- THEME TOGGLE ---
@@ -317,7 +323,6 @@
             
             // --- DATA CONSTANTS ---
             // The large 'RATES' object is loaded from health_rater_data.js
-            // before this script runs.
 
             // --- DOM ELEMENTS ---
             const allInputs = document.querySelectorAll('select');
@@ -342,10 +347,21 @@
             });
             closeQuoteModalBtn.addEventListener('click', () => finalQuoteModal.style.display = 'none');
             copyQuoteBtn.addEventListener('click', () => {
-                navigator.clipboard.writeText(quoteOutput.innerText).then(() => {
+                // Use the 'copy' command for broader compatibility in sandboxed environments
+                const textArea = document.createElement("textarea");
+                textArea.value = quoteOutput.innerText;
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                try {
+                    document.execCommand('copy');
                     copyQuoteBtn.textContent = 'Copied!';
-                    setTimeout(() => { copyQuoteBtn.textContent = 'Copy Quote'; }, 2000);
-                });
+                } catch (err) {
+                    console.error('Fallback: Oops, unable to copy', err);
+                    copyQuoteBtn.textContent = 'Failed!';
+                }
+                document.body.removeChild(textArea);
+                setTimeout(() => { copyQuoteBtn.textContent = 'Copy Quote'; }, 2000);
             });
             downloadPdfBtn.addEventListener('click', generateAndDownloadPDF);
             document.getElementById('currentYear').textContent = new Date().getFullYear();
@@ -385,11 +401,21 @@
                     }
                 } else {
                     maternityContainer.style.display = 'none';
+                    maternitySelect.value = 'no';
                 }
             }
 
             // --- CALCULATION ENGINE ---
             function calculateAndDisplay() {
+                // Ensure RATES object is available
+                if (typeof RATES === 'undefined') {
+                    console.error("RATES data is not defined. Aborting calculation.");
+                    // Optionally, display an error message to the user
+                    document.getElementById('total-premium').textContent = 'Error';
+                    document.getElementById('premium-breakdown').innerHTML = '<p class="text-red-500">Could not load rate data. Please check connection and refresh.</p>';
+                    return;
+                }
+
                 handleUIChanges();
 
                 const planType = getElement('plan-type').value;
@@ -409,7 +435,7 @@
                         baseRateKey += (maternity === 'yes' && !getElement('maternity').disabled) ? '_with_maternity' : '_no_maternity';
                     }
                     const baseRateTable = withDV ? RATES.base.with_dv : RATES.base.standard;
-                    baseRateSet = baseRateTable[baseRateKey]?.[ageBand]?.[childrenCount] || baseRateSet;
+                    baseRateSet = (baseRateTable[baseRateKey] && baseRateTable[baseRateKey][ageBand] && baseRateTable[baseRateKey][ageBand][childrenCount]) || {annual:0, semi:0, quarterly:0, monthly:0};
                 }
 
                 let mmRateSet = {annual:0, semi:0, quarterly:0, monthly:0};
@@ -417,7 +443,7 @@
                     let mmRateKey = familyStatus;
                     if (familyStatus.startsWith('single_female')) mmRateKey = 'single_female';
                     const mmChildrenKey = (childrenCount === '0') ? '0' : '1+';
-                    mmRateSet = RATES.major_medical[mmAmount]?.[mmRateKey]?.[ageBand]?.[mmChildrenKey] || mmRateSet;
+                    mmRateSet = (RATES.major_medical[mmAmount] && RATES.major_medical[mmAmount][mmRateKey] && RATES.major_medical[mmAmount][mmRateKey][ageBand] && RATES.major_medical[mmAmount][mmRateKey][ageBand][mmChildrenKey]) || {annual:0, semi:0, quarterly:0, monthly:0};
                 }
 
                 // --- 2. Calculate Premiums for Selected Frequency ---
@@ -530,12 +556,7 @@ Terms and conditions apply.
             }
 
             // --- Initial UI Setup ---
-            // Check if the RATES object is loaded, if not, show an error.
-            if (typeof RATES === 'undefined') {
-                document.body.innerHTML = '<div class="text-red-500 text-center p-8">Error: Could not load rate data. Please ensure health_rater_data.js is present.</div>';
-            } else {
-                calculateAndDisplay();
-            }
+            calculateAndDisplay();
         });
     </script>
 </body>
