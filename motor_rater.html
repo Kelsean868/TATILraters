@@ -6,9 +6,14 @@
     <title>TATIL Motor Insurance Premium Rater</title>
     
     <!-- PWA Manifest Link -->
-    <link rel="manifest" href="/manifest.json">
+    <link rel="manifest" href="./manifest.json">
     <!-- Theme color for browser UI -->
     <meta name="theme-color" content="#005f73">
+    <!-- Add to home screen for Safari on iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="TATIL Raters">
+    <link rel="apple-touch-icon" href="https://placehold.co/192x192/005f73/FFFFFF?text=TATIL">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -67,7 +72,7 @@
         input, select {
             border: 1px solid var(--border-color); padding: 0.85rem 1.15rem; border-radius: 0.375rem; 
             transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.3s ease, color 0.3s ease;
-            background-color: var(--bg-secondary); color: var(--text-primary);
+            background-color: var(--bg-main); color: var(--text-primary);
             font-weight: 500;
         }
         input:focus, select:focus {
@@ -725,16 +730,15 @@
             <path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592zm3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.1-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.729.729 0 0 0-.529.247c-.182.198-.691.677-.691 1.654 0 .977.71 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943s-.182-.133-.38-.232z"/>
         </svg>
     </a>
-    
-    <!-- **** IMPORTANT CHANGE **** -->
+
     <!-- Load the rate data from an external file BEFORE the main logic script -->
-    <script src="motor_rater_data.js"></script>
+    <script src="./motor_rater_data.js"></script>
 
     <script>
         // --- Register Service Worker ---
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
+                navigator.serviceWorker.register('./sw.js')
                     .then(registration => {
                         console.log('Service Worker registered successfully:', registration);
                     })
@@ -743,7 +747,7 @@
                     });
             });
         }
-
+        
         document.addEventListener('DOMContentLoaded', () => {
             // --- EMAILJS INITIALIZATION ---
             (function() {
@@ -764,10 +768,6 @@
             const savedTheme = localStorage.getItem('theme');
             applyTheme(savedTheme === 'dark' || (savedTheme === null && window.matchMedia('(prefers-color-scheme: dark)').matches));
             
-            // --- DATA CONSTANTS ---
-            // The NCD_RATES and SPECIAL_DISCOUNTS objects have been moved to motor_rater_data.js
-            // and are loaded before this script runs.
-    
             // --- DOM ELEMENTS & SETUP ---
             const vehicleTypeSelector = document.getElementById('vehicle-type-selector');
             const calculators = { private: document.getElementById('private-calculator'), platinum: document.getElementById('platinum-calculator'), commercial: document.getElementById('commercial-calculator') };
@@ -1001,6 +1001,16 @@
             function calculatePremium() {
                 const selectedType = vehicleTypeSelector.value;
                 if (!selectedType) return;
+                
+                // Ensure rate data is loaded before calculating
+                if (typeof NCD_RATES === 'undefined' || typeof SPECIAL_DISCOUNTS === 'undefined') {
+                    console.error("Rate data from motor_rater_data.js is not loaded!");
+                    // Optionally display an error to the user
+                    resultsSection.classList.remove('hidden');
+                    totalPremiumEl.textContent = 'Error';
+                    premiumBreakdownEl.innerHTML = '<div class="text-red-500">Could not load rate data. Please check connection and refresh.</div>';
+                    return;
+                }
                 
                 const typePrefix = selectedType === 'platinum' ? 'pl' : selectedType.substring(0, 1);
                 if (selectedType !== 'commercial') checkWoeEligibility(typePrefix);
@@ -1415,139 +1425,6 @@ Terms and conditions apply.`;
                 return text.trim();
             }
 
-            function generatePdfAsBase64(data) {
-                const { jsPDF } = window.jspdf;
-                const doc = new jsPDF();
-                const pageW = doc.internal.pageSize.getWidth();
-                const pageH = doc.internal.pageSize.getHeight();
-                let y = 18;
-
-                // --- Header ---
-                doc.setFont('helvetica', 'bold');
-                doc.setFontSize(22);
-                doc.setTextColor(0, 95, 115); // --primary-accent
-                doc.text('Insurance Quotation', pageW / 2, y, { align: 'center' });
-                y += 8;
-
-                doc.setFont('helvetica', 'normal');
-                doc.setFontSize(10);
-                doc.setTextColor(74, 85, 104); // --text-secondary
-                doc.text(`Date Issued: ${data.date}`, pageW / 2, y, { align: 'center' });
-                y += 10;
-                doc.setDrawColor(220, 225, 231); // --border-color
-                doc.setLineWidth(0.5);
-                doc.line(15, y, pageW - 15, y);
-                y += 12;
-
-                // --- Client & Vehicle Info ---
-                doc.setFont('helvetica', 'bold');
-                doc.setFontSize(12);
-                doc.setTextColor(0, 95, 115);
-                doc.text('Prepared For', 15, y);
-                doc.text('Vehicle Details', pageW / 2 + 5, y);
-                y += 5;
-                doc.setDrawColor(200, 205, 211);
-                doc.setLineWidth(0.2);
-                doc.line(15, y, 95, y);
-                doc.line(pageW / 2 + 5, y, pageW - 15, y);
-                y += 7;
-
-                doc.setFont('helvetica', 'normal');
-                doc.setFontSize(10);
-                doc.setTextColor(29, 45, 53); // --text-primary
-
-                const clientX = 15;
-                const vehicleX = pageW / 2 + 5;
-                let y1 = y, y2 = y;
-
-                doc.text(data.client.name, clientX, y1); y1 += 6;
-                const addressLines = doc.splitTextToSize(data.client.address || 'N/A', (pageW / 2) - 25);
-                doc.text(addressLines, clientX, y1); y1 += (addressLines.length * 6);
-                doc.text(data.client.contact || 'N/A', clientX, y1); y1 += 6;
-
-                doc.text(`License Plate: ${data.vehicle.license || 'N/A'}`, vehicleX, y2); y2 += 6;
-                doc.text(`Vehicle Value: $${formatCurrency(data.vehicle.value)}`, vehicleX, y2); y2 += 6;
-                doc.text(`Vehicle Age: ${data.vehicle.age > 0 ? `${data.vehicle.age} years` : 'N/A'}`, vehicleX, y2); y2 += 6;
-                if(data.vehicle.isMortgaged) {
-                    doc.text(`Mortgaged: Yes`, vehicleX, y2); y2 += 6;
-                    const finInstLines = doc.splitTextToSize(`${data.vehicle.finInstitution} (${data.vehicle.finBranch})`, (pageW / 2) - 25)
-                    doc.text(finInstLines, vehicleX + 2, y2); y2+= (finInstLines.length * 6)
-                } else {
-                    doc.text(`Mortgaged: No`, vehicleX, y2); y2 += 6;
-                }
-                
-                y = Math.max(y1, y2) + 10;
-
-                // --- Premium Breakdown ---
-                doc.setFont('helvetica', 'bold');
-                doc.setFontSize(12);
-                doc.setTextColor(0, 95, 115);
-                doc.text('Premium Summary', 15, y);
-                y += 5;
-                doc.setDrawColor(200, 205, 211);
-                doc.setLineWidth(0.2);
-                doc.line(15, y, pageW - 15, y);
-                y += 8;
-
-                data.breakdown.forEach(row => {
-                    if (y > pageH - 30) {
-                        doc.addPage();
-                        y = 15;
-                    }
-
-                    if (row.label.toLowerCase().includes('grand total')) {
-                        doc.setFont('helvetica', 'bold');
-                        doc.setFontSize(12);
-                        doc.setTextColor(0, 95, 115);
-                    } else if (row.label.toLowerCase().includes('subtotal')) {
-                        doc.setFont('helvetica', 'bold');
-                        doc.setFontSize(10);
-                        doc.setTextColor(29, 45, 53);
-                    } else if (row.isSubtle) {
-                        doc.setFont('helvetica', 'normal');
-                        doc.setFontSize(9);
-                        doc.setTextColor(113, 128, 150);
-                    }
-                    else {
-                        doc.setFont('helvetica', 'normal');
-                        doc.setFontSize(10);
-                        doc.setTextColor(29, 45, 53);
-                    }
-                    
-                    doc.text(row.label, 20, y);
-                    doc.text(row.value, pageW - 20, y, { align: 'right' });
-                    
-                    if(row.label.toLowerCase().includes('grand total')) {
-                       y += 8;
-                    } else {
-                       y += 6;
-                    }
-                });
-
-                if (data.referral) {
-                    y += 5;
-                    doc.setFont('helvetica', 'bold');
-                    doc.setTextColor(220, 38, 38); // Red color
-                    doc.text('Manager Referral Required:', 15, y); y += 6;
-                    doc.setFont('helvetica', 'normal');
-                    const referralLines = doc.splitTextToSize(data.referral, pageW - 30);
-                    doc.text(referralLines, 15, y);
-                }
-                
-                // --- Footer ---
-                doc.setDrawColor(220, 225, 231);
-                doc.setLineWidth(0.5);
-                doc.line(15, pageH - 25, pageW - 15, pageH - 25);
-                
-                doc.setFont('helvetica', 'normal');
-                doc.setFontSize(9);
-                doc.setTextColor(113, 128, 150); // --text-muted
-                doc.text('This quotation is valid for 30 days. Terms and conditions apply.', 15, pageH - 18);
-                doc.text('Your Future, Secured. | Kyron Marchan | kyron.marchan@tatil.co.tt', pageW - 15, pageH - 18, {align: 'right'});
-
-                return doc.output('datauristring');
-            }
-    
             function generateAndDownloadPDF() {
                 const pdfData = generatePdfAsBase64(quoteDataForPdf);
                 const clientName = getElement('client-name').value || 'Client';
@@ -1576,15 +1453,10 @@ Terms and conditions apply.`;
             }
     
             // --- Initial UI Setup & Calculation ---
-            // Check if the Rate data object is loaded, if not, show an error.
-            if (typeof NCD_RATES === 'undefined') {
-                 document.body.innerHTML = '<div class="text-red-500 text-center p-8">Error: Could not load rate data. Please ensure motor_rater_data.js is present and loaded correctly.</div>';
-            } else {
-                handlePrivateCoverageChange();
-                handleCommercialCoverageChange();
-                handleCommercialUsageChange();
-                calculatePremium();
-            }
+            handlePrivateCoverageChange();
+            handleCommercialCoverageChange();
+            handleCommercialUsageChange();
+            calculatePremium();
         });
     </script>
 </body>
