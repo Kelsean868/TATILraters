@@ -1,0 +1,69 @@
+{
+  "name": "TATIL Insurance Raters",
+  "short_name": "TATIL Raters",
+  "description": "Professional insurance rating tools for Trinidad and Tobago. Optimized for mobile data connections.",
+  "version": "2.0",
+  "start_url": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#2563eb",
+  "background_color": "#667eea",
+  "lang": "en",
+  "scope": "./",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' fill='%232563eb' rx='24'/><text x='96' y='120' font-size='80' text-anchor='middle' fill='white'>📊</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' fill='%232563eb' rx='64'/><text x='256' y='320' font-size='240' text-anchor='middle' fill='white'>📊</text></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["business", "finance", "productivity"],
+  "screenshots": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1280 720'><rect width='1280' height='720' fill='%23667eea'/><text x='640' y='360' font-size='48' text-anchor='middle' fill='white'>TATIL Insurance Raters Screenshot</text></svg>",
+      "sizes": "1280x720",
+      "type": "image/svg+xml",
+      "form_factor": "wide"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Motor Insurance",
+      "short_name": "Motor",
+      "description": "Calculate motor vehicle insurance premiums",
+      "url": "./?rater=motor",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'><text x='48' y='60' font-size='48' text-anchor='middle'>🚗</text></svg>",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Property Insurance",
+      "short_name": "Property",
+      "description": "Calculate property insurance premiums",
+      "url": "./?rater=property",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'><text x='48' y='60' font-size='48' text-anchor='middle'>🏠</text></svg>",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "prefer_related_applications": false,
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "launch_handler": {
+    "client_mode": "focus-existing"
+  }
+}
