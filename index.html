@@ -9,6 +9,11 @@
     <meta name="keywords" content="TATIL, motor insurance calculator, health insurance rater, Trinidad and Tobago insurance, car insurance quote, health plan quote">
     <meta name="author" content="Kyron Marchan">
     
+    <!-- PWA Manifest Link -->
+    <link rel="manifest" href="/manifest.json">
+    <!-- Theme color for browser UI -->
+    <meta name="theme-color" content="#005f73">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Source+Serif+Pro:wght@600;700&display=swap" rel="stylesheet">
 
@@ -156,6 +161,19 @@
     </div>
 
     <script>
+        // --- Register Service Worker ---
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('Service Worker registered successfully:', registration);
+                    })
+                    .catch(error => {
+                        console.log('Service Worker registration failed:', error);
+                    });
+            });
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             const themeToggle = document.getElementById('themeToggleCheckbox');
             const themeToggleLabel = document.getElementById('themeToggleLabel');
