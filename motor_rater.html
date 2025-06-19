@@ -213,7 +213,7 @@
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div id="p-sum-insured-container">
                                 <label for="p-sum-insured" class="block text-sm font-medium text-[var(--text-muted)]">Sum Insured ($)</label>
-                                <input type="number" id="p-sum-insured" class="mt-1 w-full p-2.5" placeholder="e.g., 80000" min="50000">
+                                <input type="text" inputmode="numeric" id="p-sum-insured" class="mt-1 w-full p-2.5" placeholder="e.g., 80,000">
                             </div>
                              <div>
                                 <label for="p-vehicle-age" class="block text-sm font-medium text-[var(--text-muted)]">Vehicle Age (Years)</label>
@@ -325,7 +325,7 @@
                             <div class="flex items-center">
                                 <input id="p-windscreen-check" type="checkbox" class="h-4 w-4 text-[var(--primary-accent)] bg-gray-700 border-gray-600 rounded">
                                 <label for="p-windscreen-check" class="ml-3 block text-sm font-medium">Windscreen Cover (First $5,000 Free)</label>
-                                <input type="number" id="p-windscreen-value" class="ml-4 w-40 p-1.5" placeholder="Total Value ($)" disabled>
+                                <input type="text" inputmode="numeric" id="p-windscreen-value" class="ml-4 w-40 p-1.5" placeholder="Total Value ($)" disabled>
                             </div>
                              <div id="p-woe-container" class="flex items-center">
                                 <input id="p-woe-check" type="checkbox" class="h-4 w-4 text-[var(--primary-accent)] bg-gray-700 border-gray-600 rounded">
@@ -379,7 +379,7 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                              <div>
                                 <label for="pl-sum-insured" class="block text-sm font-medium text-[var(--text-muted)]">Sum Insured ($)</label>
-                                <input type="number" id="pl-sum-insured" class="mt-1 w-full p-2.5" placeholder="Min $650,000" min="650000">
+                                <input type="text" inputmode="numeric" id="pl-sum-insured" class="mt-1 w-full p-2.5" placeholder="Min 650,000">
                             </div>
                              <div>
                                 <label for="pl-vehicle-age" class="block text-sm font-medium text-[var(--text-muted)]">Vehicle Age (Years)</label>
@@ -485,7 +485,7 @@
                             <div class="flex items-center">
                                 <input id="pl-windscreen-check" type="checkbox" class="h-4 w-4 text-[var(--primary-accent)] bg-gray-700 border-gray-600 rounded">
                                 <label for="pl-windscreen-check" class="ml-3 block text-sm font-medium">Increase Windscreen Cover (> $20,000)</label>
-                                <input type="number" id="pl-windscreen-value" class="ml-4 w-40 p-1.5" placeholder="Total Value ($)" disabled>
+                                <input type="text" inputmode="numeric" id="pl-windscreen-value" class="ml-4 w-40 p-1.5" placeholder="Total Value ($)" disabled>
                             </div>
                              <div id="pl-woe-container" class="flex items-center">
                                 <input id="pl-woe-check" type="checkbox" class="h-4 w-4 text-[var(--primary-accent)] bg-gray-700 border-gray-600 rounded">
@@ -537,7 +537,7 @@
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div id="c-sum-insured-container">
                                 <label for="c-sum-insured" class="block text-sm font-medium text-[var(--text-muted)]">Sum Insured ($)</label>
-                                <input type="number" id="c-sum-insured" class="mt-1 w-full p-2.5" placeholder="e.g., 90000" min="50000">
+                                <input type="text" inputmode="numeric" id="c-sum-insured" class="mt-1 w-full p-2.5" placeholder="e.g., 90,000">
                             </div>
                              <div>
                                 <label for="c-vehicle-age" class="block text-sm font-medium text-[var(--text-muted)]">Vehicle Age (Years)</label>
@@ -829,7 +829,57 @@
     
             // --- HELPER & UI FUNCTIONS ---
             function getElement(id) { return document.getElementById(id); }
-            function getFloatValue(id) { return parseFloat(getElement(id).value) || 0; }
+            
+            /**
+             * Gets the raw numeric value from an input, removing commas.
+             * @param {string} id - The ID of the input element.
+             * @returns {number} The parsed float value.
+             */
+            function getFloatValue(id) {
+                const element = getElement(id);
+                if (!element) return 0;
+                const value = element.value || '';
+                // Remove commas before parsing
+                const cleanValue = value.replace(/,/g, '');
+                return parseFloat(cleanValue) || 0;
+            }
+
+            /**
+             * Formats the value of a number input field with commas.
+             * @param {Event} e - The input event.
+             */
+            function formatNumberInput(e) {
+                const input = e.target;
+                // 1. Get the cursor position
+                let cursorPosition = input.selectionStart;
+                // 2. Get the original value and length
+                let originalValue = input.value;
+                let originalLength = originalValue.length;
+                // 3. Remove non-digit characters
+                let rawValue = originalValue.replace(/\D/g, '');
+                // 4. Format with commas
+                let formattedValue = rawValue.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                // 5. Update the input value
+                input.value = formattedValue;
+                // 6. Restore cursor position
+                let newLength = formattedValue.length;
+                let newCursorPosition = cursorPosition + (newLength - originalLength);
+                input.setSelectionRange(newCursorPosition, newCursorPosition);
+            }
+
+            // --- Attach formatting to number inputs ---
+            const numberInputsToFormat = [
+                'p-sum-insured', 'pl-sum-insured', 'c-sum-insured',
+                'p-windscreen-value', 'pl-windscreen-value'
+            ];
+            numberInputsToFormat.forEach(id => {
+                const input = getElement(id);
+                if (input) {
+                    input.addEventListener('input', formatNumberInput);
+                }
+            });
+
+
             function formatCurrency(value) {
                 if(isNaN(value)) return '0.00';
                 return value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
