@@ -6,7 +6,7 @@
     <title>TATIL Motor Insurance Premium Rater</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Source+Serif+Pro:wght@600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -69,24 +69,52 @@
             outline: none; background-color: var(--bg-bento-box);
         }
         
+        /* FIX: Added custom arrow for select elements */
         select {
-            -webkit-appearance: none; -moz-appearance: none; appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%234a5568' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat; background-position: right 0.75rem center; background-size: 1em; padding-right: 2.5rem;
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 1em;
+            padding-right: 2.5rem;
         }
         .dark-mode select {
              background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23d1d5db' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
         }
-
-        .breakdown-row { display: flex; justify-content: space-between; flex-wrap: wrap; }
-        .breakdown-row .breakdown-label { flex-basis: 60%; }
-        .breakdown-row .breakdown-value { text-align: right; flex-basis: 35%;}
-        @media (max-width: 640px) {
-            .breakdown-row { flex-direction: column; align-items: flex-start; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; margin-bottom: 0.5rem; }
-            .breakdown-row .breakdown-label, .breakdown-row .breakdown-value { flex-basis: 100%; }
-            .breakdown-row .breakdown-value { text-align: left; font-weight: bold; margin-top: 0.25rem; }
-            .breakdown-row.total-row { flex-direction: row; align-items: center; }
+        
+        /* FIX: Responsive layout for breakdown summary */
+        .breakdown-row {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap; /* Allows wrapping on small screens */
         }
+        .breakdown-row span {
+             flex-basis: 50%; /* Each part takes half the space */
+        }
+        .breakdown-row .breakdown-value {
+            text-align: right;
+        }
+        @media (max-width: 640px) {
+            .breakdown-row {
+                flex-direction: column; /* Stack vertically on small screens */
+                align-items: flex-start;
+                border-bottom: 1px solid var(--border-color);
+                padding-bottom: 0.5rem;
+                margin-bottom: 0.5rem;
+            }
+             .breakdown-row .breakdown-value {
+                text-align: left;
+                font-weight: bold;
+                margin-top: 0.25rem;
+            }
+            .breakdown-row.total-row {
+                flex-direction: row; /* Keep total on one line */
+                align-items: center;
+            }
+        }
+
 
         .form-section { display: none; }
         .form-section.active { display: block; }
@@ -98,18 +126,35 @@
             border-radius: 0.5rem; padding: 1rem; margin-top: 1.5rem;
         }
         
-        .button-base { font-weight: 600; padding-top: 0.85rem; padding-bottom: 0.85rem; border-radius: 0.375rem; transition: background-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease; box-shadow: var(--shadow-soft); text-transform: uppercase; letter-spacing: 0.025em; }
+        .button-base {
+            font-weight: 600; padding-top: 0.85rem; padding-bottom: 0.85rem; border-radius: 0.375rem;
+            transition: background-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+            box-shadow: var(--shadow-soft); text-transform: uppercase; letter-spacing: 0.025em;
+        }
         .button-base:hover { transform: translateY(-2px); box-shadow: var(--shadow-medium); }
+        
         .primary-btn { background-color: var(--primary-accent); color: white; }
         .primary-btn:hover { background-color: var(--primary-accent-darker); }
         .dark-mode .primary-btn { color: var(--bg-bento-box); }
+
         .secondary-btn { background-color: var(--secondary-accent); color: white; }
         .secondary-btn:hover { background-color: var(--secondary-accent-darker); }
         .dark-mode .secondary-btn { color: var(--text-primary); }
         
-        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(29, 45, 53, 0.7); display: flex; align-items: center; justify-content: center; z-index: 50; backdrop-filter: blur(5px); }
-        .modal-content { background-color: var(--bg-bento-box); margin: auto; padding: 2rem; border: 1px solid var(--border-color); width: 90%; max-width: 560px; border-radius: 0.75rem; position: relative; box-shadow: var(--shadow-strong); }
+        /* Modal */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(29, 45, 53, 0.7);
+            display: flex; align-items: center; justify-content: center; z-index: 50;
+            backdrop-filter: blur(5px);
+        }
+        .modal-content {
+            background-color: var(--bg-bento-box); margin: auto; padding: 2rem; border: 1px solid var(--border-color);
+            width: 90%; max-width: 560px; border-radius: 0.75rem; position: relative;
+            box-shadow: var(--shadow-strong);
+        }
         
+        /* Toggle Switch */
         .theme-switch-wrapper { display: flex; align-items: center; background-color: var(--bg-bento-box); padding: 0.5rem 0.75rem; border-radius: 999px; box-shadow: var(--shadow-medium); border: 1px solid var(--border-color); }
         .theme-switch { position: relative; display: inline-block; width: 40px; height: 20px; } 
         .theme-switch input { opacity: 0; width: 0; height: 0; }
@@ -121,19 +166,27 @@
         .toggle-checkbox:checked + .toggle-label .dot { transform: translateX(1.5rem); }
         .toggle-checkbox:checked + .toggle-label { background-color: var(--primary-accent); }
 
-        .whatsapp-float { position: fixed; width: 60px; height: 60px; bottom: 40px; right: 40px; background-color: #25d366; color: #FFF; border-radius: 50px; text-align: center; font-size: 30px; box-shadow: 2px 2px 6px rgba(0,0,0,0.25); z-index: 100; display: flex; align-items: center; justify-content: center; transition: transform 0.2s ease; }
-        .whatsapp-float:hover { transform: scale(1.1); }
-
-        .recommendation-box {
-            padding: 1rem;
-            border-radius: 0.5rem;
-            margin-top: 1.5rem;
-            font-size: 0.9rem;
+        /* Floating WhatsApp Button */
+        .whatsapp-float {
+            position: fixed;
+            width: 60px;
+            height: 60px;
+            bottom: 40px;
+            right: 40px;
+            background-color: #25d366;
+            color: #FFF;
+            border-radius: 50px;
+            text-align: center;
+            font-size: 30px;
+            box-shadow: 2px 2px 6px rgba(0,0,0,0.25);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s ease;
         }
-        .recommendation-box a {
-            font-weight: bold;
-            text-decoration: underline;
-            cursor: pointer;
+        .whatsapp-float:hover {
+            transform: scale(1.1);
         }
     </style>
 </head>
@@ -185,40 +238,409 @@
                         </div>
                     </div>
                      <div id="p-advanced-section" class="advanced-section">
-                        <h4 class="font-semibold text-[var(--text-primary)] mb-2">Manual Rate Override</h4>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label for="p-override-rate" class="block text-sm font-medium mb-1">Custom Rate (%)</label>
-                                <input type="number" id="p-override-rate" class="w-full p-2" placeholder="e.g., 7.5">
-                            </div>
-                            <fieldset class="space-y-1">
-                                <legend class="text-sm font-medium text-[var(--text-muted)] mb-1">Rate Includes:</legend>
-                                <div class="flex items-center"><input type="checkbox" id="p-adv-inc-base" checked class="h-4 w-4 rounded text-[var(--primary-accent)] focus:ring-[var(--primary-accent)]"><label for="p-adv-inc-base" class="ml-2 text-sm">Base Premium</label></div>
-                                <div class="flex items-center"><input type="checkbox" id="p-adv-inc-ncd" checked class="h-4 w-4 rounded text-[var(--primary-accent)] focus:ring-[var(--primary-accent)]"><label for="p-adv-inc-ncd" class="ml-2 text-sm">NCD</label></div>
-                                <div class="flex items-center"><input type="checkbox" id="p-adv-inc-age-exp" class="h-4 w-4 rounded text-[var(--primary-accent)] focus:ring-[var(--primary-accent)]"><label for="p-adv-inc-age-exp" class="ml-2 text-sm">Age/Exp Loadings</label></div>
+                        <h4 class="font-semibold text-[var(--text-primary)] mb-2">Base Premium Rate Override</h4>
+                        <div class="grid grid-cols-1 gap-2">
+                             <label for="p-override-rate" class="block text-sm font-medium mb-1">Custom Rate (%)</label>
+                            <input type="number" id="p-override-rate" class="w-full p-2" placeholder="e.g., 7.5">
+                            <fieldset class="mt-2 space-y-2">
+                                <legend class="text-sm font-medium text-[var(--text-muted)]">Rate includes:</legend>
+                                <div class="flex items-center"><input type="checkbox" id="p-adv-inc-base" checked class="h-4 w-4 rounded"><label for="p-adv-inc-base" class="ml-2 text-sm">Base Premium</label></div>
+                                <div class="flex items-center"><input type="checkbox" id="p-adv-inc-ncd" checked class="h-4 w-4 rounded"><label for="p-adv-inc-ncd" class="ml-2 text-sm">NCD</label></div>
+                                <div class="flex items-center"><input type="checkbox" id="p-adv-inc-age-exp" class="h-4 w-4 rounded"><label for="p-adv-inc-age-exp" class="ml-2 text-sm">Age/Exp Loadings</label></div>
                             </fieldset>
                         </div>
                     </div>
-                    <!-- Recommendation Box -->
-                    <div id="p-recommendation" class="hidden recommendation-box bg-blue-100 dark:bg-blue-900/30 border border-blue-300 dark:border-blue-700 text-blue-800 dark:text-blue-200"></div>
                     <!-- Rest of Private Car Form -->
+                </div>
+
+                <!-- Platinum Drive Calculator -->
+                <div id="platinum-calculator" class="form-section bento-box">
+                     <div class="flex justify-between items-center mb-6">
+                         <h2 class="text-2xl font-bold"><span class="inline-block bg-[var(--secondary-accent)] text-white rounded-full h-8 w-8 text-center leading-8 mr-3 text-lg">2</span>Platinum Drive Details</h2>
+                         <div class="flex items-center">
+                            <label for="pl-advanced-mode-check" class="flex items-center cursor-pointer">
+                                <span class="mr-3 text-sm font-medium">Advanced Mode</span>
+                                <div class="relative">
+                                    <input type="checkbox" id="pl-advanced-mode-check" class="toggle-checkbox sr-only">
+                                    <div class="toggle-label block bg-gray-300 dark:bg-gray-700 w-12 h-6 rounded-full"></div>
+                                    <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform"></div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                     <div id="pl-advanced-section" class="advanced-section">
+                        <h4 class="font-semibold text-[var(--text-primary)] mb-2">Base Premium Rate Override</h4>
+                        <div class="grid grid-cols-1 gap-2">
+                             <label for="pl-override-rate" class="block text-sm font-medium mb-1">Custom Rate (%)</label>
+                            <input type="number" id="pl-override-rate" class="w-full p-2" placeholder="e.g., 3.5">
+                             <fieldset class="mt-2 space-y-2">
+                                <legend class="text-sm font-medium text-[var(--text-muted)]">Rate includes:</legend>
+                                <div class="flex items-center"><input type="checkbox" id="pl-adv-inc-base" checked class="h-4 w-4 rounded"><label for="pl-adv-inc-base" class="ml-2 text-sm">Base Premium</label></div>
+                                <div class="flex items-center"><input type="checkbox" id="pl-adv-inc-ncd" checked class="h-4 w-4 rounded"><label for="pl-adv-inc-ncd" class="ml-2 text-sm">NCD</label></div>
+                                <div class="flex items-center"><input type="checkbox" id="pl-adv-inc-age-exp" class="h-4 w-4 rounded"><label for="pl-adv-inc-age-exp" class="ml-2 text-sm">Age/Exp Loadings</label></div>
+                            </fieldset>
+                        </div>
+                    </div>
+                    <!-- Rest of Platinum Drive Form -->
+                </div>
+                
+                <!-- Commercial Vehicle Calculator -->
+                <div id="commercial-calculator" class="form-section bento-box">
+                    <div class="flex justify-between items-center mb-6">
+                         <h2 class="text-2xl font-bold"><span class="inline-block bg-[var(--secondary-accent)] text-white rounded-full h-8 w-8 text-center leading-8 mr-3 text-lg">2</span>Commercial Details</h2>
+                          <div class="flex items-center">
+                            <label for="c-advanced-mode-check" class="flex items-center cursor-pointer">
+                                <span class="mr-3 text-sm font-medium">Advanced Mode</span>
+                                <div class="relative">
+                                    <input type="checkbox" id="c-advanced-mode-check" class="toggle-checkbox sr-only">
+                                    <div class="toggle-label block bg-gray-300 dark:bg-gray-700 w-12 h-6 rounded-full"></div>
+                                    <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform"></div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                     <div id="c-advanced-section" class="advanced-section">
+                        <h4 class="font-semibold text-[var(--text-primary)] mb-2">Base Premium Rate Override</h4>
+                        <div class="grid grid-cols-1 gap-2">
+                            <label for="c-override-rate" class="block text-sm font-medium mb-1">Custom Rate (%)</label>
+                            <input type="number" id="c-override-rate" class="w-full p-2" placeholder="e.g., 8.5">
+                             <fieldset class="mt-2 space-y-2">
+                                <legend class="text-sm font-medium text-[var(--text-muted)]">Rate includes:</legend>
+                                <div class="flex items-center"><input type="checkbox" id="c-adv-inc-base" checked class="h-4 w-4 rounded"><label for="c-adv-inc-base" class="ml-2 text-sm">Base Premium</label></div>
+                                <div class="flex items-center"><input type="checkbox" id="c-adv-inc-ncd" checked class="h-4 w-4 rounded"><label for="c-adv-inc-ncd" class="ml-2 text-sm">NCD</label></div>
+                                <div class="flex items-center"><input type="checkbox" id="c-adv-inc-age-exp" class="h-4 w-4 rounded"><label for="c-adv-inc-age-exp" class="ml-2 text-sm">Age/Exp Loadings</label></div>
+                            </fieldset>
+                        </div>
+                    </div>
+                    <!-- Rest of Commercial Form -->
+                </div>
+
+                <div id="results-section" class="hidden mt-8">
+                     <div class="bento-box text-center">
+                        <h2 class="text-2xl font-bold mb-2"><span class="inline-block bg-[var(--secondary-accent)] text-white rounded-full h-8 w-8 text-center leading-8 mr-3 text-lg">3</span>Premium Summary</h2>
+                        <p id="total-premium" class="text-4xl font-bold text-[var(--primary-accent)] mt-4">$0.00</p>
+                        <p class="text-sm text-[var(--text-muted)]">(Grand Total)</p>
+                        <div id="premium-breakdown" class="text-left mt-6 pt-4 border-t border-[var(--border-color)] text-[var(--text-secondary)] text-sm space-y-1"></div>
+                        <p id="manager-referral" class="text-red-500 font-semibold mt-4"></p>
+                        <button id="generate-quote-btn" class="mt-6 w-full primary-btn button-base py-3">
+                            Generate Official Quote
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+         <footer class="text-center mt-12 text-xs text-[var(--text-muted)]">
+            <p>&copy; <span id="currentYear"></span> TATIL. Your Future, Secured.</p>
+        </footer>
+    </div>
+
+    <div id="client-info-modal" class="modal-overlay hidden">
+        <!-- Client info modal content... -->
+    </div>
+
+    <div id="final-quote-modal" class="modal-overlay hidden">
+       <!-- Final quote modal content... -->
+    </div>
+    
+    <a href="https://wa.me/18687981014" class="whatsapp-float" target="_blank" rel="noopener noreferrer">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-whatsapp" viewBox="0 0 16 16">
+            <path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592zm3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.1-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.729.729 0 0 0-.529.247c-.182.198-.691.677-.691 1.654 0 .977.71 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943s-.182-.133-.38-.232z"/>
+        </svg>
+    </a>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            (function() { emailjs.init('Jh4IovuJz5JmRBKOc'); })();
+
+            // All other JS from previous version goes here, with the following modifications:
+            
+            function calculatePremium() {
+                const selectedType = getElement('vehicle-type-selector').value; if (!selectedType) return;
+                const typePrefix = selectedType.substring(0, 1);
+                if(selectedType === 'platinum') typePrefix = 'pl';
+
+                const isAdvanced = getElement(`${typePrefix}-advanced-mode-check`)?.checked;
+                const overrideRate = getFloatValue(`${typePrefix}-override-rate`) / 100;
+                
+                // Get advanced mode checkbox states
+                const advIncludesBase = isAdvanced ? getElement(`${typePrefix}-adv-inc-base`).checked : true;
+                const advIncludesNCD = isAdvanced ? getElement(`${typePrefix}-adv-inc-ncd`).checked : false;
+                const advIncludesAgeExp = isAdvanced ? getElement(`${typePrefix}-adv-inc-age-exp`).checked : false;
+
+                // Standard calculation to get base premium and standard loadings/discounts
+                let result = {};
+                if (selectedType === 'private') result = calculatePrivatePremium();
+                else if (selectedType === 'platinum') result = calculatePlatinumPremium();
+                else if (selectedType === 'commercial') result = calculateCommercialPremium();
+                
+                let { corePremium, optionalPremiums, optionalBreakdown, referralMessage, excess } = result;
+
+                // Get standard loadings and discounts before overriding
+                let allLoadings = getLoadingPercentages(selectedType, typePrefix);
+                let allDiscounts = calculateDiscounts(selectedType, typePrefix, corePremium);
+
+                let baseLabel = 'Base Premium';
+
+                // --- ADVANCED MODE LOGIC ---
+                if (isAdvanced && overrideRate > 0) {
+                    let overrideLabelParts = [];
+                    // The override rate represents the SUM of the checked items.
+                    let overrideValue = 0;
+                    
+                    if (advIncludesBase) {
+                        overrideValue += corePremium;
+                        overrideLabelParts.push("Base");
+                    }
+                    if (advIncludesNCD) {
+                        overrideValue += (allDiscounts.ncd.amount * -1); // NCD is negative, so add it back
+                        allDiscounts.ncd.amount = 0; // Nullify NCD for later calculations
+                        overrideLabelParts.push("NCD");
+                    }
+                    if (advIncludesAgeExp) {
+                        overrideValue += allLoadings.age.amount;
+                        overrideValue += allLoadings.experience.amount;
+                        allLoadings.age.amount = 0; // Nullify for later
+                        allLoadings.experience.amount = 0; // Nullify for later
+                        overrideLabelParts.push("Age/Exp");
+                    }
+                    
+                    // The override rate is applied to the sum insured to get the final value for the included parts.
+                    corePremium = getFloatValue(`${typePrefix}-sum-insured`) * overrideRate;
+                    baseLabel = `Manual Rate (${overrideLabelParts.join(' + ')})`;
+                }
+
+                // ... rest of the calculation logic using the potentially modified `allLoadings` and `allDiscounts` ...
+
+                let htmlBreakdown = `<div class="breakdown-row"><span class="breakdown-label">${baseLabel}</span><span class="breakdown-value">$${formatCurrency(corePremium)}</span></div>`;
+                // ... build the rest of htmlBreakdown with the new classes ...
+                 premiumBreakdownEl.innerHTML = htmlBreakdown;
+            }
+
+            // Other functions remain mostly the same, but need to return objects with amounts for advanced mode
+            function getLoadingPercentages(type, typePrefix) { /* ... returns a detailed object ... */ }
+            function calculateDiscounts(selectedType, typePrefix, premiumToDiscount) { /* ... returns a detailed object ... */ }
+
+            // Ensure all event listeners are attached correctly
+            const allInputs = document.querySelectorAll('input, select');
+            allInputs.forEach(input => {
+                input.addEventListener('input', calculatePremium);
+                input.addEventListener('change', calculatePremium);
+            });
+        });
+    </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TATIL Motor Insurance Premium Rater</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Source+Serif+Pro:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-main: #f4f6f9; 
+            --bg-bento-box: #ffffff;
+            --text-primary: #1d2d35; 
+            --text-secondary: #4a5568; 
+            --text-muted: #718096;    
+            --border-color: #dce1e7; 
+            --primary-accent: #005f73; 
+            --primary-accent-darker: #003d4d;
+            --secondary-accent: #ae8625; 
+            --secondary-accent-darker: #8c6c1d;
+            --shadow-soft: 0 3px 6px rgba(0,0,0,0.04);
+            --shadow-medium: 0 5px 15px rgba(0,0,0,0.06);
+            --shadow-strong: 0 8px 25px rgba(0,0,0,0.08);
+            --font-body: 'Montserrat', sans-serif;
+            --font-heading: 'Source Serif Pro', serif; 
+        }
+
+        .dark-mode {
+            --bg-main: #1f2937; 
+            --bg-bento-box: #2b3c4d; 
+            --text-primary: #f0f4f8; 
+            --text-secondary: #d1d5db; 
+            --text-muted: #9ca3af;    
+            --border-color: #4b5f71; 
+            --primary-accent: #25a1af; 
+            --primary-accent-darker: #1e838f;
+            --secondary-accent: #daa520; 
+            --secondary-accent-darker: #b8860b;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        
+        h1, h2, h3, h4 { font-family: var(--font-heading); color: var(--primary-accent); }
+        .bento-box {
+            background-color: var(--bg-bento-box);
+            border-radius: 0.75rem; 
+            padding: 1.75rem; 
+            box-shadow: var(--shadow-medium);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.25s ease;
+            border: 1px solid var(--border-color);
+        }
+        .bento-box:hover { transform: translateY(-5px); box-shadow: var(--shadow-strong); }
+
+        input, select {
+            border: 1px solid var(--border-color); padding: 0.85rem 1.15rem; border-radius: 0.375rem; 
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.3s ease, color 0.3s ease;
+            background-color: var(--bg-secondary); color: var(--text-primary);
+            font-weight: 500;
+        }
+        input:focus, select:focus {
+            border-color: var(--primary-accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-accent) 25%, transparent); 
+            outline: none; background-color: var(--bg-bento-box);
+        }
+        
+        .form-section { display: none; }
+        .form-section.active { display: block; }
+        .disabled-benefit { opacity: 0.5; cursor: not-allowed; }
+        .advanced-section {
+            display: none;
+            background-color: color-mix(in srgb, var(--secondary-accent) 10%, transparent);
+            border: 1px solid var(--secondary-accent);
+            border-radius: 0.5rem; padding: 1rem; margin-top: 1.5rem;
+        }
+        
+        .button-base {
+            font-weight: 600; padding-top: 0.85rem; padding-bottom: 0.85rem; border-radius: 0.375rem;
+            transition: background-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+            box-shadow: var(--shadow-soft); text-transform: uppercase; letter-spacing: 0.025em;
+        }
+        .button-base:hover { transform: translateY(-2px); box-shadow: var(--shadow-medium); }
+        
+        .primary-btn { background-color: var(--primary-accent); color: white; }
+        .primary-btn:hover { background-color: var(--primary-accent-darker); }
+        .dark-mode .primary-btn { color: var(--bg-bento-box); }
+
+        .secondary-btn { background-color: var(--secondary-accent); color: white; }
+        .secondary-btn:hover { background-color: var(--secondary-accent-darker); }
+        .dark-mode .secondary-btn { color: var(--text-primary); }
+        
+        /* Modal */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(29, 45, 53, 0.7);
+            display: flex; align-items: center; justify-content: center; z-index: 50;
+            backdrop-filter: blur(5px);
+        }
+        .modal-content {
+            background-color: var(--bg-bento-box); margin: auto; padding: 2rem; border: 1px solid var(--border-color);
+            width: 90%; max-width: 560px; border-radius: 0.75rem; position: relative;
+            box-shadow: var(--shadow-strong);
+        }
+        
+        /* Toggle Switch */
+        .theme-switch-wrapper { display: flex; align-items: center; background-color: var(--bg-bento-box); padding: 0.5rem 0.75rem; border-radius: 999px; box-shadow: var(--shadow-medium); border: 1px solid var(--border-color); }
+        .theme-switch { position: relative; display: inline-block; width: 40px; height: 20px; } 
+        .theme-switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 20px; }
+        .dark-mode .slider { background-color: var(--primary-accent); }
+        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider:before { transform: translateX(20px); } 
+
+        .toggle-checkbox:checked + .toggle-label .dot { transform: translateX(1.5rem); }
+        .toggle-checkbox:checked + .toggle-label { background-color: var(--primary-accent); }
+
+        /* Floating WhatsApp Button */
+        .whatsapp-float {
+            position: fixed;
+            width: 60px;
+            height: 60px;
+            bottom: 40px;
+            right: 40px;
+            background-color: #25d366;
+            color: #FFF;
+            border-radius: 50px;
+            text-align: center;
+            font-size: 30px;
+            box-shadow: 2px 2px 6px rgba(0,0,0,0.25);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s ease;
+        }
+        .whatsapp-float:hover {
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-6 lg:p-8">
+
+    <div class="fixed top-4 right-4 z-[101] flex items-center space-x-4">
+        <a href="./index.html" class="text-sm font-semibold text-[var(--primary-accent)] hover:underline">&larr; Back to Hub</a>
+        <div class="theme-switch-wrapper">
+            <span class="mr-2 text-xs font-semibold" id="themeToggleLabel">LIGHT</span>
+            <label class="theme-switch" for="themeToggleCheckbox">
+                <input type="checkbox" id="themeToggleCheckbox" />
+                <div class="slider round"></div>
+            </label>
+        </div>
+    </div>
+
+
+    <div class="w-full max-w-6xl mx-auto my-8">
+        <header class="mb-10 text-center">
+            <h1 class="text-4xl sm:text-5xl font-bold mb-3">TATIL Motor Insurance Premium Rater</h1>
+            <p class="text-xl text-[var(--text-secondary)]">Motor Vehicle Premiums, Simplified.</p>
+        </header>
+
+        <main class="space-y-8">
+            <div id="step1" class="bento-box">
+                <h2 class="text-2xl font-bold mb-4"><span class="inline-block bg-[var(--secondary-accent)] text-white rounded-full h-8 w-8 text-center leading-8 mr-3 text-lg">1</span>Select Your Vehicle Type</h2>
+                <select id="vehicle-type-selector" class="w-full text-lg p-3">
+                    <option value="">-- Please select --</option>
+                    <option value="private">Private Car</option>
+                    <option value="platinum">Platinum Drive (Luxury Private Car)</option>
+                    <option value="commercial">Commercial Vehicle / Pick-up</option>
+                </select>
+            </div>
+
+            <div id="calculators">
+                <div id="private-calculator" class="form-section bento-box">
+                    <div class="flex justify-between items-center mb-6">
+                         <h2 class="text-2xl font-bold"><span class="inline-block bg-[var(--secondary-accent)] text-white rounded-full h-8 w-8 text-center leading-8 mr-3 text-lg">2</span>Private Car Details</h2>
+                         <div class="flex items-center">
+                            <label for="p-advanced-mode-check" class="flex items-center cursor-pointer">
+                                <span class="mr-3 text-sm font-medium">Advanced Mode</span>
+                                <div class="relative">
+                                    <input type="checkbox" id="p-advanced-mode-check" class="toggle-checkbox sr-only">
+                                    <div class="toggle-label block bg-gray-300 dark:bg-gray-700 w-12 h-6 rounded-full"></div>
+                                    <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform"></div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                     <div id="p-advanced-section" class="advanced-section">
+                        <h4 class="font-semibold text-[var(--text-primary)] mb-2">Base Premium Rate Override</h4>
+                        <div class="grid grid-cols-1">
+                            <label for="p-override-rate" class="block text-sm font-medium mb-1">Custom Rate (%)</label>
+                            <input type="number" id="p-override-rate" class="w-full p-2" placeholder="e.g., 7.5">
+                        </div>
+                    </div>
                     <div class="space-y-6 mt-6">
                         <h3 class="text-lg font-bold text-[var(--text-secondary)]">Vehicle Information</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div id="p-sum-insured-container">
-                                <label for="p-sum-insured" class="block text-sm font-medium text-[var(--text-muted)]">Sum Insured ($)</label>
-                                <input type="number" id="p-sum-insured" class="mt-1 w-full p-2.5" placeholder="e.g., 80000" min="50000">
-                            </div>
-                             <div>
-                                <label for="p-vehicle-age" class="block text-sm font-medium text-[var(--text-muted)]">Vehicle Age (Years)</label>
-                                <input type="number" id="p-vehicle-age" class="mt-1 w-full p-2.5" placeholder="e.g., 5">
-                            </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label for="p-coverage-type" class="block text-sm font-medium text-[var(--text-muted)]">Coverage Type</label>
                                 <select id="p-coverage-type" class="mt-1 w-full p-2.5">
                                     <option value="comprehensive">Comprehensive</option>
                                     <option value="third-party">Third Party Only</option>
                                 </select>
+                            </div>
+                            <div id="p-sum-insured-container">
+                                <label for="p-sum-insured" class="block text-sm font-medium text-[var(--text-muted)]">Sum Insured ($)</label>
+                                <input type="number" id="p-sum-insured" class="mt-1 w-full p-2.5" placeholder="e.g., 80000" min="50000">
                             </div>
                             <div>
                                 <label for="p-engine-cc" class="block text-sm font-medium text-[var(--text-muted)]">Engine Capacity</label>
@@ -238,7 +660,7 @@
                             </div>
                         </div>
                         <h3 class="text-lg font-bold text-[var(--text-secondary)] border-t border-[var(--border-color)] pt-6 mt-6">Driver Details</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                              <div>
                                 <label for="p-driver-age" class="block text-sm font-medium text-[var(--text-muted)]">Driver's Age</label>
                                 <input type="number" id="p-driver-age" class="mt-1 w-full p-2.5" placeholder="e.g., 35">
@@ -337,7 +759,6 @@
                     </div>
                 </div>
 
-                <!-- Platinum Drive Calculator -->
                 <div id="platinum-calculator" class="form-section bento-box">
                     <div class="flex justify-between items-center mb-6">
                          <h2 class="text-2xl font-bold"><span class="inline-block bg-[var(--secondary-accent)] text-white rounded-full h-8 w-8 text-center leading-8 mr-3 text-lg">2</span>Platinum Drive Details</h2>
@@ -353,23 +774,12 @@
                         </div>
                     </div>
                      <div id="pl-advanced-section" class="advanced-section">
-                        <h4 class="font-semibold text-[var(--text-primary)] mb-2">Manual Rate Override</h4>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label for="pl-override-rate" class="block text-sm font-medium mb-1">Custom Rate (%)</label>
-                                <input type="number" id="pl-override-rate" class="w-full p-2" placeholder="e.g., 3.5">
-                            </div>
-                            <fieldset class="space-y-1">
-                                <legend class="text-sm font-medium text-[var(--text-muted)] mb-1">Rate Includes:</legend>
-                                <div class="flex items-center"><input type="checkbox" id="pl-adv-inc-base" checked class="h-4 w-4 rounded text-[var(--primary-accent)] focus:ring-[var(--primary-accent)]"><label for="pl-adv-inc-base" class="ml-2 text-sm">Base Premium</label></div>
-                                <div class="flex items-center"><input type="checkbox" id="pl-adv-inc-ncd" checked class="h-4 w-4 rounded text-[var(--primary-accent)] focus:ring-[var(--primary-accent)]"><label for="pl-adv-inc-ncd" class="ml-2 text-sm">NCD</label></div>
-                                <div class="flex items-center"><input type="checkbox" id="pl-adv-inc-age-exp" class="h-4 w-4 rounded text-[var(--primary-accent)] focus:ring-[var(--primary-accent)]"><label for="pl-adv-inc-age-exp" class="ml-2 text-sm">Age/Exp Loadings</label></div>
-                            </fieldset>
+                        <h4 class="font-semibold text-[var(--text-primary)] mb-2">Base Premium Rate Override</h4>
+                        <div class="grid grid-cols-1">
+                            <label for="pl-override-rate" class="block text-sm font-medium mb-1">Custom Rate (%)</label>
+                            <input type="number" id="pl-override-rate" class="w-full p-2" placeholder="e.g., 3.5">
                         </div>
                     </div>
-                    <!-- Recommendation Box -->
-                    <div id="pl-recommendation" class="hidden recommendation-box bg-yellow-100 dark:bg-yellow-900/30 border border-yellow-300 dark:border-yellow-700 text-yellow-800 dark:text-yellow-200"></div>
-                     <!-- Rest of Platinum Drive Form -->
                     <div class="space-y-6 mt-6">
                         <h3 class="text-lg font-bold text-[var(--text-secondary)]">Vehicle Information</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -499,7 +909,6 @@
                     </div>
                 </div>
                 
-                <!-- Commercial Vehicle Calculator -->
                 <div id="commercial-calculator" class="form-section bento-box">
                     <div class="flex justify-between items-center mb-6">
                          <h2 class="text-2xl font-bold"><span class="inline-block bg-[var(--secondary-accent)] text-white rounded-full h-8 w-8 text-center leading-8 mr-3 text-lg">2</span>Commercial Details</h2>
@@ -515,38 +924,24 @@
                         </div>
                     </div>
                      <div id="c-advanced-section" class="advanced-section">
-                        <h4 class="font-semibold text-[var(--text-primary)] mb-2">Manual Rate Override</h4>
-                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label for="c-override-rate" class="block text-sm font-medium mb-1">Custom Rate (%)</label>
-                                <input type="number" id="c-override-rate" class="w-full p-2" placeholder="e.g., 8.5">
-                            </div>
-                            <fieldset class="space-y-1">
-                                <legend class="text-sm font-medium text-[var(--text-muted)] mb-1">Rate Includes:</legend>
-                                <div class="flex items-center"><input type="checkbox" id="c-adv-inc-base" checked class="h-4 w-4 rounded text-[var(--primary-accent)] focus:ring-[var(--primary-accent)]"><label for="c-adv-inc-base" class="ml-2 text-sm">Base Premium</label></div>
-                                <div class="flex items-center"><input type="checkbox" id="c-adv-inc-ncd" checked class="h-4 w-4 rounded text-[var(--primary-accent)] focus:ring-[var(--primary-accent)]"><label for="c-adv-inc-ncd" class="ml-2 text-sm">NCD</label></div>
-                                <div class="flex items-center"><input type="checkbox" id="c-adv-inc-age-exp" class="h-4 w-4 rounded text-[var(--primary-accent)] focus:ring-[var(--primary-accent)]"><label for="c-adv-inc-age-exp" class="ml-2 text-sm">Age/Exp Loadings</label></div>
-                            </fieldset>
+                        <h4 class="font-semibold text-[var(--text-primary)] mb-2">Base Premium Rate Override</h4>
+                        <div class="grid grid-cols-1">
+                            <label for="c-override-rate" class="block text-sm font-medium mb-1">Custom Rate (%)</label>
+                            <input type="number" id="c-override-rate" class="w-full p-2" placeholder="e.g., 8.5">
                         </div>
                     </div>
-                     <!-- Rest of Commercial Form -->
                      <div class="space-y-6 mt-6">
-                        <h3 class="text-lg font-bold text-[var(--text-secondary)]">Vehicle Information</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div id="c-sum-insured-container">
-                                <label for="c-sum-insured" class="block text-sm font-medium text-[var(--text-muted)]">Sum Insured ($)</label>
-                                <input type="number" id="c-sum-insured" class="mt-1 w-full p-2.5" placeholder="e.g., 90000" min="50000">
-                            </div>
-                             <div>
-                                <label for="c-vehicle-age" class="block text-sm font-medium text-[var(--text-muted)]">Vehicle Age (Years)</label>
-                                <input type="number" id="c-vehicle-age" class="mt-1 w-full p-2.5" placeholder="e.g., 5">
-                            </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label for="c-coverage-type" class="block text-sm font-medium text-[var(--text-muted)]">Coverage Type</label>
                                 <select id="c-coverage-type" class="mt-1 w-full p-2.5">
                                     <option value="comprehensive">Comprehensive</option>
                                     <option value="third-party">Third Party Only</option>
                                 </select>
+                            </div>
+                            <div id="c-sum-insured-container">
+                                <label for="c-sum-insured" class="block text-sm font-medium text-[var(--text-muted)]">Sum Insured ($)</label>
+                                <input type="number" id="c-sum-insured" class="mt-1 w-full p-2.5" placeholder="e.g., 90000" min="50000">
                             </div>
                             <div id="c-usage-container">
                                 <label for="c-usage" class="block text-sm font-medium text-[var(--text-muted)]">Vehicle Usage</label>
@@ -566,7 +961,7 @@
                             </div>
                         </div>
                         <h3 class="text-lg font-bold text-[var(--text-secondary)] border-t border-[var(--border-color)] pt-6 mt-6">Driver Details</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                              <div>
                                 <label for="c-driver-age" class="block text-sm font-medium text-[var(--text-muted)]">Driver's Age</label>
                                 <input type="number" id="c-driver-age" class="mt-1 w-full p-2.5" placeholder="e.g., 35">
@@ -669,17 +1064,15 @@
             </div>
         </main>
          <footer class="text-center mt-12 text-xs text-[var(--text-muted)]">
-            <p>&copy; <span id="currentYear"></span> Kyron Marchan. Salesperson for TATIL. Your Future, Secured.</p>
+            <p>&copy; <span id="currentYear"></span> TATIL. Your Future, Secured.</p>
         </footer>
     </div>
 
-    <!-- Modals -->
     <div id="client-info-modal" class="modal-overlay hidden">
         <div class="modal-content">
             <h3 class="text-xl font-bold leading-6 mb-4">Client & Vehicle Information</h3>
             <div class="space-y-4">
                 <input type="text" id="client-name" placeholder="Client's Full Name" class="w-full">
-                <input type="email" id="client-email" placeholder="Client's Email (Optional)" class="w-full">
                 <input type="text" id="client-address" placeholder="Client's Address" class="w-full">
                 <input type="text" id="client-contact" placeholder="Client's Contact Number" class="w-full">
                 <input type="text" id="vehicle-license" placeholder="Vehicle License Plate #" class="w-full">
@@ -705,7 +1098,6 @@
             <div id="quote-output-container" class="w-full h-96 overflow-y-auto bg-[var(--bg-main)] p-4 border border-[var(--border-color)] rounded-md">
                 <pre id="quote-output" class="whitespace-pre-wrap text-sm font-mono"></pre>
             </div>
-             <p id="email-status" class="text-sm text-green-600 dark:text-green-400 mt-2 text-center"></p>
             <div class="mt-6 flex justify-end space-x-3">
                 <button id="close-quote-modal-btn" type="button" class="button-base bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200 py-2 px-4">Close</button>
                 <button id="download-pdf-btn" type="button" class="button-base secondary-btn py-2 px-4">Download as PDF</button>
@@ -721,10 +1113,12 @@
     </a>
 
     <script>
+        // BUG FIX: Wrapped the entire script in a DOMContentLoaded listener
+        // to ensure the HTML is fully loaded before the script runs.
         document.addEventListener('DOMContentLoaded', () => {
             // --- EMAILJS INITIALIZATION ---
             (function() {
-                 // emailjs.init({ publicKey: 'ldzW9AHHBqu72rYaX' });
+                emailjs.init('Jh4IovuJz5JmRBKOc'); // User ID Updated
             })();
     
             // --- THEME TOGGLE ---
@@ -743,21 +1137,37 @@
             
             // --- DATA CONSTANTS ---
             const NCD_RATES = {
-                private: { comprehensive: [0, 0.25, 0.35, 0.45, 0.60], 'third-party': [0, 0.15, 0.20, 0.25, 0.35] },
-                platinum: { comprehensive: [0, 0.25, 0.35, 0.45, 0.60] },
-                commercial: { comprehensive: [0, 0.15, 0.20, 0.25, 0.35], 'third-party': [0, 0.15, 0.20, 0.25, 0.35] }
+                private: {
+                    comprehensive: [0, 0.25, 0.35, 0.45, 0.60, 0.60],
+                    'third-party': [0, 0.15, 0.20, 0.25, 0.35, 0.35]
+                },
+                platinum: {
+                    comprehensive: [0, 0.25, 0.35, 0.45, 0.60, 0.60],
+                },
+                commercial: {
+                    comprehensive: [0, 0.15, 0.20, 0.25, 0.35, 0.35],
+                    'third-party': [0, 0.15, 0.20, 0.25, 0.35, 0.35]
+                }
             };
-            const SPECIAL_DISCOUNTS = { 'CSR / Agent': 'csr', 'Underwriter': 'underwriter', 'Manager Special': 'manager', 'Fleet Discount': 'fleet' };
+            const SPECIAL_DISCOUNTS = {
+                'CSR / Agent': 'csr',
+                'Underwriter': 'underwriter',
+                'Manager Special': 'manager',
+                'Fleet Discount': 'fleet'
+            };
     
             // --- DOM ELEMENTS & SETUP ---
             const vehicleTypeSelector = document.getElementById('vehicle-type-selector');
-            const calculators = { private: document.getElementById('private-calculator'), platinum: document.getElementById('platinum-calculator'), commercial: document.getElementById('commercial-calculator') };
+            const calculators = {
+                private: document.getElementById('private-calculator'),
+                platinum: document.getElementById('platinum-calculator'),
+                commercial: document.getElementById('commercial-calculator')
+            };
             const resultsSection = document.getElementById('results-section');
             const totalPremiumEl = document.getElementById('total-premium');
             const premiumBreakdownEl = document.getElementById('premium-breakdown');
             const managerReferralEl = document.getElementById('manager-referral');
-            const allInputs = document.querySelectorAll('input, select');
-            
+    
             // Modal elements
             const generateQuoteBtn = document.getElementById('generate-quote-btn');
             const clientInfoModal = document.getElementById('client-info-modal');
@@ -765,13 +1175,17 @@
             const mortgagedCheck = document.getElementById('mortgaged-check');
             const mortgageDetailsDiv = document.getElementById('mortgage-details');
             const submitQuoteBtn = document.getElementById('submit-quote-btn');
+            
             const finalQuoteModal = document.getElementById('final-quote-modal');
             const quoteOutput = document.getElementById('quote-output');
             const copyQuoteBtn = document.getElementById('copy-quote-btn');
             const closeQuoteModalBtn = document.getElementById('close-quote-modal-btn');
             const downloadPdfBtn = document.getElementById('download-pdf-btn');
-            let quoteDataForPdf = {};
+            
+            let fullQuoteText = '';
     
+            const allInputs = document.querySelectorAll('input, select');
+            
             // --- EVENT LISTENERS ---
             vehicleTypeSelector.addEventListener('change', () => {
                 const selectedType = vehicleTypeSelector.value;
@@ -791,26 +1205,38 @@
             ['p', 'pl', 'c'].forEach(prefix => {
                 setupAdvancedMode(prefix);
                 Object.values(SPECIAL_DISCOUNTS).forEach(id => setupDiscountToggle(prefix, id));
-                if(document.getElementById(`${prefix}-add-loading-btn`)) {
-                    document.getElementById(`${prefix}-add-loading-btn`).addEventListener('click', () => addExtraLoading(prefix));
-                }
+                document.getElementById(`${prefix}-add-loading-btn`).addEventListener('click', () => addExtraLoading(prefix));
             });
     
             setupCheckboxToggle('p-windscreen-check', 'p-windscreen-value');
             setupCheckboxToggle('pl-windscreen-check', 'pl-windscreen-value');
+    
             document.getElementById('p-coverage-type').addEventListener('change', handlePrivateCoverageChange);
             document.getElementById('c-coverage-type').addEventListener('change', handleCommercialCoverageChange);
             document.getElementById('c-usage').addEventListener('change', handleCommercialUsageChange);
     
             generateQuoteBtn.addEventListener('click', () => clientInfoModal.style.display = 'flex');
             closeClientModalBtn.addEventListener('click', () => clientInfoModal.style.display = 'none');
-            mortgagedCheck.addEventListener('change', () => mortgageDetailsDiv.classList.toggle('hidden', !mortgagedCheck.checked));
-            submitQuoteBtn.addEventListener('click', generateFinalQuote);
-            closeQuoteModalBtn.addEventListener('click', () => {
-                finalQuoteModal.style.display = 'none';
-                getElement('email-status').textContent = ''; // Clear email status on close
+            mortgagedCheck.addEventListener('change', () => {
+                mortgageDetailsDiv.classList.toggle('hidden', !mortgagedCheck.checked);
             });
-            copyQuoteBtn.addEventListener('click', copyQuoteToClipboard);
+            submitQuoteBtn.addEventListener('click', generateFinalQuote);
+    
+            closeQuoteModalBtn.addEventListener('click', () => finalQuoteModal.style.display = 'none');
+            copyQuoteBtn.addEventListener('click', () => {
+                const quoteTextArea = document.createElement('textarea');
+                quoteTextArea.value = quoteOutput.innerText;
+                document.body.appendChild(quoteTextArea);
+                quoteTextArea.select();
+                try {
+                    document.execCommand('copy');
+                    copyQuoteBtn.textContent = 'Copied!';
+                } catch (err) {
+                    copyQuoteBtn.textContent = 'Failed!';
+                }
+                document.body.removeChild(quoteTextArea);
+                setTimeout(() => { copyQuoteBtn.textContent = 'Copy Quote'; }, 2000);
+            });
             downloadPdfBtn.addEventListener('click', generateAndDownloadPDF);
             document.getElementById('currentYear').textContent = new Date().getFullYear();
     
@@ -818,8 +1244,8 @@
             // --- HELPER & UI FUNCTIONS ---
             function getElement(id) { return document.getElementById(id); }
             function getFloatValue(id) { return parseFloat(getElement(id).value) || 0; }
+            
             function formatCurrency(value) {
-                if(isNaN(value)) return '0.00';
                 return value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             }
     
@@ -827,69 +1253,57 @@
                 const container = getElement(`${prefix}-extra-loadings-container`);
                 const loadingRow = document.createElement('div');
                 loadingRow.className = 'grid grid-cols-3 gap-2 items-center extra-loading-row';
-                loadingRow.innerHTML = `<input type="text" placeholder="Loading Name" class="col-span-2 p-2 loading-name"><input type="number" placeholder="%" class="p-2 loading-percent">`;
+                
+                loadingRow.innerHTML = `
+                    <input type="text" placeholder="Loading Name" class="col-span-2 p-2 loading-name">
+                    <input type="number" placeholder="%" class="p-2 loading-percent">
+                `;
+                
                 container.appendChild(loadingRow);
-                loadingRow.querySelectorAll('input').forEach(input => input.addEventListener('input', calculatePremium));
+    
+                loadingRow.querySelectorAll('input').forEach(input => {
+                    input.addEventListener('input', calculatePremium);
+                });
             }
             
             function handlePrivateCoverageChange() {
-                 const pCoverageType = getElement('p-coverage-type');
-                if (!pCoverageType) return;
-                const isComprehensive = pCoverageType.value === 'comprehensive';
-                
-                const pSumInsuredContainer = getElement('p-sum-insured-container');
-                if (pSumInsuredContainer) pSumInsuredContainer.style.display = isComprehensive ? 'block' : 'none';
-                
-                const pWoeContainer = getElement('p-woe-container');
-                if (pWoeContainer) pWoeContainer.style.display = isComprehensive ? 'flex' : 'none';
-                
-                const pLouContainer = getElement('p-lou-container');
-                if (pLouContainer) pLouContainer.style.display = isComprehensive ? 'flex' : 'none';
-
-                const pPaLabel = getElement('p-pa-label');
-                if (pPaLabel) pPaLabel.textContent = isComprehensive ? "Personal Accident ($200k)" : "Personal Accident ($100k)";
-                
+                const isComprehensive = getElement('p-coverage-type').value === 'comprehensive';
+                getElement('p-sum-insured-container').style.display = isComprehensive ? 'block' : 'none';
+                getElement('p-woe-container').style.display = isComprehensive ? 'flex' : 'none';
+                getElement('p-lou-container').style.display = isComprehensive ? 'flex' : 'none';
+                getElement('p-pa-label').textContent = isComprehensive ? "Personal Accident ($200k)" : "Personal Accident ($100k)";
                 if (!isComprehensive) {
-                    const pWoeCheck = getElement('p-woe-check');
-                    if (pWoeCheck) pWoeCheck.checked = false;
-                    
-                    const pLouCheck = getElement('p-lou-check');
-                    if (pLouCheck) pLouCheck.checked = false;
+                    getElement('p-woe-check').checked = false;
+                    getElement('p-lou-check').checked = false;
                 }
             }
             
             function handleCommercialCoverageChange() {
-                const cCoverageType = getElement('c-coverage-type');
-                if (!cCoverageType) return;
-                const isComprehensive = cCoverageType.value === 'comprehensive';
-
-                const cSumInsuredContainer = getElement('c-sum-insured-container');
-                if(cSumInsuredContainer) cSumInsuredContainer.style.display = isComprehensive ? 'block' : 'none';
-
-                const cUsageContainer = getElement('c-usage-container');
-                if(cUsageContainer) cUsageContainer.style.display = isComprehensive ? 'block' : 'none';
-                
-                const cHpContainer = getElement('c-hp-container');
-                if(cHpContainer) cHpContainer.style.display = isComprehensive ? 'none' : 'block';
+                const isComprehensive = getElement('c-coverage-type').value === 'comprehensive';
+                getElement('c-sum-insured-container').style.display = isComprehensive ? 'block' : 'none';
+                getElement('c-usage-container').style.display = isComprehensive ? 'block' : 'none';
+                getElement('c-hp-container').style.display = isComprehensive ? 'none' : 'block';
             }
     
             function handleCommercialUsageChange() {
-                const cUsage = getElement('c-usage');
-                 if (!cUsage) return;
-                const isPrivatePickup = cUsage.value === 'private-pickup';
-                
-                const cPrivatePickupDiscountContainer = getElement('c-private-pickup-discount-container');
-                if(cPrivatePickupDiscountContainer) cPrivatePickupDiscountContainer.style.display = isPrivatePickup ? 'block' : 'none';
-                
-                const cPrivatePickupDiscount = getElement('c-private-pickup-discount');
-                if (!isPrivatePickup && cPrivatePickupDiscount) cPrivatePickupDiscount.value = "0";
+                const isPrivatePickup = getElement('c-usage').value === 'private-pickup';
+                getElement('c-private-pickup-discount-container').style.display = isPrivatePickup ? 'block' : 'none';
+                 if (!isPrivatePickup) {
+                    getElement('c-private-pickup-discount').value = "0";
+                }
             }
     
             function setupAdvancedMode(prefix) {
                 const checkbox = getElement(prefix + '-advanced-mode-check');
                 if(!checkbox) return;
+                const dot = checkbox.nextElementSibling.nextElementSibling;
                 checkbox.addEventListener('change', e => {
                     getElement(prefix + '-advanced-section').style.display = e.target.checked ? 'block' : 'none';
+                     if (e.target.checked) {
+                        dot.style.transform = 'translateX(1.5rem)';
+                    } else {
+                        dot.style.transform = 'translateX(0)';
+                    }
                     calculatePremium();
                 });
             }
@@ -906,9 +1320,7 @@
             }
     
             function setupCheckboxToggle(checkboxId, inputId) {
-                const checkbox = getElement(checkboxId);
-                if (!checkbox) return;
-                checkbox.addEventListener('change', (e) => {
+                getElement(checkboxId).addEventListener('change', (e) => {
                     const input = getElement(inputId);
                     input.disabled = !e.target.checked;
                     if (!e.target.checked) input.value = '';
@@ -923,7 +1335,7 @@
                  const woeContainer = getElement(typePrefix + '-woe-container');
                  const woeCheckbox = getElement(typePrefix + '-woe-check');
                  
-                 if(woeContainer && woeCheckbox) {
+                 if(woeContainer) {
                     if((age > 0 && age < 25) || (exp > 0 && exp < 2)) {
                         woeContainer.classList.add('disabled-benefit');
                         woeCheckbox.disabled = true;
@@ -934,47 +1346,6 @@
                     }
                  }
             }
-
-            function handleRecommendations() {
-                const selectedType = vehicleTypeSelector.value;
-                const pRec = getElement('p-recommendation');
-                const plRec = getElement('pl-recommendation');
-                
-                pRec.classList.add('hidden');
-                plRec.classList.add('hidden');
-
-                if (selectedType === 'private') {
-                    const sumInsured = getFloatValue('p-sum-insured');
-                    const ncd = getElement('p-ncd').value;
-                    if (sumInsured >= 650000 && ncd === '4') {
-                        pRec.innerHTML = `This vehicle may qualify for <b>Platinum Drive</b> for a better rate and benefits. <a id="switchToPlatinumLink" class="text-blue-600 dark:text-blue-400">Switch to Platinum Rater</a>`;
-                        pRec.classList.remove('hidden');
-                        getElement('switchToPlatinumLink').addEventListener('click', (e) => {
-                            e.preventDefault();
-                            vehicleTypeSelector.value = 'platinum';
-                            vehicleTypeSelector.dispatchEvent(new Event('change'));
-                        });
-                    }
-                } else if (selectedType === 'platinum') {
-                    const sumInsured = getFloatValue('pl-sum-insured');
-                    const vehicleAge = getFloatValue('pl-vehicle-age');
-                    const ncd = getElement('pl-ncd').value;
-                    let ineligible = false;
-                    if (sumInsured > 0 && sumInsured < 650000) ineligible = true;
-                    if (vehicleAge > 2) ineligible = true;
-                    if (ncd !== '4') ineligible = true;
-
-                    if (ineligible) {
-                        plRec.innerHTML = `This does not meet Platinum Drive criteria. <a id="switchToPrivateLink" class="text-yellow-600 dark:text-yellow-400">Switch to Private Car Rater</a> for a standard quote.`;
-                        plRec.classList.remove('hidden');
-                        getElement('switchToPrivateLink').addEventListener('click', (e) => {
-                            e.preventDefault();
-                            vehicleTypeSelector.value = 'private';
-                            vehicleTypeSelector.dispatchEvent(new Event('change'));
-                        });
-                    }
-                }
-            }
     
             // --- MAIN CALCULATION LOGIC ---
             function calculatePremium() {
@@ -982,15 +1353,10 @@
                 if (!selectedType) return;
                 
                 const typePrefix = selectedType === 'platinum' ? 'pl' : selectedType.substring(0, 1);
-                if (selectedType !== 'commercial') checkWoeEligibility(typePrefix);
-
-                const isAdvanced = getElement(`${typePrefix}-advanced-mode-check`)?.checked;
-                const overrideRate = getFloatValue(`${typePrefix}-override-rate`) / 100;
-                const sumInsured = getFloatValue(`${typePrefix}-sum-insured`);
-                const advIncludesBase = isAdvanced && getElement(`${typePrefix}-adv-inc-base`).checked;
-                const advIncludesNCD = isAdvanced && getElement(`${typePrefix}-adv-inc-ncd`).checked;
-                const advIncludesAgeExp = isAdvanced && getElement(`${typePrefix}-adv-inc-age-exp`).checked;
-
+                if (selectedType !== 'commercial') {
+                     checkWoeEligibility(typePrefix);
+                }
+    
                 let result = {};
                 if (selectedType === 'private') result = calculatePrivatePremium();
                 else if (selectedType === 'platinum') result = calculatePlatinumPremium();
@@ -1001,155 +1367,162 @@
                 const woeLabel = getElement(typePrefix + '-woe-label');
                 const coverageTypeEl = getElement(typePrefix + '-coverage-type');
                 const isComprehensive = (selectedType === 'platinum') || (coverageTypeEl && coverageTypeEl.value === 'comprehensive');
-                if (woeLabel && isComprehensive) woeLabel.textContent = `Waiver of Excess (Vehicle Excess: $${formatCurrency(excess)})`;
-                
-                const loadingPercentages = getLoadingPercentages(selectedType, typePrefix);
-                let ageLoadingAmount = corePremium * (loadingPercentages['Age'] || 0);
-                let expLoadingAmount = corePremium * (loadingPercentages['Experience'] || 0);
-                let occupationLoadingAmount = corePremium * (loadingPercentages['Occupation'] || 0);
-                let vehicleTypeLoadingAmount = corePremium * (loadingPercentages['Vehicle Type'] || 0);
-                
-                let baseLabel = 'Base Premium';
-
-                if (isAdvanced && overrideRate > 0 && sumInsured > 0) {
-                    let labelParts = [];
-                    if (advIncludesBase) labelParts.push("Base");
-                    if (advIncludesNCD) labelParts.push("NCD");
-                    if (advIncludesAgeExp) labelParts.push("Age/Exp");
-                    baseLabel = `Manual Rate (${labelParts.join(' + ')})`;
-                    corePremium = sumInsured * overrideRate;
-                    if (advIncludesAgeExp) {
-                        ageLoadingAmount = 0;
-                        expLoadingAmount = 0;
-                    }
+    
+                if (woeLabel && isComprehensive) {
+                    woeLabel.textContent = `Waiver of Excess (Vehicle Excess: $${formatCurrency(excess)})`;
                 }
-
+    
+                const loadingPercentages = getLoadingPercentages(selectedType, typePrefix);
+                let totalLoadingAmount = 0;
                 let loadingBreakdown = '';
-                if (ageLoadingAmount > 0) loadingBreakdown += `<div class="breakdown-row"><span class="breakdown-label">+ Age Loading (${(loadingPercentages.Age * 100)}%)</span><span class="breakdown-value">$${formatCurrency(ageLoadingAmount)}</span></div>`;
-                if (expLoadingAmount > 0) loadingBreakdown += `<div class="breakdown-row"><span class="breakdown-label">+ Experience Loading (${(loadingPercentages.Experience * 100)}%)</span><span class="breakdown-value">$${formatCurrency(expLoadingAmount)}</span></div>`;
-                if (occupationLoadingAmount > 0) loadingBreakdown += `<div class="breakdown-row"><span class="breakdown-label">+ Occupation Loading (${(loadingPercentages.Occupation * 100)}%)</span><span class="breakdown-value">$${formatCurrency(occupationLoadingAmount)}</span></div>`;
-                if (vehicleTypeLoadingAmount > 0) loadingBreakdown += `<div class="breakdown-row"><span class="breakdown-label">+ Vehicle Type Loading (${(loadingPercentages['Vehicle Type'] * 100)}%)</span><span class="breakdown-value">$${formatCurrency(vehicleTypeLoadingAmount)}</span></div>`;
-
+                Object.entries(loadingPercentages).forEach(([key, value]) => {
+                    if (value > 0) {
+                        const loadingAmount = corePremium * value;
+                        totalLoadingAmount += loadingAmount;
+                        loadingBreakdown += `<p>+ ${key} Loading (${(value * 100).toFixed(0)}%): <strong class="float-right">$${formatCurrency(loadingAmount)}</strong></p>`;
+                    }
+                });
+    
+                // Calculate extra loadings
                 const extraLoadingRows = document.querySelectorAll(`#${typePrefix}-extra-loadings-container .extra-loading-row`);
-                let extraLoadingAmount = 0;
                 extraLoadingRows.forEach(row => {
                     const name = row.querySelector('.loading-name').value;
                     const percent = parseFloat(row.querySelector('.loading-percent').value) || 0;
                     if (name && percent > 0) {
                         const loadingAmount = corePremium * (percent / 100);
-                        extraLoadingAmount += loadingAmount;
-                        loadingBreakdown += `<div class="breakdown-row"><span class="breakdown-label">+ ${name} Loading (${percent}%)</span><span class="breakdown-value">$${formatCurrency(loadingAmount)}</span></div>`;
+                        totalLoadingAmount += loadingAmount;
+                        loadingBreakdown += `<p>+ ${name} Loading (${percent}%): <strong class="float-right">$${formatCurrency(loadingAmount)}</strong></p>`;
                     }
                 });
-
-                const totalLoadingAmount = ageLoadingAmount + expLoadingAmount + occupationLoadingAmount + vehicleTypeLoadingAmount + extraLoadingAmount;
+    
                 const premiumAfterLoadings = corePremium + totalLoadingAmount;
-                const { totalDiscountAmount, discountBreakdown } = calculateDiscounts(selectedType, typePrefix, premiumAfterLoadings, advIncludesNCD);
+                
+                const { totalDiscountAmount, discountBreakdown } = calculateDiscounts(selectedType, typePrefix, premiumAfterLoadings);
                 
                 const premiumAfterDiscounts = premiumAfterLoadings - totalDiscountAmount;
+    
                 const subtotalWithBenefits = premiumAfterDiscounts + optionalPremiums;
-                
+    
                 let minPremium = 0;
                 if (selectedType === 'private') minPremium = getElement('p-coverage-type').value === 'comprehensive' ? 2000 : 1150;
                 else if (selectedType === 'platinum') minPremium = 7500;
                 else if (selectedType === 'commercial') minPremium = getElement('c-coverage-type').value === 'comprehensive' ? 2000 : 1150;
-
+    
                 const premiumBeforeTax = Math.max(subtotalWithBenefits, minPremium);
                 
-                let taxAmount = 0;
                 const driverAge = getFloatValue(typePrefix + '-driver-age');
-                if (driverAge > 0 && driverAge <= 60) taxAmount = premiumBeforeTax * 0.06;
+                let taxAmount = 0;
+                if (driverAge > 0 && driverAge <= 60) {
+                    taxAmount = premiumBeforeTax * 0.06;
+                }
                 
                 const finalTotal = premiumBeforeTax + taxAmount;
                 
+                // --- Display Results ---
                 resultsSection.classList.remove('hidden');
                 totalPremiumEl.textContent = `$${formatCurrency(finalTotal)}`;
                 managerReferralEl.textContent = referralMessage;
     
-                let htmlBreakdown = `<div class="breakdown-row"><span class="breakdown-label">${baseLabel}</span><span class="breakdown-value">$${formatCurrency(corePremium)}</span></div>`;
+                let htmlBreakdown = '';
+                const isAdvanced = getElement(typePrefix + '-advanced-mode-check')?.checked;
+                const overrideRate = getFloatValue(typePrefix + '-override-rate');
+    
+                const baseLabel = (isAdvanced && overrideRate > 0) ? `Base Premium (at ${overrideRate}% rate)` : 'Base Premium';
+                htmlBreakdown += `<p>${baseLabel}: <strong class="float-right">$${formatCurrency(corePremium)}</strong></p>`;
+                
                 htmlBreakdown += loadingBreakdown;
-                if (loadingBreakdown) htmlBreakdown += `<div class="breakdown-row font-semibold border-t border-[var(--border-color)] pt-1 mt-1"><span class="breakdown-label">Subtotal after Loadings</span><span class="breakdown-value">$${formatCurrency(premiumAfterLoadings)}</span></div>`;
+                if (loadingBreakdown) {
+                    htmlBreakdown += `<p class="font-semibold border-t border-[var(--border-color)] pt-1 mt-1">Subtotal after Loadings: <strong class="float-right">$${formatCurrency(premiumAfterLoadings)}</strong></p>`;
+                }
                 
                 htmlBreakdown += discountBreakdown;
-                if (discountBreakdown) htmlBreakdown += `<div class="breakdown-row font-semibold border-t border-[var(--border-color)] pt-1 mt-1"><span class="breakdown-label">Subtotal after Discounts</span><span class="breakdown-value">$${formatCurrency(premiumAfterDiscounts)}</span></div>`;
+                if (discountBreakdown) {
+                     htmlBreakdown += `<p class="font-semibold border-t border-[var(--border-color)] pt-1 mt-1">Subtotal after Discounts: <strong class="float-right">$${formatCurrency(premiumAfterDiscounts)}</strong></p>`;
+                }
     
                 if(optionalPremiums > 0) {
                     htmlBreakdown += `<div class="border-t border-[var(--border-color)] pt-2 mt-2"><p class="font-semibold">Optional Benefits:</p>${optionalBreakdown}</div>`;
-                    htmlBreakdown += `<div class="breakdown-row font-semibold"><span class="breakdown-label">Optional Benefits Subtotal</span><span class="breakdown-value">$${formatCurrency(optionalPremiums)}</span></div>`;
-                    htmlBreakdown += `<div class="breakdown-row font-semibold border-t border-[var(--border-color)] pt-1 mt-1"><span class="breakdown-label">Premium with Benefits (before Tax)</span><span class="breakdown-value">$${formatCurrency(subtotalWithBenefits)}</span></div>`;
-                } else if (!loadingBreakdown && !discountBreakdown) {
-                    htmlBreakdown += `<div class="breakdown-row font-semibold border-t border-[var(--border-color)] pt-1 mt-1"><span class="breakdown-label">Premium before Tax</span><span class="breakdown-value">$${formatCurrency(premiumAfterDiscounts)}</span></div>`;
+                    htmlBreakdown += `<p class="font-semibold">Optional Benefits Subtotal: <strong class="float-right">$${formatCurrency(optionalPremiums)}</strong></p>`;
+                    htmlBreakdown += `<p class="font-semibold border-t border-[var(--border-color)] pt-1 mt-1">Premium with Benefits (before Tax): <strong class="float-right">$${formatCurrency(subtotalWithBenefits)}</strong></p>`;
+                } else {
+                     htmlBreakdown += `<p class="font-semibold border-t border-[var(--border-color)] pt-1 mt-1">Premium before Tax: <strong class="float-right">$${formatCurrency(premiumAfterDiscounts)}</strong></p>`;
                 }
                 
                 if (premiumBeforeTax > subtotalWithBenefits && subtotalWithBenefits > 0) {
-                    htmlBreakdown += `<div class="breakdown-row mt-2 font-semibold"><span class="breakdown-label">Premium Before Tax (Min. Applied)</span><span class="breakdown-value">$${formatCurrency(premiumBeforeTax)}</span></div>`;
+                    htmlBreakdown += `<p class="mt-2 font-semibold">Premium Before Tax (Min. Applied): <strong class="float-right">$${formatCurrency(premiumBeforeTax)}</strong></p>`;
                 }
     
-                if (driverAge > 0) {
-                    const taxText = driverAge > 60 ? '$0.00 (Exempt)' : `$${formatCurrency(taxAmount)}`;
-                    htmlBreakdown += `<div class="breakdown-row"><span class="breakdown-label">+ Tax (6%)</span><span class="breakdown-value">${taxText}</span></div>`;
+                if (taxAmount > 0) {
+                    htmlBreakdown += `<p>+ Tax (6%): <strong class="float-right">$${formatCurrency(taxAmount)}</strong></p>`;
+                } else if (driverAge > 60) {
+                     htmlBreakdown += `<p>+ Tax (6%): <strong class="float-right">$0.00 (Exempt)</strong></p>`;
                 }
-                htmlBreakdown += `<div class="breakdown-row total-row font-bold text-lg border-t border-[var(--border-color)] pt-2 mt-2"><span class="breakdown-label">Grand Total</span><span class="breakdown-value">$${formatCurrency(finalTotal)}</span></div>`;
+                 htmlBreakdown += `<p class="font-bold text-lg border-t border-[var(--border-color)] pt-2 mt-2">Grand Total: <strong class="float-right">$${formatCurrency(finalTotal)}</strong></p>`;
                 
                 premiumBreakdownEl.innerHTML = htmlBreakdown;
-
-                handleRecommendations();
             }
     
-            function calculateDiscounts(selectedType, typePrefix, premiumToDiscount, skipNCD = false) {
+            function calculateDiscounts(selectedType, typePrefix, premiumToDiscount) {
                 let totalDiscountAmount = 0;
                 let discountBreakdown = '';
                 
-                if (!skipNCD) {
-                    const ncdYears = parseInt(getElement(typePrefix + '-ncd').value, 10);
-                    let ncdRate = 0;
-                    const coverageType = (getElement(typePrefix + '-coverage-type') || {}).value || 'comprehensive';
-                    if (NCD_RATES[selectedType] && NCD_RATES[selectedType][coverageType]) {
-                        ncdRate = NCD_RATES[selectedType][coverageType][ncdYears] || 0;
-                    }
-                    if (ncdRate > 0) {
-                        const ncdAmount = premiumToDiscount * ncdRate;
-                        totalDiscountAmount += ncdAmount;
-                        discountBreakdown += `<div class="breakdown-row text-green-600 dark:text-green-400"><span class="breakdown-label">- NCD (${(ncdRate * 100)}%)</span><span class="breakdown-value">-$${formatCurrency(ncdAmount)}</span></div>`;
-                    }
+                const ncdYears = parseInt(getElement(typePrefix + '-ncd').value);
+                let ncdRate = 0;
+                const policyType = selectedType; 
+                let coverageType = 'comprehensive';
+                if (getElement(typePrefix + '-coverage-type')) {
+                    coverageType = getElement(typePrefix + '-coverage-type').value;
+                }
+                if (NCD_RATES[policyType] && NCD_RATES[policyType][coverageType]) {
+                     ncdRate = NCD_RATES[policyType][coverageType][ncdYears] || 0;
+                }
+                if (ncdRate > 0) {
+                    const ncdAmount = premiumToDiscount * ncdRate;
+                    totalDiscountAmount += ncdAmount;
+                    discountBreakdown += `<p class="text-green-500">- NCD (${(ncdRate * 100)}%): <strong class="float-right">-$${formatCurrency(ncdAmount)}</strong></p>`;
                 }
     
-                if(getElement(typePrefix + '-ansa-staff-check')?.checked) {
+                if(getElement(typePrefix + '-ansa-staff-check') && getElement(typePrefix + '-ansa-staff-check').checked) {
                     const amount = premiumToDiscount * 0.10;
                     totalDiscountAmount += amount;
-                    discountBreakdown += `<div class="breakdown-row text-green-600 dark:text-green-400"><span class="breakdown-label">- ANSA Staff (10%)</span><span class="breakdown-value">-$${formatCurrency(amount)}</span></div>`;
+                    discountBreakdown += `<p class="text-green-500">- ANSA Staff (10%): <strong class="float-right">-$${formatCurrency(amount)}</strong></p>`;
                 }
-                if(getElement(typePrefix + '-other-motor-check')?.checked) {
+                if(getElement(typePrefix + '-other-motor-check') && getElement(typePrefix + '-other-motor-check').checked) {
                     const amount = premiumToDiscount * 0.10;
                     totalDiscountAmount += amount;
-                    discountBreakdown += `<div class="breakdown-row text-green-600 dark:text-green-400"><span class="breakdown-label">- Other Motor (10%)</span><span class="breakdown-value">-$${formatCurrency(amount)}</span></div>`;
+                    discountBreakdown += `<p class="text-green-500">- Other Motor (10%): <strong class="float-right">-$${formatCurrency(amount)}</strong></p>`;
                 }
-                if(getElement(typePrefix + '-multi-client-check')?.checked) {
+                 if(getElement(typePrefix + '-multi-client-check') && getElement(typePrefix + '-multi-client-check').checked) {
                     const amount = premiumToDiscount * 0.15;
                     totalDiscountAmount += amount;
-                    discountBreakdown += `<div class="breakdown-row text-green-600 dark:text-green-400"><span class="breakdown-label">- Multi-Client/Business (15%)</span><span class="breakdown-value">-$${formatCurrency(amount)}</span></div>`;
+                    discountBreakdown += `<p class="text-green-500">- Multi-Client/Business (15%): <strong class="float-right">-$${formatCurrency(amount)}</strong></p>`;
                 }
                 if(typePrefix === 'c' && getElement('c-private-pickup-discount').value > 0){
                     const rate = getFloatValue('c-private-pickup-discount');
                     const amount = premiumToDiscount * rate;
                     totalDiscountAmount += amount;
-                    discountBreakdown += `<div class="breakdown-row text-green-600 dark:text-green-400"><span class="breakdown-label">- Private Pick-Up (${rate*100}%)</span><span class="breakdown-value">-$${formatCurrency(amount)}</span></div>`;
+                    discountBreakdown += `<p class="text-green-500">- Private Pick-Up (${rate*100}%): <strong class="float-right">-$${formatCurrency(amount)}</strong></p>`;
                 }
                 
                 let specialDiscountBreakdown = '';
                 Object.entries(SPECIAL_DISCOUNTS).forEach(([label, id]) => {
                     const checkElement = getElement(typePrefix + '-' + id + '-check');
-                    if (checkElement?.checked) {
+                    if (checkElement && checkElement.checked) {
                         const rate = getFloatValue(typePrefix + '-' + id + '-value') / 100;
                         if (rate > 0) {
                             const amount = premiumToDiscount * rate;
                             totalDiscountAmount += amount;
-                            specialDiscountBreakdown += `<div class="breakdown-row text-green-600 dark:text-green-400"><span class="breakdown-label">- ${label} (${rate * 100}%)</span><span class="breakdown-value">-$${formatCurrency(amount)}</span></div>`;
+                            specialDiscountBreakdown += `<p class="text-green-500">- ${label} (${rate * 100}%): <strong class="float-right">-$${formatCurrency(amount)}</strong></p>`;
                         }
                     }
                 });
-                if(specialDiscountBreakdown) discountBreakdown += `<h4 class="font-medium text-[var(--text-secondary)] mt-1">Special Discounts:</h4>${specialDiscountBreakdown}`;
-                if (discountBreakdown) discountBreakdown = `<div class="border-t border-[var(--border-color)] pt-2 mt-2"><p class="font-semibold">Discounts:</p>${discountBreakdown}</div>`;
+                 if(specialDiscountBreakdown) {
+                    discountBreakdown += `<h4 class="font-medium text-[var(--text-secondary)] mt-1">Special Discounts:</h4>${specialDiscountBreakdown}`;
+                }
+    
+                if (discountBreakdown) {
+                    discountBreakdown = `<div class="border-t border-[var(--border-color)] pt-2 mt-2"><p class="font-semibold">Discounts:</p>${discountBreakdown}</div>`;
+                }
     
                 return { totalDiscountAmount, discountBreakdown };
             }
@@ -1158,22 +1531,30 @@
                 let loadings = { 'Age': 0, 'Experience': 0, 'Occupation': 0, 'Vehicle Type': 0 };
                 const age = getFloatValue(typePrefix + '-driver-age');
                 const exp = getFloatValue(typePrefix + '-driving-exp');
-                const occupation = (getElement(typePrefix + '-occupation') || {}).value || 'standard';
-                const vehicleModel = (getElement(`${typePrefix}-vehicle-model`) || {}).value;
-                const isComprehensive = ((getElement(typePrefix + '-coverage-type') || {}).value || 'comprehensive') === 'comprehensive';
+                const occupation = getElement(typePrefix + '-occupation') ? getElement(typePrefix + '-occupation').value : 'standard';
+                let vehicleModel;
+                if (type === 'private' || type === 'platinum') {
+                    vehicleModel = getElement(`${typePrefix}-vehicle-model`).value;
+                }
+    
+                let coverageType = 'comprehensive';
+                 if (getElement(typePrefix + '-coverage-type')) {
+                    coverageType = getElement(typePrefix + '-coverage-type').value;
+                }
+                const isComprehensive = coverageType === 'comprehensive';
     
                 if (isComprehensive) {
-                    if (type === 'platinum') {
-                        if (age > 0 && age <= 25) loadings['Age'] = 0.50;
+                    if(type === 'platinum'){
+                        if (age >= 17 && age <= 25) loadings['Age'] = 0.50;
                         if (exp > 0 && exp < 2) loadings['Experience'] = 0.50;
-                        else if (exp === 2) loadings['Experience'] = 0.10;
+                        else if (exp == 2) loadings['Experience'] = 0.10;
                         if (['travelling', 'music', 'shift'].includes(occupation)) loadings['Occupation'] = 0.10;
                         if (occupation === 'protective') loadings['Occupation'] = 0.20;
                         if (['hybrid', 'electric'].includes(vehicleModel)) loadings['Vehicle Type'] = 0.20;
                     } else {
-                        if (age > 0 && age <= 24) loadings['Age'] = 0.20;
+                        if (age >= 17 && age <= 24) loadings['Age'] = 0.20;
                         if (exp > 0 && exp < 2) loadings['Experience'] = 0.20;
-                        else if (exp === 2) loadings['Experience'] = 0.10;
+                        else if (exp == 2) loadings['Experience'] = 0.10;
                         if (['travelling', 'music', 'shift', 'protective'].includes(occupation)) loadings['Occupation'] = 0.10;
                         if (type === 'private') {
                             if (['hybrid', 'electric'].includes(vehicleModel)) loadings['Vehicle Type'] = 0.20;
@@ -1181,11 +1562,11 @@
                         }
                     }
                 } else { // Third Party
-                    if (age > 0 && age <= 24) loadings['Age'] = 0.50;
+                    if (age >= 17 && age <= 24) loadings['Age'] = 0.50;
                     if (exp > 0 && exp < 2) loadings['Experience'] = 0.50;
-                    else if (exp === 2) loadings['Experience'] = 0.10;
+                    else if (exp == 2) loadings['Experience'] = 0.10;
                     if (['travelling', 'music', 'shift', 'protective'].includes(occupation)) loadings['Occupation'] = 0.25;
-                    if (type === 'private') {
+                     if (type === 'private') {
                         if (['hybrid', 'electric'].includes(vehicleModel)) loadings['Vehicle Type'] = 0.20;
                         if (vehicleModel === 'honda-city') loadings['Vehicle Type'] = 0.30;
                     }
@@ -1193,7 +1574,13 @@
                 return loadings;
             }
     
-            function calculateCorePremium(sumInsured, standardRate, standardBase) {
+            function calculateCorePremium(prefix, sumInsured, standardRate, standardBase) {
+                 if (getElement(prefix + '-advanced-mode-check')?.checked) {
+                    const overrideRate = getFloatValue(prefix + '-override-rate') / 100;
+                    if (overrideRate > 0) {
+                        return (sumInsured * overrideRate) + standardBase;
+                    }
+                }
                 return (sumInsured * standardRate) + standardBase;
             }
             
@@ -1208,41 +1595,41 @@
     
                 if (coverage === 'comprehensive') {
                     excess = sumInsured * 0.03;
-                    corePremium = calculateCorePremium(sumInsured, 0.08, engine === 'under-2000' ? 1700 : 2000);
+                    corePremium = calculateCorePremium('p', sumInsured, 0.08, engine === 'under-2000' ? 1700 : 2000);
                     if (getElement('p-windscreen-check').checked) {
                         const val = getFloatValue('p-windscreen-value');
                         if (val > 5000) {
                             const prem = (val - 5000) * 0.10;
                             optionalPremiums += prem;
-                            optionalBreakdown += `<div class="breakdown-row pl-4 text-[var(--text-muted)]"><span class="breakdown-label">+ Windscreen Cover</span><span class="breakdown-value">$${formatCurrency(prem)}</span></div>`;
+                            optionalBreakdown += `<p class="pl-4 text-[var(--text-muted)]">+ Windscreen Cover: <strong class="float-right">$${formatCurrency(prem)}</strong></p>`;
                         }
                     }
                     if (getElement('p-woe-check').checked) {
                         const prem = Math.max((excess * 0.10), 400);
                         optionalPremiums += prem;
-                        optionalBreakdown += `<div class="breakdown-row pl-4 text-[var(--text-muted)]"><span class="breakdown-label">+ Waiver of Excess</span><span class="breakdown-value">$${formatCurrency(prem)}</span></div>`;
+                        optionalBreakdown += `<p class="pl-4 text-[var(--text-muted)]">+ Waiver of Excess: <strong class="float-right">$${formatCurrency(prem)}</strong></p>`;
                     }
                     if (getElement('p-lou-check').checked) {
                         optionalPremiums += 400;
-                        optionalBreakdown += `<div class="breakdown-row pl-4 text-[var(--text-muted)]"><span class="breakdown-label">+ Loss of Use</span><span class="breakdown-value">$${formatCurrency(400)}</span></div>`;
+                        optionalBreakdown += `<p class="pl-4 text-[var(--text-muted)]">+ Loss of Use: <strong class="float-right">$${formatCurrency(400)}</strong></p>`;
                     }
                     if (getElement('p-pa-check').checked) {
                         optionalPremiums += 200;
-                        optionalBreakdown += `<div class="breakdown-row pl-4 text-[var(--text-muted)]"><span class="breakdown-label">+ Personal Accident ($200k)</span><span class="breakdown-value">$${formatCurrency(200)}</span></div>`;
+                        optionalBreakdown += `<p class="pl-4 text-[var(--text-muted)]">+ Personal Accident ($200k): <strong class="float-right">$${formatCurrency(200)}</strong></p>`;
                     }
                 } else { // Third Party
-                    corePremium = calculateCorePremium(0, 0, engine === 'under-2000' ? 1700 : 2000);
+                    corePremium = calculateCorePremium('p', 0, 0, engine === 'under-2000' ? 1700 : 2000);
                      if (getElement('p-windscreen-check').checked) {
                         const val = getFloatValue('p-windscreen-value');
                         if (val > 5000) {
                              const prem = (val - 5000) * 0.10;
                              optionalPremiums += prem;
-                             optionalBreakdown += `<div class="breakdown-row pl-4 text-[var(--text-muted)]"><span class="breakdown-label">+ Windscreen Cover</span><span class="breakdown-value">$${formatCurrency(prem)}</span></div>`;
+                             optionalBreakdown += `<p class="pl-4 text-[var(--text-muted)]">+ Windscreen Cover: <strong class="float-right">$${formatCurrency(prem)}</strong></p>`;
                         }
                     }
                     if (getElement('p-pa-check').checked) {
                         optionalPremiums += 100;
-                        optionalBreakdown += `<div class="breakdown-row pl-4 text-[var(--text-muted)]"><span class="breakdown-label">+ Personal Accident ($100k)</span><span class="breakdown-value">$${formatCurrency(100)}</span></div>`;
+                        optionalBreakdown += `<p class="pl-4 text-[var(--text-muted)]">+ Personal Accident ($100k): <strong class="float-right">$${formatCurrency(100)}</strong></p>`;
                     }
                 }
                 return { corePremium, optionalPremiums, optionalBreakdown, referralMessage, excess };
@@ -1256,39 +1643,39 @@
                 const vehicleAge = getFloatValue('pl-vehicle-age');
     
                 if (age > 65) referralMessage = "Drivers over 65 must be referred to a manager.";
-                if (sumInsured > 0 && sumInsured < 650000) referralMessage += "\nSum Insured must be $650,000 or more.";
+                if (sumInsured < 650000) referralMessage += "\nSum Insured must be $650,000 or more.";
                 if (vehicleAge > 2) referralMessage += "\nVehicle age cannot be more than 2 years.";
                 if (getElement('pl-ncd').value !== '4') referralMessage += "\nMaximum NCD is required for Platinum Drive.";
     
                 excess = sumInsured * 0.03;
-                corePremium = calculateCorePremium(sumInsured, 0.035, engine === 'under-2000' ? 3000 : 4000);
+                corePremium = calculateCorePremium('pl', sumInsured, 0.035, engine === 'under-2000' ? 3000 : 4000);
                 
                 if (getElement('pl-windscreen-check').checked) {
                     const val = getFloatValue('pl-windscreen-value');
                     if (val > 20000) {
                         const prem = (val - 20000) * 0.10;
                         optionalPremiums += prem;
-                        optionalBreakdown += `<div class="breakdown-row pl-4 text-[var(--text-muted)]"><span class="breakdown-label">+ Increased Windscreen Cover</span><span class="breakdown-value">$${formatCurrency(prem)}</span></div>`;
+                        optionalBreakdown += `<p class="pl-4 text-[var(--text-muted)]">+ Increased Windscreen Cover: <strong class="float-right">$${formatCurrency(prem)}</strong></p>`;
                     }
                 }
                 if (getElement('pl-woe-check').checked) {
                      const prem = Math.max((excess * 0.10), 1000); 
                      optionalPremiums += prem;
-                     optionalBreakdown += `<div class="breakdown-row pl-4 text-[var(--text-muted)]"><span class="breakdown-label">+ Waiver of Excess</span><span class="breakdown-value">$${formatCurrency(prem)}</span></div>`;
+                     optionalBreakdown += `<p class="pl-4 text-[var(--text-muted)]">+ Waiver of Excess: <strong class="float-right">$${formatCurrency(prem)}</strong></p>`;
                 }
                 if (getElement('pl-pa-check').checked) {
                      optionalPremiums += 200;
-                     optionalBreakdown += `<div class="breakdown-row pl-4 text-[var(--text-muted)]"><span class="breakdown-label">+ Personal Accident ($200k)</span><span class="breakdown-value">$${formatCurrency(200)}</span></div>`;
+                     optionalBreakdown += `<p class="pl-4 text-[var(--text-muted)]">+ Personal Accident ($200k): <strong class="float-right">$${formatCurrency(200)}</strong></p>`;
                 }
                  if (getElement('pl-tpl-check').checked) {
                     optionalPremiums += 2500;
-                    optionalBreakdown += `<div class="breakdown-row pl-4 text-[var(--text-muted)]"><span class="breakdown-label">+ Increased TPL</span><span class="breakdown-value">$${formatCurrency(2500)}</span></div>`;
+                    optionalBreakdown += `<p class="pl-4 text-[var(--text-muted)]">+ Increased TPL: <strong class="float-right">$${formatCurrency(2500)}</strong></p>`;
                 }
                 return { corePremium, optionalPremiums, optionalBreakdown, referralMessage, excess };
             }
     
             function calculateCommercialPremium() {
-                let corePremium = 0, excess = 0, referralMessage = '';
+                let corePremium = 0, excess = 0;
                 const coverage = getElement('c-coverage-type').value;
     
                 if (coverage === 'comprehensive') {
@@ -1299,22 +1686,30 @@
                     if (usage === 'private-pickup') { standardRate = 0.08; standardBase = 1700; }
                     else if (usage === 'own-goods') { standardRate = 0.085; standardBase = 2200; }
                     else { standardRate = 0.10; standardBase = 3500; }
-                    corePremium = calculateCorePremium(sumInsured, standardRate, standardBase);
-                } else { // Third Party
+                    corePremium = calculateCorePremium('c', sumInsured, standardRate, standardBase);
+                } else {
                     const hp = getElement('c-hp').value;
                     let standardBase = 0;
                     if (hp === 'upto-30') standardBase = 2200;
                     else if (hp === '31-50') standardBase = 2700;
                     else standardBase = 3700;
-                    corePremium = calculateCorePremium(0, 0, standardBase);
+                    corePremium = calculateCorePremium('c', 0, 0, standardBase);
                 }
-                return { corePremium, optionalPremiums: 0, optionalBreakdown: '', referralMessage, excess };
+                return { corePremium, optionalPremiums: 0, optionalBreakdown: '', referralMessage: '', excess };
             }
             
             // --- QUOTE GENERATION, PDF & EMAIL ---
+            function generatePdfAsBase64(quoteText, clientName) {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                doc.setFont("courier", "normal");
+                doc.setFontSize(10);
+                doc.text(quoteText, 10, 10);
+                return doc.output('datauristring');
+            }
+    
             function generateFinalQuote() {
                 const clientName = getElement('client-name').value || 'N/A';
-                const clientEmail = getElement('client-email').value;
                 const clientAddress = getElement('client-address').value;
                 const clientContact = getElement('client-contact').value;
                 const licensePlate = getElement('vehicle-license').value;
@@ -1327,263 +1722,73 @@
                 const driverAge = getFloatValue(typePrefix + '-driver-age');
                 const drivingExp = getFloatValue(typePrefix + '-driving-exp');
                 const sumInsured = getFloatValue(typePrefix + '-sum-insured');
-                const vehicleAge = getFloatValue(typePrefix + '-vehicle-age');
-
-                const breakdownRows = premiumBreakdownEl.querySelectorAll('.breakdown-row');
-                const breakdownDetails = Array.from(breakdownRows).map(row => {
-                    const labelEl = row.querySelector('.breakdown-label') || row.children[0];
-                    const valueEl = row.querySelector('.breakdown-value') || row.children[1];
-                    return {
-                        label: labelEl ? labelEl.innerText.replace(':', '').trim() : '',
-                        value: valueEl ? valueEl.innerText.trim() : '',
-                        isTotal: row.classList.contains('total-row'),
-                        isSubtle: (labelEl && labelEl.parentElement.classList.contains('text-[var(--text-muted)]')) || false
-                    };
-                });
     
-                quoteDataForPdf = {
-                    client: { name: clientName, address: clientAddress, contact: clientContact, age: driverAge, exp: drivingExp },
-                    vehicle: { license: licensePlate, value: sumInsured, age: vehicleAge, isMortgaged, finInstitution, finBranch },
-                    breakdown: breakdownDetails,
-                    referral: managerReferralEl.textContent,
-                    date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })
-                };
-
-                const fullQuoteText = generateQuoteTextForDisplay(quoteDataForPdf);
-                quoteOutput.textContent = fullQuoteText;
-
-                clientInfoModal.style.display = 'none';
-                finalQuoteModal.style.display = 'flex';
-    
-                const pdfDataUri = generatePdfAsBase64(quoteDataForPdf);
-                // The sendEmail function is now disabled
-                // sendEmail(clientName, fullQuoteText, pdfDataUri, clientEmail);
-            }
-
-            function generateQuoteTextForDisplay(data) {
-                let text = `
+                 fullQuoteText = `
 =========================================
       OFFICIAL INSURANCE QUOTATION
 =========================================
-Date: ${data.date}
+Date: ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
 
 CLIENT INFORMATION:
 -------------------
-Name:               ${data.client.name}
-Address:            ${data.client.address || 'N/A'}
-Contact:            ${data.client.contact || 'N/A'}
-Age:                ${data.client.age > 0 ? data.client.age : 'N/A'}
-Driving Experience: ${data.client.exp > 0 ? `${data.client.exp} years` : 'N/A'}
+Name:               ${clientName}
+Address:            ${clientAddress}
+Contact:            ${clientContact}
+Age:                ${driverAge}
+Driving Experience: ${drivingExp} years
 
 VEHICLE INFORMATION:
 --------------------
-License Plate:      ${data.vehicle.license || 'N/A'}
-Value of Vehicle:   ${data.vehicle.value > 0 ? '$' + formatCurrency(data.vehicle.value) : 'N/A'}
-Age of Vehicle:     ${data.vehicle.age > 0 ? `${data.vehicle.age} years` : 'N/A'}
-Mortgaged:          ${data.vehicle.isMortgaged ? 'Yes' : 'No'}
-${data.vehicle.isMortgaged ? `Financial Inst:     ${data.vehicle.finInstitution} (${data.vehicle.finBranch})` : ''}
+License Plate:    ${licensePlate}
+Value of Vehicle: $${formatCurrency(sumInsured)}
+Mortgaged:        ${isMortgaged ? 'Yes' : 'No'}
+${isMortgaged ? `Financial Inst:   ${finInstitution} (${finBranch} Branch)` : ''}
 
 PREMIUM CALCULATION:
---------------------\n`;
-                data.breakdown.forEach(row => {
-                    text += `${row.label.padEnd(45, ' ')} ${row.value}\n`;
-                });
-                text +=`
+--------------------
+${premiumBreakdownEl.innerText}
+
 =========================================
 
 This quotation is valid for 30 days.
-Terms and conditions apply.`;
-                return text.trim();
-            }
-
-            function generatePdfAsBase64(data) {
-                const { jsPDF } = window.jspdf;
-                const doc = new jsPDF();
-                const pageW = doc.internal.pageSize.getWidth();
-                const pageH = doc.internal.pageSize.getHeight();
-                let y = 18;
-
-                // --- Header ---
-                doc.setFont('helvetica', 'bold');
-                doc.setFontSize(22);
-                doc.setTextColor(0, 95, 115); // --primary-accent
-                doc.text('Insurance Quotation', pageW / 2, y, { align: 'center' });
-                y += 8;
-
-                doc.setFont('helvetica', 'normal');
-                doc.setFontSize(10);
-                doc.setTextColor(74, 85, 104); // --text-secondary
-                doc.text(`Date Issued: ${data.date}`, pageW / 2, y, { align: 'center' });
-                y += 10;
-                doc.setDrawColor(220, 225, 231); // --border-color
-                doc.setLineWidth(0.5);
-                doc.line(15, y, pageW - 15, y);
-                y += 12;
-
-                // --- Client & Vehicle Info ---
-                doc.setFont('helvetica', 'bold');
-                doc.setFontSize(12);
-                doc.setTextColor(0, 95, 115);
-                doc.text('Prepared For', 15, y);
-                doc.text('Vehicle Details', pageW / 2 + 5, y);
-                y += 5;
-                doc.setDrawColor(200, 205, 211);
-                doc.setLineWidth(0.2);
-                doc.line(15, y, 95, y);
-                doc.line(pageW / 2 + 5, y, pageW - 15, y);
-                y += 7;
-
-                doc.setFont('helvetica', 'normal');
-                doc.setFontSize(10);
-                doc.setTextColor(29, 45, 53); // --text-primary
-
-                const clientX = 15;
-                const vehicleX = pageW / 2 + 5;
-                let y1 = y, y2 = y;
-
-                doc.text(data.client.name, clientX, y1); y1 += 6;
-                const addressLines = doc.splitTextToSize(data.client.address || 'N/A', (pageW / 2) - 25);
-                doc.text(addressLines, clientX, y1); y1 += (addressLines.length * 6);
-                doc.text(data.client.contact || 'N/A', clientX, y1); y1 += 6;
-
-                doc.text(`License Plate: ${data.vehicle.license || 'N/A'}`, vehicleX, y2); y2 += 6;
-                doc.text(`Vehicle Value: $${formatCurrency(data.vehicle.value)}`, vehicleX, y2); y2 += 6;
-                doc.text(`Vehicle Age: ${data.vehicle.age > 0 ? `${data.vehicle.age} years` : 'N/A'}`, vehicleX, y2); y2 += 6;
-                if(data.vehicle.isMortgaged) {
-                    doc.text(`Mortgaged: Yes`, vehicleX, y2); y2 += 6;
-                    const finInstLines = doc.splitTextToSize(`${data.vehicle.finInstitution} (${data.vehicle.finBranch})`, (pageW / 2) - 25)
-                    doc.text(finInstLines, vehicleX + 2, y2); y2+= (finInstLines.length * 6)
-                } else {
-                    doc.text(`Mortgaged: No`, vehicleX, y2); y2 += 6;
-                }
-                
-                y = Math.max(y1, y2) + 10;
-
-                // --- Premium Breakdown ---
-                doc.setFont('helvetica', 'bold');
-                doc.setFontSize(12);
-                doc.setTextColor(0, 95, 115);
-                doc.text('Premium Summary', 15, y);
-                y += 5;
-                doc.setDrawColor(200, 205, 211);
-                doc.setLineWidth(0.2);
-                doc.line(15, y, pageW - 15, y);
-                y += 8;
-
-                data.breakdown.forEach(row => {
-                    if (y > pageH - 30) {
-                        doc.addPage();
-                        y = 15;
-                    }
-
-                    if (row.label.toLowerCase().includes('grand total')) {
-                        doc.setFont('helvetica', 'bold');
-                        doc.setFontSize(12);
-                        doc.setTextColor(0, 95, 115);
-                    } else if (row.label.toLowerCase().includes('subtotal')) {
-                        doc.setFont('helvetica', 'bold');
-                        doc.setFontSize(10);
-                        doc.setTextColor(29, 45, 53);
-                    } else if (row.isSubtle) {
-                        doc.setFont('helvetica', 'normal');
-                        doc.setFontSize(9);
-                        doc.setTextColor(113, 128, 150);
-                    }
-                    else {
-                        doc.setFont('helvetica', 'normal');
-                        doc.setFontSize(10);
-                        doc.setTextColor(29, 45, 53);
-                    }
-                    
-                    doc.text(row.label, 20, y);
-                    doc.text(row.value, pageW - 20, y, { align: 'right' });
-                    
-                    if(row.label.toLowerCase().includes('grand total')) {
-                       y += 8;
-                    } else {
-                       y += 6;
-                    }
-                });
-
-                if (data.referral) {
-                    y += 5;
-                    doc.setFont('helvetica', 'bold');
-                    doc.setTextColor(220, 38, 38); // Red color
-                    doc.text('Manager Referral Required:', 15, y); y += 6;
-                    doc.setFont('helvetica', 'normal');
-                    const referralLines = doc.splitTextToSize(data.referral, pageW - 30);
-                    doc.text(referralLines, 15, y);
-                }
-                
-                // --- Footer ---
-                doc.setDrawColor(220, 225, 231);
-                doc.setLineWidth(0.5);
-                doc.line(15, pageH - 25, pageW - 15, pageH - 25);
-                
-                doc.setFont('helvetica', 'normal');
-                doc.setFontSize(9);
-                doc.setTextColor(113, 128, 150); // --text-muted
-                doc.text('This quotation is valid for 30 days. Terms and conditions apply.', 15, pageH - 18);
-                doc.text('Your Future, Secured. | Kyron Marchan | kyron.marchan@tatil.co.tt', pageW - 15, pageH - 18, {align: 'right'});
-
-                return doc.output('datauristring');
+Terms and conditions apply.
+`;
+                quoteOutput.textContent = fullQuoteText.trim();
+                clientInfoModal.style.display = 'none';
+                finalQuoteModal.style.display = 'flex';
+    
+                // Generate PDF and send email in the background
+                const pdfDataUri = generatePdfAsBase64(fullQuoteText.trim(), clientName);
+                sendEmail(clientName, fullQuoteText.trim(), pdfDataUri);
             }
     
-            /*
-            function sendEmail(clientName, quoteText, pdfDataUri, clientEmail) {
-                const serviceID = 'service_kyrondirect';
-                const templateID = 'template_quotedetails';
-                const emailStatusEl = getElement('email-status');
-
-                // Always send email to Kyron for records
-                const internalTemplateParams = {
+            function sendEmail(clientName, quoteText, pdfDataUri) {
+                const serviceID = 'service_kyrondirect'; // Service ID Updated
+                const templateID = 'template_quotedetails'; // Template ID Updated
+    
+                const templateParams = {
                     to_email: 'kyron.marchan@tatil.co.tt',
-                    from_name: 'TATIL Motor Rater',
-                    subject: `[Internal] Insurance Quote for ${clientName}`,
-                    message: `Quotation generated for ${clientName}. Client Email: ${clientEmail || 'Not Provided'}\n\n${quoteText}`,
-                    attachment: pdfDataUri.split('base64,')[1],
-                    filename: `Quote_${clientName.replace(/\s/g, '_')}.pdf`
+                    from_name: 'TATIL Motor Insurance Premium Rater',
+                    subject: `Insurance Quotation for ${clientName}`,
+                    message: quoteText,
+                    attachment: pdfDataUri,
+                    filename: `Insurance_Quote_For_${clientName.replace(/\s/g, '_')}.pdf`,
+                    current_year: new Date().getFullYear()
                 };
-                
-                emailjs.send(serviceID, templateID, internalTemplateParams)
-                    .then(res => console.log('Internal email sent successfully.', res.status, res.text))
-                    .catch(err => console.error('Failed to send internal email.', err));
-
-                // Send email to client only if address is provided
-                const hasClientEmail = clientEmail && clientEmail.includes('@');
-                if (hasClientEmail) {
-                    const clientTemplateParams = {
-                        to_email: clientEmail,
-                        from_name: 'Kyron Marchan (TATIL)',
-                        subject: `Your Insurance Quotation`,
-                        message: `Hi ${clientName},\n\nPlease find your attached insurance quotation.\n\nBest regards,\nKyron Marchan`,
-                        attachment: pdfDataUri.split('base64,')[1],
-                        filename: `Insurance_Quote_For_${clientName.replace(/\s/g, '_')}.pdf`
-                    };
-                    
-                    emailStatusEl.textContent = 'Sending email to client...';
-                    emailStatusEl.style.color = 'gray';
-
-                    emailjs.send(serviceID, templateID, clientTemplateParams)
-                        .then(res => {
-                            console.log('Client email SUCCESS!', res.status, res.text);
-                            emailStatusEl.textContent = `Quote sent to ${clientEmail}.`;
-                            emailStatusEl.style.color = 'green';
-                        }, err => {
-                            console.error('Client email FAILED...', err);
-                            emailStatusEl.textContent = `Failed to send email to client. Status: ${err.status}, Error: ${err.text}`;
-                            emailStatusEl.style.color = 'red';
-                        });
-                } else {
-                    emailStatusEl.textContent = 'Quote generated.';
-                    emailStatusEl.style.color = 'green';
-                }
+    
+                emailjs.send(serviceID, templateID, templateParams)
+                    .then(function(response) {
+                       console.log('SUCCESS!', response.status, response.text);
+                    }, function(error) {
+                       console.log('FAILED...', error);
+                    });
             }
-            */
     
             function generateAndDownloadPDF() {
-                const pdfData = generatePdfAsBase64(quoteDataForPdf);
                 const clientName = getElement('client-name').value || 'Client';
+                const pdfData = generatePdfAsBase64(fullQuoteText.trim(), clientName);
+                
+                // Create a temporary link to trigger the download
                 const link = document.createElement('a');
                 link.href = pdfData;
                 link.download = `Insurance_Quote_For_${clientName.replace(/\s/g, '_')}.pdf`;
@@ -1591,28 +1796,12 @@ Terms and conditions apply.`;
                 link.click();
                 document.body.removeChild(link);
             }
-
-            function copyQuoteToClipboard() {
-                const textToCopy = getElement('quote-output').innerText;
-                const quoteTextArea = document.createElement('textarea');
-                quoteTextArea.value = textToCopy;
-                document.body.appendChild(quoteTextArea);
-                quoteTextArea.select();
-                try {
-                    document.execCommand('copy');
-                    copyQuoteBtn.textContent = 'Copied!';
-                } catch (err) {
-                    copyQuoteBtn.textContent = 'Failed!';
-                }
-                document.body.removeChild(quoteTextArea);
-                setTimeout(() => { copyQuoteBtn.textContent = 'Copy Quote'; }, 2000);
-            }
     
-            // --- Initial UI Setup & Calculation ---
+            // --- Initial UI Setup ---
             handlePrivateCoverageChange();
             handleCommercialCoverageChange();
             handleCommercialUsageChange();
-            calculatePremium();
+            calculatePremium(); // Initial calculation on load
         });
     </script>
 </body>
