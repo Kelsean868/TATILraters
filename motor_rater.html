@@ -9,10 +9,6 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Source+Serif+Pro:wght@600;700&display=swap" rel="stylesheet">
     
-    <!-- **** IMPORTANT CHANGE **** -->
-    <!-- The external data script is moved to the <head> with the 'defer' attribute. -->
-    <!-- 'defer' ensures the script is executed after the document has been parsed but before -->
-    <!-- the DOMContentLoaded event, preventing script blocking and resolving race conditions. -->
     <script src="motor_rater_data.js" defer></script>
 
     <style>
@@ -176,7 +172,6 @@
             </div>
 
             <div id="calculators">
-                <!-- Private Car Calculator -->
                 <div id="private-calculator" class="form-section bento-box">
                     <div class="flex justify-between items-center mb-6">
                          <h2 class="text-2xl font-bold"><span class="inline-block bg-[var(--secondary-accent)] text-white rounded-full h-8 w-8 text-center leading-8 mr-3 text-lg">2</span>Private Car Details</h2>
@@ -206,9 +201,7 @@
                             </fieldset>
                         </div>
                     </div>
-                    <!-- Recommendation Box -->
                     <div id="p-recommendation" class="hidden recommendation-box bg-blue-100 dark:bg-blue-900/30 border border-blue-300 dark:border-blue-700 text-blue-800 dark:text-blue-200"></div>
-                    <!-- Rest of Private Car Form -->
                     <div class="space-y-6 mt-6">
                         <h3 class="text-lg font-bold text-[var(--text-secondary)]">Vehicle Information</h3>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -344,7 +337,6 @@
                     </div>
                 </div>
 
-                <!-- Platinum Drive Calculator -->
                 <div id="platinum-calculator" class="form-section bento-box">
                     <div class="flex justify-between items-center mb-6">
                          <h2 class="text-2xl font-bold"><span class="inline-block bg-[var(--secondary-accent)] text-white rounded-full h-8 w-8 text-center leading-8 mr-3 text-lg">2</span>Platinum Drive Details</h2>
@@ -374,10 +366,8 @@
                             </fieldset>
                         </div>
                     </div>
-                    <!-- Recommendation Box -->
                     <div id="pl-recommendation" class="hidden recommendation-box bg-yellow-100 dark:bg-yellow-900/30 border border-yellow-300 dark:border-yellow-700 text-yellow-800 dark:text-yellow-200"></div>
-                     <!-- Rest of Platinum Drive Form -->
-                    <div class="space-y-6 mt-6">
+                     <div class="space-y-6 mt-6">
                         <h3 class="text-lg font-bold text-[var(--text-secondary)]">Vehicle Information</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                              <div>
@@ -506,7 +496,6 @@
                     </div>
                 </div>
                 
-                <!-- Commercial Vehicle Calculator -->
                 <div id="commercial-calculator" class="form-section bento-box">
                     <div class="flex justify-between items-center mb-6">
                          <h2 class="text-2xl font-bold"><span class="inline-block bg-[var(--secondary-accent)] text-white rounded-full h-8 w-8 text-center leading-8 mr-3 text-lg">2</span>Commercial Details</h2>
@@ -536,7 +525,6 @@
                             </fieldset>
                         </div>
                     </div>
-                     <!-- Rest of Commercial Form -->
                      <div class="space-y-6 mt-6">
                         <h3 class="text-lg font-bold text-[var(--text-secondary)]">Vehicle Information</h3>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -680,7 +668,6 @@
         </footer>
     </div>
 
-    <!-- Modals -->
     <div id="client-info-modal" class="modal-overlay hidden">
         <div class="modal-content">
             <h3 class="text-xl font-bold leading-6 mb-4">Client & Vehicle Information</h3>
