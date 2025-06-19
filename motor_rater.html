@@ -129,9 +129,6 @@
         .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
         input:checked + .slider:before { transform: translateX(20px); } 
 
-        .toggle-checkbox:checked + .toggle-label .dot { transform: translateX(1.5rem); }
-        .toggle-checkbox:checked + .toggle-label { background-color: var(--primary-accent); }
-
         .whatsapp-float { position: fixed; width: 60px; height: 60px; bottom: 40px; right: 40px; background-color: #25d366; color: #FFF; border-radius: 50px; text-align: center; font-size: 30px; box-shadow: 2px 2px 6px rgba(0,0,0,0.25); z-index: 100; display: flex; align-items: center; justify-content: center; transition: transform 0.2s ease; }
         .whatsapp-float:hover { transform: scale(1.1); }
 
@@ -184,16 +181,14 @@
                 <div id="private-calculator" class="form-section bento-box">
                     <div class="flex justify-between items-center mb-6">
                          <h2 class="text-2xl font-bold"><span class="inline-block bg-[var(--secondary-accent)] text-white rounded-full h-8 w-8 text-center leading-8 mr-3 text-lg">2</span>Private Car Details</h2>
-                         <div class="flex items-center">
-                            <label for="p-advanced-mode-check" class="flex items-center cursor-pointer">
-                                <span class="mr-3 text-sm font-medium">Advanced Mode</span>
-                                <div class="relative">
-                                    <input type="checkbox" id="p-advanced-mode-check" class="toggle-checkbox sr-only">
-                                    <div class="toggle-label block bg-gray-300 dark:bg-gray-700 w-12 h-6 rounded-full"></div>
-                                    <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform"></div>
-                                </div>
-                            </label>
-                        </div>
+                         <label for="p-advanced-mode-check" class="flex items-center cursor-pointer">
+                            <span class="mr-3 text-sm font-medium">Advanced Mode</span>
+                            <div class="relative">
+                                <input type="checkbox" id="p-advanced-mode-check" class="sr-only peer">
+                                <div class="block bg-gray-300 w-12 h-6 rounded-full peer-checked:bg-[var(--primary-accent)] dark:bg-gray-700 transition"></div>
+                                <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition peer-checked:translate-x-6"></div>
+                            </div>
+                        </label>
                     </div>
                      <div id="p-advanced-section" class="advanced-section">
                         <h4 class="font-semibold text-[var(--text-primary)] mb-2">Manual Rate Override</h4>
@@ -352,16 +347,14 @@
                 <div id="platinum-calculator" class="form-section bento-box">
                     <div class="flex justify-between items-center mb-6">
                          <h2 class="text-2xl font-bold"><span class="inline-block bg-[var(--secondary-accent)] text-white rounded-full h-8 w-8 text-center leading-8 mr-3 text-lg">2</span>Platinum Drive Details</h2>
-                         <div class="flex items-center">
-                            <label for="pl-advanced-mode-check" class="flex items-center cursor-pointer">
-                                <span class="mr-3 text-sm font-medium">Advanced Mode</span>
-                                <div class="relative">
-                                    <input type="checkbox" id="pl-advanced-mode-check" class="toggle-checkbox sr-only">
-                                    <div class="toggle-label block bg-gray-300 dark:bg-gray-700 w-12 h-6 rounded-full"></div>
-                                    <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform"></div>
-                                </div>
-                            </label>
-                        </div>
+                         <label for="pl-advanced-mode-check" class="flex items-center cursor-pointer">
+                            <span class="mr-3 text-sm font-medium">Advanced Mode</span>
+                            <div class="relative">
+                                <input type="checkbox" id="pl-advanced-mode-check" class="sr-only peer">
+                                <div class="block bg-gray-300 w-12 h-6 rounded-full peer-checked:bg-[var(--primary-accent)] dark:bg-gray-700 transition"></div>
+                                <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition peer-checked:translate-x-6"></div>
+                            </div>
+                        </label>
                     </div>
                      <div id="pl-advanced-section" class="advanced-section">
                         <h4 class="font-semibold text-[var(--text-primary)] mb-2">Manual Rate Override</h4>
@@ -514,16 +507,14 @@
                 <div id="commercial-calculator" class="form-section bento-box">
                     <div class="flex justify-between items-center mb-6">
                          <h2 class="text-2xl font-bold"><span class="inline-block bg-[var(--secondary-accent)] text-white rounded-full h-8 w-8 text-center leading-8 mr-3 text-lg">2</span>Commercial Details</h2>
-                          <div class="flex items-center">
-                            <label for="c-advanced-mode-check" class="flex items-center cursor-pointer">
-                                <span class="mr-3 text-sm font-medium">Advanced Mode</span>
-                                <div class="relative">
-                                    <input type="checkbox" id="c-advanced-mode-check" class="toggle-checkbox sr-only">
-                                    <div class="toggle-label block bg-gray-300 dark:bg-gray-700 w-12 h-6 rounded-full"></div>
-                                    <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform"></div>
-                                </div>
-                            </label>
-                        </div>
+                         <label for="c-advanced-mode-check" class="flex items-center cursor-pointer">
+                            <span class="mr-3 text-sm font-medium">Advanced Mode</span>
+                            <div class="relative">
+                              <input type="checkbox" id="c-advanced-mode-check" class="sr-only peer">
+                              <div class="block bg-gray-300 w-12 h-6 rounded-full peer-checked:bg-[var(--primary-accent)] dark:bg-gray-700 transition"></div>
+                              <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition peer-checked:translate-x-6"></div>
+                            </div>
+                        </label>
                     </div>
                      <div id="c-advanced-section" class="advanced-section">
                         <h4 class="font-semibold text-[var(--text-primary)] mb-2">Manual Rate Override</h4>
