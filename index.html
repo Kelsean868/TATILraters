@@ -1,202 +1,231 @@
 <!DOCTYPE html>
-<html lang="en-TT" class="scroll-smooth">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>TATIL Insurance Raters - Trinidad and Tobago</title>
 
-    <title>TATIL Premium Rater Hub | Motor & Health Insurance</title>
-    <meta name="description" content="A suite of insurance premium raters for TATIL. Get instant estimates for your Motor and Health insurance needs.">
-    <meta name="keywords" content="TATIL, motor insurance calculator, health insurance rater, Trinidad and Tobago insurance, car insurance quote, health plan quote">
-    <meta name="author" content="Kyron Marchan">
-    
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Source+Serif+Pro:wght@600;700&display=swap" rel="stylesheet">
+    <!-- Meta tags for SEO and mobile optimization -->
+    <meta name="description" content="TATIL Insurance Raters - Professional insurance rating tools for Trinidad and Tobago. Fast, accurate, and mobile-optimized.">
+    <meta name="keywords" content="insurance, raters, Trinidad, Tobago, TATIL, calculator">
+    <meta name="author" content="TATIL Insurance">
 
+    <!-- DNS prefetch for CDN -->
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+
+    <!-- Preconnect to CDN for faster loading -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+
+    <!-- PWA and mobile app settings -->
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="TATIL Raters">
+
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+
+    <!-- Critical CSS - inlined for faster loading -->
     <style>
-        :root {
-            --bg-main: #f4f6f9;
-            --bg-bento-box: #ffffff;
-            --text-primary: #1d2d35;
-            --text-secondary: #4a5568;
-            --border-color: #dce1e7;
-            --primary-accent: #005f73;
-            --primary-accent-darker: #003d4d;
-            --secondary-accent: #ae8625;
-            --shadow-soft: 0 3px 6px rgba(0,0,0,0.04);
-            --shadow-medium: 0 5px 15px rgba(0,0,0,0.06);
-            --font-body: 'Montserrat', sans-serif;
-            --font-heading: 'Source Serif Pro', serif;
-        }
-
-        .dark-mode {
-            --bg-main: #1f2937;
-            --bg-bento-box: #2b3c4d;
-            --text-primary: #f0f4f8;
-            --text-secondary: #d1d5db;
-            --border-color: #4b5f71;
-            --primary-accent: #25a1af;
-            --primary-accent-darker: #1e838f;
-            --secondary-accent: #daa520;
+        /* Critical CSS for above-the-fold content */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         body {
-            font-family: var(--font-body);
-            background-color: var(--bg-main);
-            color: var(--text-primary);
-            transition: background-color 0.3s ease, color 0.3s ease;
-            overflow-x: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
         }
 
-        .page-title { font-family: var(--font-heading); color: var(--primary-accent); font-weight: 700; }
-        .page-subtitle { font-family: var(--font-body); font-weight: 600; color: var(--text-secondary); }
-        .bento-box {
-            background-color: var(--bg-bento-box);
-            border-radius: 0.75rem;
-            padding: 1.75rem;
-            box-shadow: var(--shadow-medium);
-            transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.25s ease;
-            border: 1px solid var(--border-color);
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             display: flex;
             flex-direction: column;
-            height: 100%;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            color: white;
         }
-        .bento-box:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-strong);
-        }
-        .calculator-card-content { flex-grow: 1; }
-        .button-base {
-            display: inline-block;
-            font-weight: 600;
-            padding: 0.85rem 1.5rem;
-            border-radius: 0.375rem;
-            transition: background-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
-            box-shadow: var(--shadow-soft);
-            text-transform: uppercase;
-            letter-spacing: 0.025em;
-            text-align: center;
-            text-decoration: none;
-        }
-        .button-base:hover { transform: translateY(-2px); }
-        .main-action-button { background-color: var(--primary-accent); color: white; }
-        .dark-mode .main-action-button { color: var(--text-primary); }
-        .main-action-button:hover { background-color: var(--primary-accent-darker); }
 
-        .theme-switch-wrapper {
-            display: flex; align-items: center; background-color: var(--bg-bento-box); padding: 0.5rem 0.75rem;
-            border-radius: 999px; box-shadow: var(--shadow-medium); border: 1px solid var(--border-color);
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
         }
-        .theme-switch { position: relative; display: inline-block; width: 40px; height: 20px; }
-        .theme-switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 20px; }
-        .dark-mode .slider { background-color: var(--primary-accent); }
-        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider:before { transform: translateX(20px); }
-        #themeToggleLabel { color: var(--text-secondary); font-size: 0.7rem; font-weight: 600; letter-spacing: 0.025em;}
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .connection-indicator {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            padding: 5px 10px;
+            border-radius: 20px;
+            color: white;
+            font-size: 12px;
+            z-index: 1000;
+        }
+
+        .connection-slow { background: #ef4444; }
+        .connection-medium { background: #f59e0b; }
+        .connection-fast { background: #10b981; }
+
+        .error-message {
+            background: #fee2e2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            display: none;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .container {
+                padding: 15px;
+            }
+        }
     </style>
 </head>
-<body class="min-h-screen p-4 md:p-6 lg:p-8">
-
-    <div class="w-full max-w-5xl mx-auto my-8">
-        <header class="mb-10 md:mb-14 text-center">
-            <h1 class="page-title text-4xl sm:text-5xl md:text-6xl mb-3">
-                TATIL Premium Rater Hub
-            </h1>
-            <h2 class="page-subtitle text-xl sm:text-2xl md:text-3xl">
-                Instant Insurance Estimates
-            </h2>
-            <p class="text-[var(--text-secondary)] mt-5 text-md md:text-lg max-w-3xl mx-auto">
-                Your central location for TATIL's motor and health insurance premium raters. Get quick and accurate estimates to help you make informed decisions.
-            </p>
-        </header>
-
-        <div class="w-full flex justify-center my-4 md:my-8">
-            <div class="theme-switch-wrapper">
-                <span class="mr-2 text-xs" id="themeToggleLabel">LIGHT</span>
-                <label class="theme-switch" for="themeToggleCheckbox">
-                    <input type="checkbox" id="themeToggleCheckbox" />
-                    <div class="slider round"></div>
-                </label>
-            </div>
-        </div>
-
-        <main class="space-y-12">
-            <section>
-                <h2 class="text-2xl md:text-3xl font-bold text-center mb-8 text-[var(--primary-accent)]">Our Rater Suite</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-
-                    <!-- Motor Rater Card -->
-                    <div class="bento-box">
-                        <div class="calculator-card-content">
-                            <h3 class="text-2xl font-bold text-[var(--primary-accent)] mb-4">Motor Insurance Rater</h3>
-                            <p class="text-[var(--text-secondary)] text-sm mb-6">
-                                Get a premium estimate for your private or commercial vehicle. Covers comprehensive and third-party options with various discounts and benefits.
-                            </p>
-                        </div>
-                        <a href="./motor_rater.html" class="main-action-button button-base mt-4">Open Motor Rater</a>
-                    </div>
-
-                    <!-- Health Rater Card -->
-                    <div class="bento-box">
-                        <div class="calculator-card-content">
-                             <h3 class="text-2xl font-bold text-[var(--primary-accent)] mb-4">COVERCARE Health Rater</h3>
-                            <p class="text-[var(--text-secondary)] text-sm mb-6">
-                               Calculate premiums for TATIL's COVERCARE health insurance plans. Customize for individual or family coverage, including major medical, dental, and vision.
-                            </p>
-                        </div>
-                        <a href="./health_rater.html" class="main-action-button button-base mt-4">Open Health Rater</a>
-                    </div>
-                </div>
-            </section>
-        </main>
-
-        <footer class="text-center mt-12 text-xs text-[var(--text-muted)]">
-            <p>&copy; <span id="currentYear"></span> TATIL Premium Rater Hub. Your Future, Secured.</p>
-        </footer>
+<body>
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="loading-screen">
+        <div class="spinner"></div>
+        <h2>Loading TATIL Insurance Raters...</h2>
+        <p id="loadingStatus">Checking connection speed...</p>
+        <p style="font-size: 0.9rem; margin-top: 10px;">Optimized for mobile data connections</p>
     </div>
 
+    <!-- Connection Speed Indicator -->
+    <div id="connectionIndicator" class="connection-indicator" style="display: none;">
+        <span id="connectionText">Checking...</span>
+    </div>
+
+    <!-- Error Message -->
+    <div id="errorMessage" class="error-message">
+        <h3>Loading Error</h3>
+        <p id="errorText">Unable to load resources. Please check your connection and try again.</p>
+        <button onclick="location.reload()">Retry</button>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container" id="mainContent" style="display: none;">
+        <header class="header">
+            <h1>TATIL Insurance Raters</h1>
+            <p>Professional Insurance Rating Tools for Trinidad and Tobago</p>
+        </header>
+
+        <main id="raterContainer">
+            <!-- Insurance rater content will be loaded here -->
+            <div class="rater-grid" id="raterGrid">
+                <!-- Rater cards will be dynamically loaded -->
+            </div>
+        </main>
+
+        <!-- Offline indicator -->
+        <div id="offlineIndicator" style="display: none; background: #dc2626; color: white; padding: 10px; text-align: center; position: fixed; bottom: 0; left: 0; right: 0;">
+            You are currently offline. Some features may not be available.
+        </div>
+    </div>
+
+    <!-- Service Worker Registration -->
     <script>
+        // Register service worker for caching
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(function(registration) {
+                        console.log('ServiceWorker registration successful');
+                    })
+                    .catch(function(err) {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+    </script>
+
+    <!-- Critical JavaScript - Load immediately -->
+    <script>
+        // Initialize the mobile-optimized resource loader
+        window.TATILRaterApp = {
+            initialized: false,
+            connectionSpeed: 'unknown',
+            resources: [],
+            errors: []
+        };
+
+        // Start loading process
         document.addEventListener('DOMContentLoaded', function() {
-            const themeToggle = document.getElementById('themeToggleCheckbox');
-            const themeToggleLabel = document.getElementById('themeToggleLabel');
-
-            function initializeTheme() {
-                const savedTheme = localStorage.getItem('theme');
-                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                const root = document.documentElement;
-
-                if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
-                    root.classList.add('dark-mode');
-                    if (themeToggle) themeToggle.checked = true;
-                    if (themeToggleLabel) themeToggleLabel.textContent = 'DARK';
-                } else {
-                    root.classList.remove('dark-mode');
-                    if (themeToggle) themeToggle.checked = false;
-                    if (themeToggleLabel) themeToggleLabel.textContent = 'LIGHT';
-                }
-            }
-
-            function toggleTheme() {
-                const root = document.documentElement;
-                const isDarkMode = root.classList.contains('dark-mode');
-
-                if (isDarkMode) {
-                    root.classList.remove('dark-mode');
-                    localStorage.setItem('theme', 'light');
-                    if (themeToggleLabel) themeToggleLabel.textContent = 'LIGHT';
-                } else {
-                    root.classList.add('dark-mode');
-                    localStorage.setItem('theme', 'dark');
-                    if (themeToggleLabel) themeToggleLabel.textContent = 'DARK';
-                }
-            }
-
-            document.getElementById('currentYear').textContent = new Date().getFullYear();
-            initializeTheme();
-            if (themeToggle) {
-                themeToggle.addEventListener('change', toggleTheme);
-            }
+            window.tatilResourceLoader = new TATILResourceLoader();
+            window.tatilResourceLoader.initialize();
         });
     </script>
+
+    <!-- Load optimized JavaScript via CDN with fallback -->
+    <script>
+        (function() {
+            const cdnScript = document.createElement('script');
+            cdnScript.src = 'https://cdn.jsdelivr.net/gh/Kelsean868/TATILraters@main/js/tatil-raters.min.js';
+            cdnScript.onload = function() {
+                console.log('CDN script loaded successfully');
+            };
+            cdnScript.onerror = function() {
+                console.warn('CDN failed, loading from GitHub Pages');
+                const fallbackScript = document.createElement('script');
+                fallbackScript.src = './js/tatil-raters.min.js';
+                fallbackScript.onerror = function() {
+                    document.getElementById('errorMessage').style.display = 'block';
+                    document.getElementById('loadingScreen').style.display = 'none';
+                };
+                document.head.appendChild(fallbackScript);
+            };
+            document.head.appendChild(cdnScript);
+        })();
+    </script>
+
+    <!-- Load resource loader -->
+    <script src="https://cdn.jsdelivr.net/gh/Kelsean868/TATILraters@main/js/resource-loader.min.js" 
+            onerror="this.src='./js/resource-loader.min.js'"></script>
 </body>
 </html>
