@@ -9,6 +9,16 @@
     <meta name="keywords" content="TATIL, motor insurance calculator, health insurance rater, Trinidad and Tobago insurance, car insurance quote, health plan quote">
     <meta name="author" content="Kyron Marchan">
     
+    <!-- PWA Manifest Link -->
+    <link rel="manifest" href="./manifest.json">
+    <!-- Theme color for browser UI -->
+    <meta name="theme-color" content="#005f73">
+    <!-- Add to home screen for Safari on iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="TATIL Raters">
+    <link rel="apple-touch-icon" href="https://placehold.co/192x192/005f73/FFFFFF?text=TATIL">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Source+Serif+Pro:wght@600;700&display=swap" rel="stylesheet">
 
@@ -93,6 +103,29 @@
         .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
         input:checked + .slider:before { transform: translateX(20px); }
         #themeToggleLabel { color: var(--text-secondary); font-size: 0.7rem; font-weight: 600; letter-spacing: 0.025em;}
+
+        /* Install Button Toast */
+        #install-toast {
+            position: fixed;
+            bottom: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--primary-accent);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            z-index: 1000;
+            transition: bottom 0.5s ease-in-out;
+            cursor: pointer;
+            display: none; /* Hidden by default */
+            align-items: center;
+            gap: 0.75rem;
+        }
+        #install-toast.show {
+            display: flex;
+            bottom: 20px;
+        }
     </style>
 </head>
 <body class="min-h-screen p-4 md:p-6 lg:p-8">
@@ -106,7 +139,7 @@
                 Instant Insurance Estimates
             </h2>
             <p class="text-[var(--text-secondary)] mt-5 text-md md:text-lg max-w-3xl mx-auto">
-                Your central location for TATIL's motor and health insurance premium raters. Get quick and accurate estimates to help you make informed decisions.
+                Your central location for TATIL's motor and health insurance premium raters. Get quick and accurate estimates to help you make informed decisions. Now available offline!
             </p>
         </header>
 
@@ -154,8 +187,65 @@
             <p>&copy; <span id="currentYear"></span> TATIL Premium Rater Hub. Your Future, Secured.</p>
         </footer>
     </div>
+    
+    <!-- Install Toast -->
+    <div id="install-toast">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-download" viewBox="0 0 16 16">
+            <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+            <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
+        </svg>
+        <span>Install App for Offline Access</span>
+    </div>
 
     <script>
+        // --- Register Service Worker ---
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(registration => {
+                        console.log('Service Worker registered successfully:', registration);
+                    })
+                    .catch(error => {
+                        console.log('Service Worker registration failed:', error);
+                    });
+            });
+        }
+
+        // --- PWA Install Prompt Logic ---
+        let deferredPrompt;
+        const installToast = document.getElementById('install-toast');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // Prevent the mini-infobar from appearing on mobile
+            e.preventDefault();
+            // Stash the event so it can be triggered later.
+            deferredPrompt = e;
+            // Update UI to notify the user they can add to home screen
+            installToast.classList.add('show');
+        });
+
+        installToast.addEventListener('click', (e) => {
+            // Hide the user interface that shows the A2HS button
+            installToast.classList.remove('show');
+            // Show the prompt
+            deferredPrompt.prompt();
+            // Wait for the user to respond to the prompt
+            deferredPrompt.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === 'accepted') {
+                    console.log('User accepted the A2HS prompt');
+                } else {
+                    console.log('User dismissed the A2HS prompt');
+                }
+                deferredPrompt = null;
+            });
+        });
+        
+        window.addEventListener('appinstalled', (evt) => {
+            console.log('App was successfully installed');
+            installToast.style.display = 'none';
+        });
+
+        // --- Standard Page Logic ---
         document.addEventListener('DOMContentLoaded', function() {
             const themeToggle = document.getElementById('themeToggleCheckbox');
             const themeToggleLabel = document.getElementById('themeToggleLabel');

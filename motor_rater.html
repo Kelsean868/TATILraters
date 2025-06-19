@@ -4,6 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TATIL Motor Insurance Premium Rater</title>
+    
+    <!-- PWA Manifest Link -->
+    <link rel="manifest" href="./manifest.json">
+    <!-- Theme color for browser UI -->
+    <meta name="theme-color" content="#005f73">
+    <!-- Add to home screen for Safari on iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="TATIL Raters">
+    <link rel="apple-touch-icon" href="https://placehold.co/192x192/005f73/FFFFFF?text=TATIL">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
@@ -61,7 +72,7 @@
         input, select {
             border: 1px solid var(--border-color); padding: 0.85rem 1.15rem; border-radius: 0.375rem; 
             transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.3s ease, color 0.3s ease;
-            background-color: var(--bg-secondary); color: var(--text-primary);
+            background-color: var(--bg-main); color: var(--text-primary);
             font-weight: 500;
         }
         input:focus, select:focus {
@@ -118,9 +129,6 @@
         .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
         input:checked + .slider:before { transform: translateX(20px); } 
 
-        .toggle-checkbox:checked + .toggle-label .dot { transform: translateX(1.5rem); }
-        .toggle-checkbox:checked + .toggle-label { background-color: var(--primary-accent); }
-
         .whatsapp-float { position: fixed; width: 60px; height: 60px; bottom: 40px; right: 40px; background-color: #25d366; color: #FFF; border-radius: 50px; text-align: center; font-size: 30px; box-shadow: 2px 2px 6px rgba(0,0,0,0.25); z-index: 100; display: flex; align-items: center; justify-content: center; transition: transform 0.2s ease; }
         .whatsapp-float:hover { transform: scale(1.1); }
 
@@ -173,16 +181,14 @@
                 <div id="private-calculator" class="form-section bento-box">
                     <div class="flex justify-between items-center mb-6">
                          <h2 class="text-2xl font-bold"><span class="inline-block bg-[var(--secondary-accent)] text-white rounded-full h-8 w-8 text-center leading-8 mr-3 text-lg">2</span>Private Car Details</h2>
-                         <div class="flex items-center">
-                            <label for="p-advanced-mode-check" class="flex items-center cursor-pointer">
-                                <span class="mr-3 text-sm font-medium">Advanced Mode</span>
-                                <div class="relative">
-                                    <input type="checkbox" id="p-advanced-mode-check" class="toggle-checkbox sr-only">
-                                    <div class="toggle-label block bg-gray-300 dark:bg-gray-700 w-12 h-6 rounded-full"></div>
-                                    <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform"></div>
-                                </div>
-                            </label>
-                        </div>
+                         <label for="p-advanced-mode-check" class="flex items-center cursor-pointer">
+                            <span class="mr-3 text-sm font-medium">Advanced Mode</span>
+                            <div class="relative">
+                                <input type="checkbox" id="p-advanced-mode-check" class="sr-only peer">
+                                <div class="block bg-gray-300 w-12 h-6 rounded-full peer-checked:bg-[var(--primary-accent)] dark:bg-gray-700 transition"></div>
+                                <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition peer-checked:translate-x-6"></div>
+                            </div>
+                        </label>
                     </div>
                      <div id="p-advanced-section" class="advanced-section">
                         <h4 class="font-semibold text-[var(--text-primary)] mb-2">Manual Rate Override</h4>
@@ -341,16 +347,14 @@
                 <div id="platinum-calculator" class="form-section bento-box">
                     <div class="flex justify-between items-center mb-6">
                          <h2 class="text-2xl font-bold"><span class="inline-block bg-[var(--secondary-accent)] text-white rounded-full h-8 w-8 text-center leading-8 mr-3 text-lg">2</span>Platinum Drive Details</h2>
-                         <div class="flex items-center">
-                            <label for="pl-advanced-mode-check" class="flex items-center cursor-pointer">
-                                <span class="mr-3 text-sm font-medium">Advanced Mode</span>
-                                <div class="relative">
-                                    <input type="checkbox" id="pl-advanced-mode-check" class="toggle-checkbox sr-only">
-                                    <div class="toggle-label block bg-gray-300 dark:bg-gray-700 w-12 h-6 rounded-full"></div>
-                                    <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform"></div>
-                                </div>
-                            </label>
-                        </div>
+                         <label for="pl-advanced-mode-check" class="flex items-center cursor-pointer">
+                            <span class="mr-3 text-sm font-medium">Advanced Mode</span>
+                            <div class="relative">
+                                <input type="checkbox" id="pl-advanced-mode-check" class="sr-only peer">
+                                <div class="block bg-gray-300 w-12 h-6 rounded-full peer-checked:bg-[var(--primary-accent)] dark:bg-gray-700 transition"></div>
+                                <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition peer-checked:translate-x-6"></div>
+                            </div>
+                        </label>
                     </div>
                      <div id="pl-advanced-section" class="advanced-section">
                         <h4 class="font-semibold text-[var(--text-primary)] mb-2">Manual Rate Override</h4>
@@ -503,16 +507,14 @@
                 <div id="commercial-calculator" class="form-section bento-box">
                     <div class="flex justify-between items-center mb-6">
                          <h2 class="text-2xl font-bold"><span class="inline-block bg-[var(--secondary-accent)] text-white rounded-full h-8 w-8 text-center leading-8 mr-3 text-lg">2</span>Commercial Details</h2>
-                          <div class="flex items-center">
-                            <label for="c-advanced-mode-check" class="flex items-center cursor-pointer">
-                                <span class="mr-3 text-sm font-medium">Advanced Mode</span>
-                                <div class="relative">
-                                    <input type="checkbox" id="c-advanced-mode-check" class="toggle-checkbox sr-only">
-                                    <div class="toggle-label block bg-gray-300 dark:bg-gray-700 w-12 h-6 rounded-full"></div>
-                                    <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform"></div>
-                                </div>
-                            </label>
-                        </div>
+                         <label for="c-advanced-mode-check" class="flex items-center cursor-pointer">
+                            <span class="mr-3 text-sm font-medium">Advanced Mode</span>
+                            <div class="relative">
+                              <input type="checkbox" id="c-advanced-mode-check" class="sr-only peer">
+                              <div class="block bg-gray-300 w-12 h-6 rounded-full peer-checked:bg-[var(--primary-accent)] dark:bg-gray-700 transition"></div>
+                              <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition peer-checked:translate-x-6"></div>
+                            </div>
+                        </label>
                     </div>
                      <div id="c-advanced-section" class="advanced-section">
                         <h4 class="font-semibold text-[var(--text-primary)] mb-2">Manual Rate Override</h4>
@@ -720,11 +722,27 @@
         </svg>
     </a>
 
+    <!-- Load the rate data from an external file BEFORE the main logic script -->
+    <script src="./motor_rater_data.js"></script>
+
     <script>
+        // --- Register Service Worker ---
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(registration => {
+                        console.log('Service Worker registered successfully:', registration);
+                    })
+                    .catch(error => {
+                        console.log('Service Worker registration failed:', error);
+                    });
+            });
+        }
+        
         document.addEventListener('DOMContentLoaded', () => {
             // --- EMAILJS INITIALIZATION ---
             (function() {
-                 // emailjs.init({ publicKey: 'ldzW9AHHBqu72rYaX' });
+                 // emailjs.init({ publicKey: 'YOUR_PUBLIC_KEY' });
             })();
     
             // --- THEME TOGGLE ---
@@ -741,14 +759,6 @@
             const savedTheme = localStorage.getItem('theme');
             applyTheme(savedTheme === 'dark' || (savedTheme === null && window.matchMedia('(prefers-color-scheme: dark)').matches));
             
-            // --- DATA CONSTANTS ---
-            const NCD_RATES = {
-                private: { comprehensive: [0, 0.25, 0.35, 0.45, 0.60], 'third-party': [0, 0.15, 0.20, 0.25, 0.35] },
-                platinum: { comprehensive: [0, 0.25, 0.35, 0.45, 0.60] },
-                commercial: { comprehensive: [0, 0.15, 0.20, 0.25, 0.35], 'third-party': [0, 0.15, 0.20, 0.25, 0.35] }
-            };
-            const SPECIAL_DISCOUNTS = { 'CSR / Agent': 'csr', 'Underwriter': 'underwriter', 'Manager Special': 'manager', 'Fleet Discount': 'fleet' };
-    
             // --- DOM ELEMENTS & SETUP ---
             const vehicleTypeSelector = document.getElementById('vehicle-type-selector');
             const calculators = { private: document.getElementById('private-calculator'), platinum: document.getElementById('platinum-calculator'), commercial: document.getElementById('commercial-calculator') };
@@ -790,7 +800,9 @@
             
             ['p', 'pl', 'c'].forEach(prefix => {
                 setupAdvancedMode(prefix);
-                Object.values(SPECIAL_DISCOUNTS).forEach(id => setupDiscountToggle(prefix, id));
+                if (typeof SPECIAL_DISCOUNTS !== 'undefined') {
+                    Object.values(SPECIAL_DISCOUNTS).forEach(id => setupDiscountToggle(prefix, id));
+                }
                 if(document.getElementById(`${prefix}-add-loading-btn`)) {
                     document.getElementById(`${prefix}-add-loading-btn`).addEventListener('click', () => addExtraLoading(prefix));
                 }
@@ -981,6 +993,16 @@
                 const selectedType = vehicleTypeSelector.value;
                 if (!selectedType) return;
                 
+                // Ensure rate data is loaded before calculating
+                if (typeof NCD_RATES === 'undefined' || typeof SPECIAL_DISCOUNTS === 'undefined') {
+                    console.error("Rate data from motor_rater_data.js is not loaded!");
+                    // Optionally display an error to the user
+                    resultsSection.classList.remove('hidden');
+                    totalPremiumEl.textContent = 'Error';
+                    premiumBreakdownEl.innerHTML = '<div class="text-red-500">Could not load rate data. Please check connection and refresh.</div>';
+                    return;
+                }
+                
                 const typePrefix = selectedType === 'platinum' ? 'pl' : selectedType.substring(0, 1);
                 if (selectedType !== 'commercial') checkWoeEligibility(typePrefix);
 
@@ -1104,7 +1126,7 @@
                     const ncdYears = parseInt(getElement(typePrefix + '-ncd').value, 10);
                     let ncdRate = 0;
                     const coverageType = (getElement(typePrefix + '-coverage-type') || {}).value || 'comprehensive';
-                    if (NCD_RATES[selectedType] && NCD_RATES[selectedType][coverageType]) {
+                    if (typeof NCD_RATES !== 'undefined' && NCD_RATES[selectedType] && NCD_RATES[selectedType][coverageType]) {
                         ncdRate = NCD_RATES[selectedType][coverageType][ncdYears] || 0;
                     }
                     if (ncdRate > 0) {
@@ -1137,17 +1159,19 @@
                 }
                 
                 let specialDiscountBreakdown = '';
-                Object.entries(SPECIAL_DISCOUNTS).forEach(([label, id]) => {
-                    const checkElement = getElement(typePrefix + '-' + id + '-check');
-                    if (checkElement?.checked) {
-                        const rate = getFloatValue(typePrefix + '-' + id + '-value') / 100;
-                        if (rate > 0) {
-                            const amount = premiumToDiscount * rate;
-                            totalDiscountAmount += amount;
-                            specialDiscountBreakdown += `<div class="breakdown-row text-green-600 dark:text-green-400"><span class="breakdown-label">- ${label} (${rate * 100}%)</span><span class="breakdown-value">-$${formatCurrency(amount)}</span></div>`;
+                if(typeof SPECIAL_DISCOUNTS !== 'undefined') {
+                    Object.entries(SPECIAL_DISCOUNTS).forEach(([label, id]) => {
+                        const checkElement = getElement(typePrefix + '-' + id + '-check');
+                        if (checkElement?.checked) {
+                            const rate = getFloatValue(typePrefix + '-' + id + '-value') / 100;
+                            if (rate > 0) {
+                                const amount = premiumToDiscount * rate;
+                                totalDiscountAmount += amount;
+                                specialDiscountBreakdown += `<div class="breakdown-row text-green-600 dark:text-green-400"><span class="breakdown-label">- ${label} (${rate * 100}%)</span><span class="breakdown-value">-$${formatCurrency(amount)}</span></div>`;
+                            }
                         }
-                    }
-                });
+                    });
+                }
                 if(specialDiscountBreakdown) discountBreakdown += `<h4 class="font-medium text-[var(--text-secondary)] mt-1">Special Discounts:</h4>${specialDiscountBreakdown}`;
                 if (discountBreakdown) discountBreakdown = `<div class="border-t border-[var(--border-color)] pt-2 mt-2"><p class="font-semibold">Discounts:</p>${discountBreakdown}</div>`;
     
@@ -1354,10 +1378,6 @@
 
                 clientInfoModal.style.display = 'none';
                 finalQuoteModal.style.display = 'flex';
-    
-                const pdfDataUri = generatePdfAsBase64(quoteDataForPdf);
-                // The sendEmail function is now disabled
-                // sendEmail(clientName, fullQuoteText, pdfDataUri, clientEmail);
             }
 
             function generateQuoteTextForDisplay(data) {
@@ -1396,191 +1416,6 @@ Terms and conditions apply.`;
                 return text.trim();
             }
 
-            function generatePdfAsBase64(data) {
-                const { jsPDF } = window.jspdf;
-                const doc = new jsPDF();
-                const pageW = doc.internal.pageSize.getWidth();
-                const pageH = doc.internal.pageSize.getHeight();
-                let y = 18;
-
-                // --- Header ---
-                doc.setFont('helvetica', 'bold');
-                doc.setFontSize(22);
-                doc.setTextColor(0, 95, 115); // --primary-accent
-                doc.text('Insurance Quotation', pageW / 2, y, { align: 'center' });
-                y += 8;
-
-                doc.setFont('helvetica', 'normal');
-                doc.setFontSize(10);
-                doc.setTextColor(74, 85, 104); // --text-secondary
-                doc.text(`Date Issued: ${data.date}`, pageW / 2, y, { align: 'center' });
-                y += 10;
-                doc.setDrawColor(220, 225, 231); // --border-color
-                doc.setLineWidth(0.5);
-                doc.line(15, y, pageW - 15, y);
-                y += 12;
-
-                // --- Client & Vehicle Info ---
-                doc.setFont('helvetica', 'bold');
-                doc.setFontSize(12);
-                doc.setTextColor(0, 95, 115);
-                doc.text('Prepared For', 15, y);
-                doc.text('Vehicle Details', pageW / 2 + 5, y);
-                y += 5;
-                doc.setDrawColor(200, 205, 211);
-                doc.setLineWidth(0.2);
-                doc.line(15, y, 95, y);
-                doc.line(pageW / 2 + 5, y, pageW - 15, y);
-                y += 7;
-
-                doc.setFont('helvetica', 'normal');
-                doc.setFontSize(10);
-                doc.setTextColor(29, 45, 53); // --text-primary
-
-                const clientX = 15;
-                const vehicleX = pageW / 2 + 5;
-                let y1 = y, y2 = y;
-
-                doc.text(data.client.name, clientX, y1); y1 += 6;
-                const addressLines = doc.splitTextToSize(data.client.address || 'N/A', (pageW / 2) - 25);
-                doc.text(addressLines, clientX, y1); y1 += (addressLines.length * 6);
-                doc.text(data.client.contact || 'N/A', clientX, y1); y1 += 6;
-
-                doc.text(`License Plate: ${data.vehicle.license || 'N/A'}`, vehicleX, y2); y2 += 6;
-                doc.text(`Vehicle Value: $${formatCurrency(data.vehicle.value)}`, vehicleX, y2); y2 += 6;
-                doc.text(`Vehicle Age: ${data.vehicle.age > 0 ? `${data.vehicle.age} years` : 'N/A'}`, vehicleX, y2); y2 += 6;
-                if(data.vehicle.isMortgaged) {
-                    doc.text(`Mortgaged: Yes`, vehicleX, y2); y2 += 6;
-                    const finInstLines = doc.splitTextToSize(`${data.vehicle.finInstitution} (${data.vehicle.finBranch})`, (pageW / 2) - 25)
-                    doc.text(finInstLines, vehicleX + 2, y2); y2+= (finInstLines.length * 6)
-                } else {
-                    doc.text(`Mortgaged: No`, vehicleX, y2); y2 += 6;
-                }
-                
-                y = Math.max(y1, y2) + 10;
-
-                // --- Premium Breakdown ---
-                doc.setFont('helvetica', 'bold');
-                doc.setFontSize(12);
-                doc.setTextColor(0, 95, 115);
-                doc.text('Premium Summary', 15, y);
-                y += 5;
-                doc.setDrawColor(200, 205, 211);
-                doc.setLineWidth(0.2);
-                doc.line(15, y, pageW - 15, y);
-                y += 8;
-
-                data.breakdown.forEach(row => {
-                    if (y > pageH - 30) {
-                        doc.addPage();
-                        y = 15;
-                    }
-
-                    if (row.label.toLowerCase().includes('grand total')) {
-                        doc.setFont('helvetica', 'bold');
-                        doc.setFontSize(12);
-                        doc.setTextColor(0, 95, 115);
-                    } else if (row.label.toLowerCase().includes('subtotal')) {
-                        doc.setFont('helvetica', 'bold');
-                        doc.setFontSize(10);
-                        doc.setTextColor(29, 45, 53);
-                    } else if (row.isSubtle) {
-                        doc.setFont('helvetica', 'normal');
-                        doc.setFontSize(9);
-                        doc.setTextColor(113, 128, 150);
-                    }
-                    else {
-                        doc.setFont('helvetica', 'normal');
-                        doc.setFontSize(10);
-                        doc.setTextColor(29, 45, 53);
-                    }
-                    
-                    doc.text(row.label, 20, y);
-                    doc.text(row.value, pageW - 20, y, { align: 'right' });
-                    
-                    if(row.label.toLowerCase().includes('grand total')) {
-                       y += 8;
-                    } else {
-                       y += 6;
-                    }
-                });
-
-                if (data.referral) {
-                    y += 5;
-                    doc.setFont('helvetica', 'bold');
-                    doc.setTextColor(220, 38, 38); // Red color
-                    doc.text('Manager Referral Required:', 15, y); y += 6;
-                    doc.setFont('helvetica', 'normal');
-                    const referralLines = doc.splitTextToSize(data.referral, pageW - 30);
-                    doc.text(referralLines, 15, y);
-                }
-                
-                // --- Footer ---
-                doc.setDrawColor(220, 225, 231);
-                doc.setLineWidth(0.5);
-                doc.line(15, pageH - 25, pageW - 15, pageH - 25);
-                
-                doc.setFont('helvetica', 'normal');
-                doc.setFontSize(9);
-                doc.setTextColor(113, 128, 150); // --text-muted
-                doc.text('This quotation is valid for 30 days. Terms and conditions apply.', 15, pageH - 18);
-                doc.text('Your Future, Secured. | Kyron Marchan | kyron.marchan@tatil.co.tt', pageW - 15, pageH - 18, {align: 'right'});
-
-                return doc.output('datauristring');
-            }
-    
-            /*
-            function sendEmail(clientName, quoteText, pdfDataUri, clientEmail) {
-                const serviceID = 'service_kyrondirect';
-                const templateID = 'template_quotedetails';
-                const emailStatusEl = getElement('email-status');
-
-                // Always send email to Kyron for records
-                const internalTemplateParams = {
-                    to_email: 'kyron.marchan@tatil.co.tt',
-                    from_name: 'TATIL Motor Rater',
-                    subject: `[Internal] Insurance Quote for ${clientName}`,
-                    message: `Quotation generated for ${clientName}. Client Email: ${clientEmail || 'Not Provided'}\n\n${quoteText}`,
-                    attachment: pdfDataUri.split('base64,')[1],
-                    filename: `Quote_${clientName.replace(/\s/g, '_')}.pdf`
-                };
-                
-                emailjs.send(serviceID, templateID, internalTemplateParams)
-                    .then(res => console.log('Internal email sent successfully.', res.status, res.text))
-                    .catch(err => console.error('Failed to send internal email.', err));
-
-                // Send email to client only if address is provided
-                const hasClientEmail = clientEmail && clientEmail.includes('@');
-                if (hasClientEmail) {
-                    const clientTemplateParams = {
-                        to_email: clientEmail,
-                        from_name: 'Kyron Marchan (TATIL)',
-                        subject: `Your Insurance Quotation`,
-                        message: `Hi ${clientName},\n\nPlease find your attached insurance quotation.\n\nBest regards,\nKyron Marchan`,
-                        attachment: pdfDataUri.split('base64,')[1],
-                        filename: `Insurance_Quote_For_${clientName.replace(/\s/g, '_')}.pdf`
-                    };
-                    
-                    emailStatusEl.textContent = 'Sending email to client...';
-                    emailStatusEl.style.color = 'gray';
-
-                    emailjs.send(serviceID, templateID, clientTemplateParams)
-                        .then(res => {
-                            console.log('Client email SUCCESS!', res.status, res.text);
-                            emailStatusEl.textContent = `Quote sent to ${clientEmail}.`;
-                            emailStatusEl.style.color = 'green';
-                        }, err => {
-                            console.error('Client email FAILED...', err);
-                            emailStatusEl.textContent = `Failed to send email to client. Status: ${err.status}, Error: ${err.text}`;
-                            emailStatusEl.style.color = 'red';
-                        });
-                } else {
-                    emailStatusEl.textContent = 'Quote generated.';
-                    emailStatusEl.style.color = 'green';
-                }
-            }
-            */
-    
             function generateAndDownloadPDF() {
                 const pdfData = generatePdfAsBase64(quoteDataForPdf);
                 const clientName = getElement('client-name').value || 'Client';
