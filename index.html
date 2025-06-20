@@ -32,8 +32,10 @@
             --primary-accent: #005f73;
             --primary-accent-darker: #003d4d;
             --secondary-accent: #ae8625;
+            --secondary-accent-darker: #8c6c1d;
             --shadow-soft: 0 3px 6px rgba(0,0,0,0.04);
             --shadow-medium: 0 5px 15px rgba(0,0,0,0.06);
+            --shadow-strong: 0 8px 25px rgba(0,0,0,0.08);
             --font-body: 'Montserrat', sans-serif;
             --font-heading: 'Source Serif Pro', serif;
         }
@@ -47,6 +49,7 @@
             --primary-accent: #25a1af;
             --primary-accent-darker: #1e838f;
             --secondary-accent: #daa520;
+            --secondary-accent-darker: #b8860b;
         }
 
         body {
@@ -86,11 +89,17 @@
             letter-spacing: 0.025em;
             text-align: center;
             text-decoration: none;
+            cursor: pointer;
         }
         .button-base:hover { transform: translateY(-2px); }
+        
         .main-action-button { background-color: var(--primary-accent); color: white; }
         .dark-mode .main-action-button { color: var(--text-primary); }
         .main-action-button:hover { background-color: var(--primary-accent-darker); }
+        
+        .secondary-action-button { background-color: var(--secondary-accent); color: white; }
+        .dark-mode .secondary-action-button { color: var(--text-primary); }
+        .secondary-action-button:hover { background-color: var(--secondary-accent-darker); }
 
         .theme-switch-wrapper {
             display: flex; align-items: center; background-color: var(--bg-bento-box); padding: 0.5rem 0.75rem;
@@ -104,35 +113,20 @@
         input:checked + .slider:before { transform: translateX(20px); }
         #themeToggleLabel { color: var(--text-secondary); font-size: 0.7rem; font-weight: 600; letter-spacing: 0.025em;}
 
-        /* Install Button Toast */
-        #install-toast {
-            position: fixed;
-            bottom: -100px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: var(--primary-accent);
-            color: white;
-            padding: 1rem 1.5rem;
-            border-radius: 0.5rem;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-            z-index: 1000;
-            transition: bottom 0.5s ease-in-out;
-            cursor: pointer;
-            display: none; /* Hidden by default */
-            align-items: center;
-            gap: 0.75rem;
-        }
-        #install-toast.show {
-            display: flex;
-            bottom: 20px;
-        }
     </style>
 </head>
 <body class="min-h-screen p-4 md:p-6 lg:p-8">
 
     <div class="w-full max-w-5xl mx-auto my-8">
-        <!-- New Header container -->
-        <div class="flex justify-end mb-4">
+        <!-- Header container with Theme Toggle and Install Button -->
+        <div class="flex justify-end items-center gap-4 mb-4">
+            <button id="install-button" class="hidden button-base secondary-action-button py-2 px-4 text-sm flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-download" viewBox="0 0 16 16">
+                    <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                    <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
+                </svg>
+                <span>Install App</span>
+            </button>
             <div class="theme-switch-wrapper">
                 <span class="mr-2 text-xs" id="themeToggleLabel">LIGHT</span>
                 <label class="theme-switch" for="themeToggleCheckbox">
@@ -180,7 +174,7 @@
                         <a href="./health_rater.html" class="main-action-button button-base mt-4">Open Health Rater</a>
                     </div>
 
-                    <!-- NEW: Property Rater Card -->
+                    <!-- Property Rater Card -->
                     <div class="bento-box">
                         <div class="calculator-card-content">
                              <h3 class="text-2xl font-bold text-[var(--primary-accent)] mb-4">Property Insurance Rater</h3>
@@ -192,6 +186,14 @@
                     </div>
                 </div>
             </section>
+            
+            <!-- NEW: Referral Program Section -->
+            <section class="text-center">
+                 <h2 class="text-2xl md:text-3xl font-bold text-center mb-6 text-[var(--primary-accent)]">Grow With Us</h2>
+                 <a href="https://kelsean868.github.io/Referrals/" target="_blank" rel="noopener noreferrer" class="button-base secondary-action-button">
+                    Join Our Referral Program
+                </a>
+            </section>
         </main>
 
         <footer class="text-center mt-12 text-xs text-[var(--text-muted)]">
@@ -199,15 +201,6 @@
         </footer>
     </div>
     
-    <!-- Install Toast -->
-    <div id="install-toast">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-download" viewBox="0 0 16 16">
-            <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
-            <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
-        </svg>
-        <span>Install App for Offline Access</span>
-    </div>
-
     <script>
         // --- Register Service Worker ---
         if ('serviceWorker' in navigator) {
@@ -224,7 +217,7 @@
 
         // --- PWA Install Prompt Logic ---
         let deferredPrompt;
-        const installToast = document.getElementById('install-toast');
+        const installButton = document.getElementById('install-button');
 
         window.addEventListener('beforeinstallprompt', (e) => {
             // Prevent the mini-infobar from appearing on mobile
@@ -232,28 +225,31 @@
             // Stash the event so it can be triggered later.
             deferredPrompt = e;
             // Update UI to notify the user they can add to home screen
-            installToast.classList.add('show');
+            installButton.classList.remove('hidden');
         });
 
-        installToast.addEventListener('click', (e) => {
-            // Hide the user interface that shows the A2HS button
-            installToast.classList.remove('show');
+        installButton.addEventListener('click', (e) => {
+            // Hide the install button
+            installButton.classList.add('hidden');
             // Show the prompt
-            deferredPrompt.prompt();
-            // Wait for the user to respond to the prompt
-            deferredPrompt.userChoice.then((choiceResult) => {
-                if (choiceResult.outcome === 'accepted') {
-                    console.log('User accepted the A2HS prompt');
-                } else {
-                    console.log('User dismissed the A2HS prompt');
-                }
-                deferredPrompt = null;
-            });
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                // Wait for the user to respond to the prompt
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('User accepted the A2HS prompt');
+                    } else {
+                        console.log('User dismissed the A2HS prompt');
+                    }
+                    deferredPrompt = null;
+                });
+            }
         });
         
         window.addEventListener('appinstalled', (evt) => {
             console.log('App was successfully installed');
-            installToast.style.display = 'none';
+            // Hide the install button if the app is installed
+            installButton.classList.add('hidden');
         });
 
         // --- Standard Page Logic ---
