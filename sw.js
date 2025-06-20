@@ -2,7 +2,7 @@
 
 // Define a unique name for your cache. 
 // Increment this version number when you update any of the cached files.
-const CACHE_NAME = 'tatil-rater-hub-cache-v1.0';
+const CACHE_NAME = 'tatil-rater-hub-cache-v1.1'; // <-- Incremented version
 
 // This is the complete list of all the files that make up your app.
 // The service worker will cache all of these upon installation.
@@ -11,8 +11,10 @@ const URLS_TO_CACHE = [
   './index.html',
   './motor_rater.html',
   './health_rater.html',
+  './property_rater.html', // <-- Added new rater html
   './motor_rater_data.js',
   './health_rater_data.js',
+  './property_rater_data.js', // <-- Added new rater data
   './manifest.json',
   'https://cdn.tailwindcss.com',
   'https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Source+Serif+Pro:wght@600;700&display=swap',
