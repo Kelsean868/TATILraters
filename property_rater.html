@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TATIL Property Insurance Premium Rater</title>
+    
+    <link rel="manifest" href="./manifest.json">
+    <meta name="theme-color" content="#005f73">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="TATIL Raters">
+    <link rel="apple-touch-icon" href="https://placehold.co/192x192/005f73/FFFFFF?text=TATIL">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Source+Serif+Pro:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-main: #f4f6f9; 
+            --bg-bento-box: #ffffff;
+            --text-primary: #1d2d35; 
+            --text-secondary: #4a5568; 
+            --text-muted: #718096;    
+            --border-color: #dce1e7; 
+            --primary-accent: #005f73; 
+            --primary-accent-darker: #003d4d;
+            --secondary-accent: #ae8625; 
+            --shadow-soft: 0 3px 6px rgba(0,0,0,0.04);
+            --shadow-medium: 0 5px 15px rgba(0,0,0,0.06);
+            --shadow-strong: 0 8px 25px rgba(0,0,0,0.08);
+            --font-body: 'Montserrat', sans-serif;
+            --font-heading: 'Source Serif Pro', serif; 
+        }
+
+        .dark-mode {
+            --bg-main: #1f2937; 
+            --bg-bento-box: #2b3c4d; 
+            --text-primary: #f0f4f8; 
+            --text-secondary: #d1d5db; 
+            --text-muted: #9ca3af;    
+            --border-color: #4b5f71; 
+            --primary-accent: #25a1af; 
+            --primary-accent-darker: #1e838f;
+            --secondary-accent: #daa520; 
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        
+        h1, h2, h3, h4 { font-family: var(--font-heading); color: var(--primary-accent); }
+        .bento-box {
+            background-color: var(--bg-bento-box);
+            border-radius: 0.75rem; 
+            padding: 1.75rem; 
+            box-shadow: var(--shadow-medium);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.25s ease;
+            border: 1px solid var(--border-color);
+        }
+        .bento-box:hover { transform: translateY(-5px); box-shadow: var(--shadow-strong); }
+
+        input, select {
+            border: 1px solid var(--border-color); padding: 0.85rem 1.15rem; border-radius: 0.375rem; 
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.3s ease, color 0.3s ease;
+            background-color: var(--bg-main); color: var(--text-primary);
+            font-weight: 500;
+        }
+        input:focus, select:focus {
+            border-color: var(--primary-accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-accent) 25%, transparent); 
+            outline: none; background-color: var(--bg-bento-box);
+        }
+        
+        select {
+            -webkit-appearance: none; -moz-appearance: none; appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%234a5568' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: right 0.75rem center; background-size: 1em; padding-right: 2.5rem;
+        }
+        .dark-mode select {
+             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23d1d5db' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+        }
+
+        .button-base { font-weight: 600; padding: 0.85rem 1.5rem; border-radius: 0.375rem; transition: background-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease; box-shadow: var(--shadow-soft); text-transform: uppercase; letter-spacing: 0.025em; cursor: pointer; }
+        .button-base:hover { transform: translateY(-2px); box-shadow: var(--shadow-medium); }
+        .primary-btn { background-color: var(--primary-accent); color: white; }
+        .primary-btn:hover { background-color: var(--primary-accent-darker); }
+        .dark-mode .primary-btn { color: var(--text-primary); }
+        .secondary-btn { background-color: var(--secondary-accent); color: white; }
+        .secondary-btn:hover { background-color: var(--secondary-accent-darker); }
+        .dark-mode .secondary-btn { color: var(--text-primary); }
+        
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(29, 45, 53, 0.7); display: flex; align-items: center; justify-content: center; z-index: 50; backdrop-filter: blur(5px); }
+        .modal-content { background-color: var(--bg-bento-box); margin: auto; padding: 2rem; border: 1px solid var(--border-color); width: 90%; max-width: 560px; border-radius: 0.75rem; position: relative; box-shadow: var(--shadow-strong); }
+
+        .theme-switch-wrapper { display: flex; align-items: center; background-color: var(--bg-bento-box); padding: 0.5rem 0.75rem; border-radius: 999px; box-shadow: var(--shadow-medium); border: 1px solid var(--border-color); }
+        .theme-switch { position: relative; display: inline-block; width: 40px; height: 20px; } 
+        .theme-switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 20px; }
+        .dark-mode .slider { background-color: var(--primary-accent); }
+        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider:before { transform: translateX(20px); }
+        
+        .form-section { display: none; }
+        .form-section.active { display: block; }
+
+        .advanced-section {
+            display: none;
+            background-color: color-mix(in srgb, var(--secondary-accent) 10%, transparent);
+            border: 1px solid var(--secondary-accent);
+            border-radius: 0.5rem; padding: 1rem; margin-top: 1.5rem;
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-6 lg:p-8">
+
+    <div class="fixed top-4 right-4 z-[101] flex items-center space-x-4">
+        <a href="./index.html" class="text-sm font-semibold text-[var(--primary-accent)] hover:underline">&larr; Back to Hub</a>
+        <div class="theme-switch-wrapper">
+            <span class="mr-2 text-xs font-semibold" id="themeToggleLabel">LIGHT</span>
+            <label class="theme-switch" for="themeToggleCheckbox">
+                <input type="checkbox" id="themeToggleCheckbox" />
+                <div class="slider round"></div>
+            </label>
+        </div>
+    </div>
+
+    <div class="w-full max-w-6xl mx-auto my-8">
+        <header class="mb-10 text-center">
+            <h1 class="text-4xl sm:text-5xl font-bold mb-3">TATIL Property Insurance Rater</h1>
+            <p class="text-xl text-[var(--text-secondary)]">Homeowners & Commercial Property Premiums, Simplified.</p>
+        </header>
+
+        <main class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Left Column: Inputs -->
+            <div class="lg:col-span-2 space-y-8">
+                <!-- Step 1: Policy Type -->
+                <div class="bento-box">
+                    <h2 class="text-2xl font-bold mb-4"><span class="inline-block bg-[var(--secondary-accent)] text-white rounded-full h-8 w-8 text-center leading-8 mr-3 text-lg">1</span>Select Policy Type</h2>
+                    <select id="policy-type" class="w-full text-lg p-3">
+                        <option value="">-- Please select --</option>
+                        <option value="homeowners">Homeowners Insurance</option>
+                        <option value="commercial">Commercial Fire Insurance</option>
+                    </select>
+                </div>
+
+                <!-- Step 2: Details Sections -->
+                <div id="details-sections">
+                    <!-- Homeowners Section -->
+                    <div id="homeowners-section" class="form-section bento-box">
+                        <div class="flex justify-between items-start mb-4">
+                            <h2 class="text-2xl font-bold"><span class="inline-block bg-[var(--secondary-accent)] text-white rounded-full h-8 w-8 text-center leading-8 mr-3 text-lg">2</span>Homeowners Details</h2>
+                             <label for="home-advanced-mode-check" class="flex items-center cursor-pointer">
+                                <span class="mr-3 text-sm font-medium">Advanced Mode</span>
+                                <div class="relative">
+                                    <input type="checkbox" id="home-advanced-mode-check" class="sr-only peer">
+                                    <div class="block bg-gray-300 w-12 h-6 rounded-full peer-checked:bg-[var(--primary-accent)] dark:bg-gray-700 transition"></div>
+                                    <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition peer-checked:translate-x-6"></div>
+                                </div>
+                            </label>
+                        </div>
+                        
+                        <!-- Client Age Input -->
+                        <div class="mb-6">
+                            <label for="home-client-age" class="block text-sm font-medium text-[var(--text-muted)]">Client's Age (for tax purposes)</label>
+                            <input type="number" id="home-client-age" class="mt-1 w-full p-2.5" placeholder="e.g., 55">
+                        </div>
+
+                        <div id="home-standard-inputs" class="space-y-6">
+                            <div>
+                                <label for="home-plan-type" class="block text-sm font-medium text-[var(--text-muted)]">Plan Type</label>
+                                <select id="home-plan-type" class="mt-1 w-full p-2.5">
+                                    <option value="individual">Individual Plan</option>
+                                    <option value="group">Group Plan</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="home-building-sum-insured" class="block text-sm font-medium text-[var(--text-muted)]">Building Sum Insured ($)</label>
+                                <input type="text" inputmode="numeric" id="home-building-sum-insured" class="mt-1 w-full p-2.5" placeholder="e.g., 850,000">
+                            </div>
+                            <div>
+                                <label for="home-contents-sum-insured" class="block text-sm font-medium text-[var(--text-muted)]">General Contents Sum Insured ($)</label>
+                                <input type="text" inputmode="numeric" id="home-contents-sum-insured" class="mt-1 w-full p-2.5" placeholder="e.g., 150,000">
+                            </div>
+                        </div>
+
+                        <div id="home-advanced-section" class="advanced-section">
+                            <h4 class="font-semibold text-[var(--text-primary)] mb-2">Manual Rate Override</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label for="home-override-building-rate" class="block text-sm font-medium mb-1">Building Rate (per $1,000)</label>
+                                    <input type="number" id="home-override-building-rate" class="w-full p-2.5" placeholder="e.g., 3.75">
+                                </div>
+                                <div>
+                                    <label for="home-override-contents-rate" class="block text-sm font-medium mb-1">Contents Rate (per $1,000)</label>
+                                    <input type="number" id="home-override-contents-rate" class="w-full p-2.5" placeholder="e.g., 4.00">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Commercial Section -->
+                    <div id="commercial-section" class="form-section bento-box">
+                         <div class="flex justify-between items-start mb-4">
+                            <h2 class="text-2xl font-bold"><span class="inline-block bg-[var(--secondary-accent)] text-white rounded-full h-8 w-8 text-center leading-8 mr-3 text-lg">2</span>Commercial Details</h2>
+                             <label for="comm-advanced-mode-check" class="flex items-center cursor-pointer">
+                                <span class="mr-3 text-sm font-medium">Advanced Mode</span>
+                                <div class="relative">
+                                    <input type="checkbox" id="comm-advanced-mode-check" class="sr-only peer">
+                                    <div class="block bg-gray-300 w-12 h-6 rounded-full peer-checked:bg-[var(--primary-accent)] dark:bg-gray-700 transition"></div>
+                                    <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition peer-checked:translate-x-6"></div>
+                                </div>
+                            </label>
+                        </div>
+
+                        <div id="comm-standard-inputs" class="space-y-6">
+                            <div>
+                                <label for="comm-building-sum-insured" class="block text-sm font-medium text-[var(--text-muted)]">Building Sum Insured ($)</label>
+                                <input type="text" inputmode="numeric" id="comm-building-sum-insured" class="mt-1 w-full p-2.5" placeholder="e.g., 2,500,000">
+                            </div>
+                        </div>
+                        
+                        <div id="comm-advanced-section" class="advanced-section">
+                            <h4 class="font-semibold text-[var(--text-primary)] mb-2">Manual Rate Override</h4>
+                            <div>
+                                <label for="comm-override-building-rate" class="block text-sm font-medium mb-1">Building Rate (per $1,000)</label>
+                                <input type="number" id="comm-override-building-rate" class="w-full p-2.5" placeholder="e.g., 3.50">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Results -->
+            <div class="lg:col-span-1 space-y-8">
+                <div id="results-section" class="bento-box sticky top-8 text-center hidden">
+                    <h2 class="text-2xl font-bold mb-2"><span class="inline-block bg-[var(--secondary-accent)] text-white rounded-full h-8 w-8 text-center leading-8 mr-3 text-lg">3</span>Premium Summary</h2>
+                    <p id="total-premium" class="text-4xl font-bold text-[var(--primary-accent)] mt-4">$0.00</p>
+                    <p class="text-sm text-[var(--text-muted)]">(Total Annual Premium)</p>
+                    <div id="premium-breakdown" class="text-left mt-6 pt-4 border-t border-[var(--border-color)] text-[var(--text-secondary)] text-sm space-y-1">
+                        <!-- Breakdown populated by JS -->
+                    </div>
+                    <button id="generate-quote-btn" class="mt-6 w-full primary-btn button-base py-3">
+                        Generate Official Quote
+                    </button>
+                </div>
+            </div>
+        </main>
+        
+        <footer class="text-center mt-12 text-xs text-[var(--text-muted)]">
+            <p>&copy; <span id="currentYear"></span> TATIL. Your Future, Secured.</p>
+        </footer>
+    </div>
+    
+    <!-- Modals -->
+    <div id="client-info-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h3 class="text-xl font-bold leading-6 mb-4">Client & Property Information</h3>
+            <div class="space-y-4">
+                <input type="text" id="client-name" placeholder="Client's Full Name" class="w-full">
+                <input type="text" id="property-address" placeholder="Property Address" class="w-full">
+            </div>
+            <div class="mt-6 flex justify-end space-x-3">
+                <button id="close-client-modal-btn" type="button" class="button-base bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200 py-2 px-4">Cancel</button>
+                <button id="submit-quote-btn" type="button" class="button-base primary-btn py-2 px-4">Generate</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="final-quote-modal" class="modal-overlay hidden">
+        <div class="modal-content max-w-2xl">
+            <h3 class="text-xl font-bold leading-6 mb-4">Official Property Insurance Quotation</h3>
+            <div id="quote-output-container" class="w-full h-96 overflow-y-auto bg-[var(--bg-main)] p-4 border border-[var(--border-color)] rounded-md">
+                <pre id="quote-output" class="whitespace-pre-wrap text-sm font-mono"></pre>
+            </div>
+            <div class="mt-6 flex flex-wrap justify-end gap-3">
+                <button id="close-quote-modal-btn" type="button" class="button-base bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200 py-2 px-4">Close</button>
+                <button id="download-pdf-btn" type="button" class="button-base secondary-btn py-2 px-4">Download PDF</button>
+                <button id="copy-quote-btn" type="button" class="button-base primary-btn py-2 px-4">Copy Quote</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Data file for rates -->
+    <script src="./property_rater_data.js"></script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- THEME TOGGLE ---
+        const themeToggle = document.getElementById('themeToggleCheckbox');
+        const themeToggleLabel = document.getElementById('themeToggleLabel');
+        function applyTheme(isDark) {
+            document.documentElement.classList.toggle('dark-mode', isDark);
+            document.body.classList.toggle('dark-mode', isDark);
+            if(themeToggleLabel) themeToggleLabel.textContent = isDark ? 'DARK' : 'LIGHT';
+            if(themeToggle) themeToggle.checked = isDark;
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        }
+        themeToggle.addEventListener('change', () => applyTheme(themeToggle.checked));
+        const savedTheme = localStorage.getItem('theme');
+        applyTheme(savedTheme === 'dark' || (savedTheme === null && window.matchMedia('(prefers-color-scheme: dark)').matches));
+
+        // --- GLOBAL & DOM ELEMENTS ---
+        let quoteDataForPdf = {};
+        const policyTypeSelector = document.getElementById('policy-type');
+        const homeownersSection = document.getElementById('homeowners-section');
+        const commercialSection = document.getElementById('commercial-section');
+        const resultsSection = document.getElementById('results-section');
+        const allInputs = document.querySelectorAll('input, select');
+        
+        // --- MODAL & QUOTE ELEMENTS ---
+        const generateQuoteBtn = document.getElementById('generate-quote-btn');
+        const clientInfoModal = document.getElementById('client-info-modal');
+        const closeClientModalBtn = document.getElementById('close-client-modal-btn');
+        const submitQuoteBtn = document.getElementById('submit-quote-btn');
+        const finalQuoteModal = document.getElementById('final-quote-modal');
+        const closeQuoteModalBtn = document.getElementById('close-quote-modal-btn');
+        const downloadPdfBtn = document.getElementById('download-pdf-btn');
+        const copyQuoteBtn = document.getElementById('copy-quote-btn');
+        const quoteOutput = document.getElementById('quote-output');
+        
+        // --- ADVANCED MODE ELEMENTS ---
+        const homeAdvancedCheck = document.getElementById('home-advanced-mode-check');
+        const homeAdvancedSection = document.getElementById('home-advanced-section');
+        const homeStandardInputs = document.getElementById('home-standard-inputs');
+        const commAdvancedCheck = document.getElementById('comm-advanced-mode-check');
+        const commAdvancedSection = document.getElementById('comm-advanced-section');
+        const commStandardInputs = document.getElementById('comm-standard-inputs');
+
+        // --- EVENT LISTENERS ---
+        policyTypeSelector.addEventListener('change', handlePolicyTypeChange);
+        allInputs.forEach(input => {
+            input.addEventListener('input', calculateAndDisplay);
+        });
+
+        homeAdvancedCheck.addEventListener('change', (e) => {
+            homeAdvancedSection.style.display = e.target.checked ? 'block' : 'none';
+            homeStandardInputs.style.display = e.target.checked ? 'none' : 'block';
+            calculateAndDisplay();
+        });
+        
+        commAdvancedCheck.addEventListener('change', (e) => {
+            commAdvancedSection.style.display = e.target.checked ? 'block' : 'none';
+            commStandardInputs.style.display = e.target.checked ? 'none' : 'block';
+            calculateAndDisplay();
+        });
+
+        const numberInputs = document.querySelectorAll('input[inputmode="numeric"]');
+        numberInputs.forEach(input => {
+            input.addEventListener('input', formatNumberInput);
+        });
+        
+        generateQuoteBtn.addEventListener('click', () => clientInfoModal.style.display = 'flex');
+        closeClientModalBtn.addEventListener('click', () => clientInfoModal.style.display = 'none');
+        submitQuoteBtn.addEventListener('click', generateFinalQuote);
+        closeQuoteModalBtn.addEventListener('click', () => finalQuoteModal.style.display = 'none');
+        downloadPdfBtn.addEventListener('click', generateAndDownloadPDF);
+        copyQuoteBtn.addEventListener('click', copyQuoteToClipboard);
+
+        // --- UI & HELPER FUNCTIONS ---
+        function handlePolicyTypeChange() {
+            const selectedType = policyTypeSelector.value;
+            homeownersSection.classList.remove('active');
+            commercialSection.classList.remove('active');
+
+            if (selectedType === 'homeowners') {
+                homeownersSection.classList.add('active');
+            } else if (selectedType === 'commercial') {
+                commercialSection.classList.add('active');
+            }
+            calculateAndDisplay();
+        }
+        
+        function getFloatValue(id) {
+            const element = document.getElementById(id);
+            if (!element) return 0;
+            const value = element.value || '0';
+            return parseFloat(value.replace(/,/g, '')) || 0;
+        }
+
+        function formatCurrency(value) {
+            if (isNaN(value)) return '0.00';
+            return value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+        
+        function formatNumberInput(e) {
+            const input = e.target;
+            let cursorPosition = input.selectionStart;
+            let originalValue = input.value;
+            let originalLength = originalValue.length;
+            let rawValue = originalValue.replace(/[^\d.]/g, '');
+            let parts = rawValue.split('.');
+            let integerPart = parts[0];
+            let decimalPart = parts.length > 1 ? '.' + parts[1] : '';
+            let formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            let formattedValue = formattedInteger + decimalPart;
+            input.value = formattedValue;
+            let newLength = formattedValue.length;
+            let newCursorPosition = cursorPosition + (newLength - originalLength);
+            input.setSelectionRange(newCursorPosition, newCursorPosition);
+        }
+
+        // --- CALCULATION ENGINE ---
+        function calculateAndDisplay() {
+            if (typeof PROPERTY_RATES === 'undefined') {
+                resultsSection.classList.remove('hidden');
+                document.getElementById('total-premium').textContent = 'Error';
+                document.getElementById('premium-breakdown').innerHTML = `<p class="text-red-500">Rate data is missing.</p>`;
+                return;
+            }
+
+            const policyType = policyTypeSelector.value;
+            if (!policyType) {
+                resultsSection.classList.add('hidden');
+                return;
+            }
+            resultsSection.classList.remove('hidden');
+
+            let buildingPremium = 0;
+            let contentsPremium = 0;
+            let breakdownHTML = '';
+            let basePremium = 0;
+            let taxAmount = 0;
+            let totalPremium = 0;
+            
+            if (policyType === 'homeowners') {
+                const clientAge = getFloatValue('home-client-age');
+                const buildingSumInsured = getFloatValue('home-building-sum-insured');
+                const contentsSumInsured = getFloatValue('home-contents-sum-insured');
+                
+                let buildingRate, contentsRate;
+                let buildingPremiumLabel = "Building Premium";
+                let contentsPremiumLabel = "Contents Premium";
+
+                if (homeAdvancedCheck.checked) {
+                    buildingRate = getFloatValue('home-override-building-rate');
+                    contentsRate = getFloatValue('home-override-contents-rate');
+                    buildingPremiumLabel += " (Manual Rate)";
+                    contentsPremiumLabel += " (Manual Rate)";
+                } else {
+                    const planType = document.getElementById('home-plan-type').value;
+                    buildingRate = PROPERTY_RATES.homeowners.building[planType];
+                    contentsRate = PROPERTY_RATES.homeowners.contents;
+                }
+                
+                buildingPremium = (buildingSumInsured / 1000) * buildingRate;
+                contentsPremium = (contentsSumInsured / 1000) * contentsRate;
+
+                if (buildingPremium > 0) breakdownHTML += `<p>${buildingPremiumLabel}: <strong class="float-right">$${formatCurrency(buildingPremium)}</strong></p>`;
+                if (contentsPremium > 0) breakdownHTML += `<p>${contentsPremiumLabel}: <strong class="float-right">$${formatCurrency(contentsPremium)}</strong></p>`;
+
+                basePremium = buildingPremium + contentsPremium;
+                
+                const taxLabel = "Insurance Premium Tax (6%)";
+                let taxValue = "";
+                if (clientAge > 0 && clientAge >= 60) {
+                    taxAmount = 0;
+                    taxValue = `Exempt (Age &ge; 60)`;
+                } else {
+                    taxAmount = basePremium * PROPERTY_RATES.tax.ipt;
+                    taxValue = `$${formatCurrency(taxAmount)}`;
+                }
+                totalPremium = basePremium + taxAmount;
+
+                if (basePremium > 0) {
+                    breakdownHTML += `<p class="border-t border-[var(--border-color)] pt-2 mt-2">Base Premium: <strong class="float-right">$${formatCurrency(basePremium)}</strong></p>`;
+                    breakdownHTML += `<p>${taxLabel}: <strong class="float-right">${taxValue}</strong></p>`;
+                }
+
+            } else if (policyType === 'commercial') {
+                const buildingSumInsured = getFloatValue('comm-building-sum-insured');
+                let fireRate;
+                let commPremiumLabel = "Commercial Fire Premium";
+
+                if (commAdvancedCheck.checked) {
+                    fireRate = getFloatValue('comm-override-building-rate');
+                    commPremiumLabel += " (Manual Rate)";
+                } else {
+                    fireRate = PROPERTY_RATES.commercial.fire;
+                }
+                
+                buildingPremium = (buildingSumInsured / 1000) * fireRate;
+                if (buildingPremium > 0) breakdownHTML += `<p>${commPremiumLabel}: <strong class="float-right">$${formatCurrency(buildingPremium)}</strong></p>`;
+                
+                basePremium = buildingPremium;
+                taxAmount = basePremium * PROPERTY_RATES.tax.ipt;
+                totalPremium = basePremium + taxAmount;
+                
+                if (basePremium > 0) {
+                    breakdownHTML += `<p class="border-t border-[var(--border-color)] pt-2 mt-2">Base Premium: <strong class="float-right">$${formatCurrency(basePremium)}</strong></p>`;
+                    breakdownHTML += `<p>Insurance Premium Tax (6%): <strong class="float-right">$${formatCurrency(taxAmount)}</strong></p>`;
+                }
+            }
+            
+            document.getElementById('total-premium').textContent = `$${formatCurrency(totalPremium)}`;
+            document.getElementById('premium-breakdown').innerHTML = breakdownHTML;
+        }
+
+        // --- QUOTE & PDF LOGIC ---
+        function generateFinalQuote() {
+            const breakdownEl = document.getElementById('premium-breakdown');
+            const breakdownLines = Array.from(breakdownEl.children).map(p => {
+                const label = p.childNodes[0].nodeValue?.trim() || '';
+                const value = p.querySelector('strong')?.innerText || '';
+                return { label, value };
+            });
+
+            const total = document.getElementById('total-premium').innerText;
+
+            quoteDataForPdf = {
+                clientName: document.getElementById('client-name').value || 'Valued Client',
+                propertyAddress: document.getElementById('property-address').value || 'N/A',
+                policyType: policyTypeSelector.options[policyTypeSelector.selectedIndex].text,
+                date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }),
+                breakdown: breakdownLines,
+                total: total
+            };
+
+            const fullQuoteText = generateQuoteTextForDisplay(quoteDataForPdf);
+            quoteOutput.textContent = fullQuoteText;
+
+            clientInfoModal.style.display = 'none';
+            finalQuoteModal.style.display = 'flex';
+        }
+
+        function generateQuoteTextForDisplay(data) {
+            let text = `
+=========================================
+   OFFICIAL PROPERTY INSURANCE QUOTATION
+=========================================
+Date: ${data.date}
+
+CLIENT & PROPERTY:
+------------------
+Client Name:      ${data.clientName}
+Property Address: ${data.propertyAddress}
+Policy Type:      ${data.policyType}
+
+PREMIUM SUMMARY:
+------------------
+`;
+            data.breakdown.forEach(row => {
+                text += `${row.label.padEnd(30, ' ')} ${row.value}\n`;
+            });
+
+            text += `
+-----------------------------------------
+TOTAL ANNUAL PREMIUM: ${data.total.padStart(20, ' ')}
+=========================================
+
+This quotation is valid for 30 days.
+Terms and conditions apply.
+`;
+            return text.trim();
+        }
+
+        function generateAndDownloadPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const textToPrint = generateQuoteTextForDisplay(quoteDataForPdf);
+
+            doc.setFont("courier", "normal");
+            doc.setFontSize(10);
+            doc.text(textToPrint, 10, 10);
+            doc.save(`Property_Quote_For_${quoteDataForPdf.clientName.replace(/\s/g, '_')}.pdf`);
+        }
+
+        function copyQuoteToClipboard() {
+            const textToCopy = quoteOutput.innerText;
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                copyQuoteBtn.textContent = 'Copied!';
+                setTimeout(() => { copyQuoteBtn.textContent = 'Copy Quote'; }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy text: ', err);
+            });
+        }
+        
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+        handlePolicyTypeChange();
+    });
+    </script>
+</body>
+</html>
