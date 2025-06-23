@@ -17,7 +17,7 @@ const PROPERTY_RATES = {
                 worldwide: 0.025        // 2.5% of value
             },
             special_items: 0.01,    // 1% of value
-            all_risk: 0.03          // 3% of total contents value
+            all_risk: 0.004          // 0.4% of total contents value ($4 per $1000)
         },
         excess: {
             standard_flood: 2500,
