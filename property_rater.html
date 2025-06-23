@@ -149,85 +149,88 @@
                 <!-- Step 2: Details Sections -->
                 <div id="details-sections">
                     <!-- Homeowners Section -->
-                    <div id="homeowners-section" class="form-section bento-box">
-                        <div class="flex justify-between items-start mb-4">
-                            <h2 class="text-2xl font-bold"><span class="inline-block bg-[var(--secondary-accent)] text-white rounded-full h-8 w-8 text-center leading-8 mr-3 text-lg">2</span>Homeowners Details</h2>
-                             <label for="home-advanced-mode-check" class="flex items-center cursor-pointer">
-                                <span class="mr-3 text-sm font-medium">Advanced Mode</span>
-                                <div class="relative">
-                                    <input type="checkbox" id="home-advanced-mode-check" class="sr-only peer">
-                                    <div class="block bg-gray-300 w-12 h-6 rounded-full peer-checked:bg-[var(--primary-accent)] dark:bg-gray-700 transition"></div>
-                                    <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition peer-checked:translate-x-6"></div>
-                                </div>
-                            </label>
-                        </div>
+                    <div id="homeowners-section" class="form-section bento-box space-y-6">
+                        <h2 class="text-2xl font-bold"><span class="inline-block bg-[var(--secondary-accent)] text-white rounded-full h-8 w-8 text-center leading-8 mr-3 text-lg">2</span>Homeowners Details</h2>
                         
-                        <!-- Client Age Input -->
-                        <div class="mb-6">
+                        <div>
                             <label for="home-client-age" class="block text-sm font-medium text-[var(--text-muted)]">Client's Age (for tax purposes)</label>
                             <input type="number" id="home-client-age" class="mt-1 w-full p-2.5" placeholder="e.g., 55">
                         </div>
 
-                        <div id="home-standard-inputs" class="space-y-6">
-                            <div>
-                                <label for="home-plan-type" class="block text-sm font-medium text-[var(--text-muted)]">Plan Type</label>
-                                <select id="home-plan-type" class="mt-1 w-full p-2.5">
-                                    <option value="individual">Individual Plan</option>
-                                    <option value="group">Group Plan</option>
-                                </select>
-                            </div>
+                        <!-- Building & Risk Details -->
+                        <div class="space-y-4 border-t border-dashed border-[var(--border-color)] pt-4">
+                            <h3 class="font-semibold text-lg text-[var(--text-secondary)]">Building & Risk Details</h3>
                             <div>
                                 <label for="home-building-sum-insured" class="block text-sm font-medium text-[var(--text-muted)]">Building Sum Insured ($)</label>
                                 <input type="text" inputmode="numeric" id="home-building-sum-insured" class="mt-1 w-full p-2.5" placeholder="e.g., 850,000">
                             </div>
-                            <div>
-                                <label for="home-contents-sum-insured" class="block text-sm font-medium text-[var(--text-muted)]">General Contents Sum Insured ($)</label>
-                                <input type="text" inputmode="numeric" id="home-contents-sum-insured" class="mt-1 w-full p-2.5" placeholder="e.g., 150,000">
+                            <div class="flex items-center space-x-3">
+                                <input type="checkbox" id="home-flood-prone-check" class="h-5 w-5 rounded text-[var(--primary-accent)] focus:ring-[var(--primary-accent)]">
+                                <label for="home-flood-prone-check" class="text-sm font-medium">Property is in a flood-prone area</label>
+                            </div>
+                            <div id="home-flood-options" class="hidden pl-8">
+                                <label for="home-flood-action" class="block text-sm font-medium text-[var(--text-muted)]">Flood Coverage Option</label>
+                                <select id="home-flood-action" class="mt-1 w-full p-2.5">
+                                    <option value="increase_rate">Increase Premium Rate to $5 per mille</option>
+                                    <option value="increase_excess">Increase Flood Excess to $5,000</option>
+                                </select>
                             </div>
                         </div>
 
-                        <div id="home-advanced-section" class="advanced-section">
-                            <h4 class="font-semibold text-[var(--text-primary)] mb-2">Manual Rate Override</h4>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Contents Details -->
+                        <div class="space-y-4 border-t border-dashed border-[var(--border-color)] pt-4">
+                            <div class="flex justify-between items-center">
+                                <h3 class="font-semibold text-lg text-[var(--text-secondary)]">Contents Details</h3>
+                                <div class="flex items-center space-x-3">
+                                    <label for="home-all-risk-check" class="text-sm font-medium">"All Risk" Coverage</label>
+                                    <input type="checkbox" id="home-all-risk-check" class="h-5 w-5 rounded text-[var(--primary-accent)] focus:ring-[var(--primary-accent)]">
+                                </div>
+                            </div>
+                            
+                            <!-- Itemized Contents -->
+                            <div id="home-itemized-contents" class="space-y-4">
                                 <div>
-                                    <label for="home-override-building-rate" class="block text-sm font-medium mb-1">Building Rate (per $1,000)</label>
-                                    <input type="number" id="home-override-building-rate" class="w-full p-2.5" placeholder="e.g., 3.75">
+                                    <label for="home-general-contents-si" class="block text-sm font-medium text-[var(--text-muted)]">General Contents Sum Insured ($)</label>
+                                    <input type="text" inputmode="numeric" id="home-general-contents-si" class="mt-1 w-full p-2.5" placeholder="e.g., 150,000">
                                 </div>
                                 <div>
-                                    <label for="home-override-contents-rate" class="block text-sm font-medium mb-1">Contents Rate (per $1,000)</label>
-                                    <input type="number" id="home-override-contents-rate" class="w-full p-2.5" placeholder="e.g., 4.00">
+                                    <label for="home-electronics-si" class="block text-sm font-medium text-[var(--text-muted)]">Electronics Sum Insured ($)</label>
+                                    <input type="text" inputmode="numeric" id="home-electronics-si" class="mt-1 w-full p-2.5" placeholder="e.g., 25,000">
                                 </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label for="home-jewelry-si" class="block text-sm font-medium text-[var(--text-muted)]">Jewelry Sum Insured ($)</label>
+                                        <input type="text" inputmode="numeric" id="home-jewelry-si" class="mt-1 w-full p-2.5" placeholder="e.g., 10,000">
+                                    </div>
+                                    <div>
+                                        <label for="home-jewelry-coverage" class="block text-sm font-medium text-[var(--text-muted)]">Jewelry Coverage</label>
+                                        <select id="home-jewelry-coverage" class="mt-1 w-full p-2.5">
+                                            <option value="on_premises">On Premises</option>
+                                            <option value="trinidad_tobago">Trinidad & Tobago</option>
+                                            <option value="worldwide">Worldwide</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label for="home-special-items-si" class="block text-sm font-medium text-[var(--text-muted)]">Other Special Items Sum Insured ($)</label>
+                                    <input type="text" inputmode="numeric" id="home-special-items-si" class="mt-1 w-full p-2.5" placeholder="e.g., 5,000">
+                                </div>
+                            </div>
+                            
+                            <!-- All Risk Contents -->
+                            <div id="home-all-risk-contents" class="hidden">
+                                <label for="home-total-contents-si" class="block text-sm font-medium text-[var(--text-muted)]">Total Contents Sum Insured for "All Risk" ($)</label>
+                                <input type="text" inputmode="numeric" id="home-total-contents-si" class="mt-1 w-full p-2.5" placeholder="e.g., 190,000">
                             </div>
                         </div>
                     </div>
                     
                     <!-- Commercial Section -->
                     <div id="commercial-section" class="form-section bento-box">
-                         <div class="flex justify-between items-start mb-4">
-                            <h2 class="text-2xl font-bold"><span class="inline-block bg-[var(--secondary-accent)] text-white rounded-full h-8 w-8 text-center leading-8 mr-3 text-lg">2</span>Commercial Details</h2>
-                             <label for="comm-advanced-mode-check" class="flex items-center cursor-pointer">
-                                <span class="mr-3 text-sm font-medium">Advanced Mode</span>
-                                <div class="relative">
-                                    <input type="checkbox" id="comm-advanced-mode-check" class="sr-only peer">
-                                    <div class="block bg-gray-300 w-12 h-6 rounded-full peer-checked:bg-[var(--primary-accent)] dark:bg-gray-700 transition"></div>
-                                    <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition peer-checked:translate-x-6"></div>
-                                </div>
-                            </label>
-                        </div>
-
-                        <div id="comm-standard-inputs" class="space-y-6">
-                            <div>
-                                <label for="comm-building-sum-insured" class="block text-sm font-medium text-[var(--text-muted)]">Building Sum Insured ($)</label>
-                                <input type="text" inputmode="numeric" id="comm-building-sum-insured" class="mt-1 w-full p-2.5" placeholder="e.g., 2,500,000">
-                            </div>
-                        </div>
-                        
-                        <div id="comm-advanced-section" class="advanced-section">
-                            <h4 class="font-semibold text-[var(--text-primary)] mb-2">Manual Rate Override</h4>
-                            <div>
-                                <label for="comm-override-building-rate" class="block text-sm font-medium mb-1">Building Rate (per $1,000)</label>
-                                <input type="number" id="comm-override-building-rate" class="w-full p-2.5" placeholder="e.g., 3.50">
-                            </div>
+                         <h2 class="text-2xl font-bold mb-4"><span class="inline-block bg-[var(--secondary-accent)] text-white rounded-full h-8 w-8 text-center leading-8 mr-3 text-lg">2</span>Commercial Details</h2>
+                        <div>
+                            <label for="comm-building-sum-insured" class="block text-sm font-medium text-[var(--text-muted)]">Building Sum Insured ($)</label>
+                            <input type="text" inputmode="numeric" id="comm-building-sum-insured" class="mt-1 w-full p-2.5" placeholder="e.g., 2,500,000">
                         </div>
                     </div>
                 </div>
@@ -304,10 +307,6 @@
 
         // --- GLOBAL & DOM ELEMENTS ---
         let quoteDataForPdf = {};
-        const policyTypeSelector = document.getElementById('policy-type');
-        const homeownersSection = document.getElementById('homeowners-section');
-        const commercialSection = document.getElementById('commercial-section');
-        const resultsSection = document.getElementById('results-section');
         const allInputs = document.querySelectorAll('input, select');
         
         // --- MODAL & QUOTE ELEMENTS ---
@@ -321,30 +320,9 @@
         const copyQuoteBtn = document.getElementById('copy-quote-btn');
         const quoteOutput = document.getElementById('quote-output');
         
-        // --- ADVANCED MODE ELEMENTS ---
-        const homeAdvancedCheck = document.getElementById('home-advanced-mode-check');
-        const homeAdvancedSection = document.getElementById('home-advanced-section');
-        const homeStandardInputs = document.getElementById('home-standard-inputs');
-        const commAdvancedCheck = document.getElementById('comm-advanced-mode-check');
-        const commAdvancedSection = document.getElementById('comm-advanced-section');
-        const commStandardInputs = document.getElementById('comm-standard-inputs');
-
         // --- EVENT LISTENERS ---
-        policyTypeSelector.addEventListener('change', handlePolicyTypeChange);
         allInputs.forEach(input => {
             input.addEventListener('input', calculateAndDisplay);
-        });
-
-        homeAdvancedCheck.addEventListener('change', (e) => {
-            homeAdvancedSection.style.display = e.target.checked ? 'block' : 'none';
-            homeStandardInputs.style.display = e.target.checked ? 'none' : 'block';
-            calculateAndDisplay();
-        });
-        
-        commAdvancedCheck.addEventListener('change', (e) => {
-            commAdvancedSection.style.display = e.target.checked ? 'block' : 'none';
-            commStandardInputs.style.display = e.target.checked ? 'none' : 'block';
-            calculateAndDisplay();
         });
 
         const numberInputs = document.querySelectorAll('input[inputmode="numeric"]');
@@ -358,21 +336,32 @@
         closeQuoteModalBtn.addEventListener('click', () => finalQuoteModal.style.display = 'none');
         downloadPdfBtn.addEventListener('click', generateAndDownloadPDF);
         copyQuoteBtn.addEventListener('click', copyQuoteToClipboard);
+        
+        // Homeowners specific listeners
+        document.getElementById('home-flood-prone-check').addEventListener('change', handleFloodCheck);
+        document.getElementById('home-all-risk-check').addEventListener('change', handleAllRiskCheck);
+
 
         // --- UI & HELPER FUNCTIONS ---
         function handlePolicyTypeChange() {
-            const selectedType = policyTypeSelector.value;
-            homeownersSection.classList.remove('active');
-            commercialSection.classList.remove('active');
-
-            if (selectedType === 'homeowners') {
-                homeownersSection.classList.add('active');
-            } else if (selectedType === 'commercial') {
-                commercialSection.classList.add('active');
-            }
+            const selectedType = document.getElementById('policy-type').value;
+            document.getElementById('homeowners-section').classList.toggle('active', selectedType === 'homeowners');
+            document.getElementById('commercial-section').classList.toggle('active', selectedType === 'commercial');
+            document.getElementById('results-section').classList.toggle('hidden', !selectedType);
             calculateAndDisplay();
         }
         
+        function handleFloodCheck(e) {
+            document.getElementById('home-flood-options').style.display = e.target.checked ? 'block' : 'none';
+            calculateAndDisplay();
+        }
+
+        function handleAllRiskCheck(e) {
+            document.getElementById('home-itemized-contents').style.display = e.target.checked ? 'none' : 'block';
+            document.getElementById('home-all-risk-contents').style.display = e.target.checked ? 'block' : 'none';
+            calculateAndDisplay();
+        }
+
         function getFloatValue(id) {
             const element = document.getElementById(id);
             if (!element) return 0;
@@ -405,161 +394,161 @@
         // --- CALCULATION ENGINE ---
         function calculateAndDisplay() {
             if (typeof PROPERTY_RATES === 'undefined') {
-                resultsSection.classList.remove('hidden');
+                document.getElementById('results-section').classList.remove('hidden');
                 document.getElementById('total-premium').textContent = 'Error';
                 document.getElementById('premium-breakdown').innerHTML = `<p class="text-red-500">Rate data is missing.</p>`;
                 return;
             }
 
-            const policyType = policyTypeSelector.value;
-            if (!policyType) {
-                resultsSection.classList.add('hidden');
-                return;
-            }
-            resultsSection.classList.remove('hidden');
+            const policyType = document.getElementById('policy-type').value;
+            if (!policyType) return;
+            document.getElementById('results-section').classList.remove('hidden');
 
-            let buildingPremium = 0;
-            let contentsPremium = 0;
-            let breakdownHTML = '';
-            let basePremium = 0;
-            let taxAmount = 0;
-            let totalPremium = 0;
-            
+            let results = {};
             if (policyType === 'homeowners') {
-                const clientAge = getFloatValue('home-client-age');
-                const buildingSumInsured = getFloatValue('home-building-sum-insured');
-                const contentsSumInsured = getFloatValue('home-contents-sum-insured');
-                
-                let buildingRate, contentsRate;
-                let buildingPremiumLabel = "Building Premium";
-                let contentsPremiumLabel = "Contents Premium";
-
-                if (homeAdvancedCheck.checked) {
-                    buildingRate = getFloatValue('home-override-building-rate');
-                    contentsRate = getFloatValue('home-override-contents-rate');
-                    buildingPremiumLabel += " (Manual Rate)";
-                    contentsPremiumLabel += " (Manual Rate)";
-                } else {
-                    const planType = document.getElementById('home-plan-type').value;
-                    buildingRate = PROPERTY_RATES.homeowners.building[planType];
-                    contentsRate = PROPERTY_RATES.homeowners.contents;
-                }
-                
-                buildingPremium = (buildingSumInsured / 1000) * buildingRate;
-                contentsPremium = (contentsSumInsured / 1000) * contentsRate;
-
-                if (buildingPremium > 0) breakdownHTML += `<p>${buildingPremiumLabel}: <strong class="float-right">$${formatCurrency(buildingPremium)}</strong></p>`;
-                if (contentsPremium > 0) breakdownHTML += `<p>${contentsPremiumLabel}: <strong class="float-right">$${formatCurrency(contentsPremium)}</strong></p>`;
-
-                basePremium = buildingPremium + contentsPremium;
-                
-                const taxLabel = "Insurance Premium Tax (6%)";
-                let taxValue = "";
-                if (clientAge > 0 && clientAge >= 60) {
-                    taxAmount = 0;
-                    taxValue = `Exempt (Age &ge; 60)`;
-                } else {
-                    taxAmount = basePremium * PROPERTY_RATES.tax.ipt;
-                    taxValue = `$${formatCurrency(taxAmount)}`;
-                }
-                totalPremium = basePremium + taxAmount;
-
-                if (basePremium > 0) {
-                    breakdownHTML += `<p class="border-t border-[var(--border-color)] pt-2 mt-2">Base Premium: <strong class="float-right">$${formatCurrency(basePremium)}</strong></p>`;
-                    breakdownHTML += `<p>${taxLabel}: <strong class="float-right">${taxValue}</strong></p>`;
-                }
-
+                results = calculateHomeownersPremium();
             } else if (policyType === 'commercial') {
-                const buildingSumInsured = getFloatValue('comm-building-sum-insured');
-                let fireRate;
-                let commPremiumLabel = "Commercial Fire Premium";
-
-                if (commAdvancedCheck.checked) {
-                    fireRate = getFloatValue('comm-override-building-rate');
-                    commPremiumLabel += " (Manual Rate)";
-                } else {
-                    fireRate = PROPERTY_RATES.commercial.fire;
-                }
-                
-                buildingPremium = (buildingSumInsured / 1000) * fireRate;
-                if (buildingPremium > 0) breakdownHTML += `<p>${commPremiumLabel}: <strong class="float-right">$${formatCurrency(buildingPremium)}</strong></p>`;
-                
-                basePremium = buildingPremium;
-                taxAmount = basePremium * PROPERTY_RATES.tax.ipt;
-                totalPremium = basePremium + taxAmount;
-                
-                if (basePremium > 0) {
-                    breakdownHTML += `<p class="border-t border-[var(--border-color)] pt-2 mt-2">Base Premium: <strong class="float-right">$${formatCurrency(basePremium)}</strong></p>`;
-                    breakdownHTML += `<p>Insurance Premium Tax (6%): <strong class="float-right">$${formatCurrency(taxAmount)}</strong></p>`;
-                }
+                results = calculateCommercialPremium();
             }
             
-            document.getElementById('total-premium').textContent = `$${formatCurrency(totalPremium)}`;
-            document.getElementById('premium-breakdown').innerHTML = breakdownHTML;
+            document.getElementById('total-premium').textContent = `$${formatCurrency(results.totalPremium)}`;
+            document.getElementById('premium-breakdown').innerHTML = results.breakdownHTML;
+        }
+
+        function calculateHomeownersPremium() {
+            let breakdownHTML = '';
+            let floodNote = '';
+            
+            // Building Premium
+            const buildingSumInsured = getFloatValue('home-building-sum-insured');
+            const isFloodProne = document.getElementById('home-flood-prone-check').checked;
+            const floodAction = document.getElementById('home-flood-action').value;
+            
+            let buildingRate = PROPERTY_RATES.homeowners.building.individual; // Default
+            let buildingPremiumLabel = "Building Premium";
+
+            if (isFloodProne && floodAction === 'increase_rate') {
+                buildingRate = PROPERTY_RATES.homeowners.building.flood_prone;
+                buildingPremiumLabel += " (Flood Rate)";
+            }
+            
+            const buildingPremium = (buildingSumInsured / 1000) * buildingRate;
+            if (buildingPremium > 0) {
+                breakdownHTML += `<p>${buildingPremiumLabel}: <strong class="float-right">$${formatCurrency(buildingPremium)}</strong></p>`;
+            }
+            if (isFloodProne && floodAction === 'increase_excess') {
+                 floodNote = `<p class="font-bold text-red-600 dark:text-red-400 text-center p-2 my-2 bg-red-100 dark:bg-red-900/30 rounded-md">FLOOD EXCESS INCREASED TO $${formatCurrency(PROPERTY_RATES.homeowners.excess.increased_flood)}</p>`;
+            }
+
+            // Contents Premium
+            const isAllRisk = document.getElementById('home-all-risk-check').checked;
+            let contentsPremium = 0;
+            let contentsBreakdown = '';
+            
+            if (isAllRisk) {
+                const totalContents = getFloatValue('home-total-contents-si');
+                contentsPremium = totalContents * PROPERTY_RATES.homeowners.contents.all_risk;
+                if (contentsPremium > 0) {
+                    contentsBreakdown += `<p>"All Risk" Contents Premium: <strong class="float-right">$${formatCurrency(contentsPremium)}</strong></p>`;
+                }
+            } else {
+                const generalSI = getFloatValue('home-general-contents-si');
+                const electronicsSI = getFloatValue('home-electronics-si');
+                const jewelrySI = getFloatValue('home-jewelry-si');
+                const specialSI = getFloatValue('home-special-items-si');
+                const jewelryCoverage = document.getElementById('home-jewelry-coverage').value;
+
+                const generalPrem = (generalSI / 1000) * PROPERTY_RATES.homeowners.contents.general;
+                const electronicsPrem = electronicsSI * PROPERTY_RATES.homeowners.contents.electronics;
+                const jewelryPrem = jewelrySI * PROPERTY_RATES.homeowners.contents.jewelry[jewelryCoverage];
+                const specialPrem = specialSI * PROPERTY_RATES.homeowners.contents.special_items;
+                
+                contentsPremium = generalPrem + electronicsPrem + jewelryPrem + specialPrem;
+
+                if (generalPrem > 0) contentsBreakdown += `<p class="pl-2">- General Contents: <strong class="float-right">$${formatCurrency(generalPrem)}</strong></p>`;
+                if (electronicsPrem > 0) contentsBreakdown += `<p class="pl-2">- Electronics: <strong class="float-right">$${formatCurrency(electronicsPrem)}</strong></p>`;
+                if (jewelryPrem > 0) contentsBreakdown += `<p class="pl-2">- Jewelry: <strong class="float-right">$${formatCurrency(jewelryPrem)}</strong></p>`;
+                if (specialPrem > 0) contentsBreakdown += `<p class="pl-2">- Special Items: <strong class="float-right">$${formatCurrency(specialPrem)}</strong></p>`;
+                if (contentsPremium > 0) contentsBreakdown = `<p>Contents Premium: <strong class="float-right">$${formatCurrency(contentsPremium)}</strong></p>${contentsBreakdown}`;
+            }
+
+            breakdownHTML += contentsBreakdown;
+            
+            const basePremium = buildingPremium + contentsPremium;
+            const clientAge = getFloatValue('home-client-age');
+            const taxRate = (clientAge > 0 && clientAge >= 60) ? 0 : PROPERTY_RATES.tax.ipt;
+            const taxAmount = basePremium * taxRate;
+            const totalPremium = basePremium + taxAmount;
+            
+            if (basePremium > 0) {
+                breakdownHTML += `<p class="border-t border-[var(--border-color)] pt-2 mt-2">Base Premium: <strong class="float-right">$${formatCurrency(basePremium)}</strong></p>`;
+                const taxLabel = taxRate === 0 ? "Exempt (Age &ge; 60)" : `$${formatCurrency(taxAmount)}`;
+                breakdownHTML += `<p>Insurance Premium Tax (6%): <strong class="float-right">${taxLabel}</strong></p>`;
+            }
+
+            breakdownHTML += floodNote; // Add the flood note at the end of the breakdown.
+
+            return { totalPremium, breakdownHTML };
+        }
+
+        function calculateCommercialPremium() {
+            let breakdownHTML = '';
+            const buildingSumInsured = getFloatValue('comm-building-sum-insured');
+            const fireRate = PROPERTY_RATES.commercial.fire;
+            const buildingPremium = (buildingSumInsured / 1000) * fireRate;
+            
+            if(buildingPremium > 0) {
+                breakdownHTML += `<p>Commercial Fire Premium: <strong class="float-right">$${formatCurrency(buildingPremium)}</strong></p>`;
+            }
+            
+            const basePremium = buildingPremium;
+            const taxAmount = basePremium * PROPERTY_RATES.tax.ipt;
+            const totalPremium = basePremium + taxAmount;
+                
+            if (basePremium > 0) {
+                breakdownHTML += `<p class="border-t border-[var(--border-color)] pt-2 mt-2">Base Premium: <strong class="float-right">$${formatCurrency(basePremium)}</strong></p>`;
+                breakdownHTML += `<p>Insurance Premium Tax (6%): <strong class="float-right">$${formatCurrency(taxAmount)}</strong></p>`;
+            }
+
+            return { totalPremium, breakdownHTML };
         }
 
         // --- QUOTE & PDF LOGIC ---
         function generateFinalQuote() {
-            const breakdownEl = document.getElementById('premium-breakdown');
-            const breakdownLines = Array.from(breakdownEl.children).map(p => {
-                const label = p.childNodes[0].nodeValue?.trim() || '';
-                const value = p.querySelector('strong')?.innerText || '';
-                return { label, value };
-            });
-
-            const total = document.getElementById('total-premium').innerText;
-
+            // This function now just shows the final modal
             quoteDataForPdf = {
                 clientName: document.getElementById('client-name').value || 'Valued Client',
                 propertyAddress: document.getElementById('property-address').value || 'N/A',
-                policyType: policyTypeSelector.options[policyTypeSelector.selectedIndex].text,
-                date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }),
-                breakdown: breakdownLines,
-                total: total
+                // other data will be gathered in the display function
             };
 
-            const fullQuoteText = generateQuoteTextForDisplay(quoteDataForPdf);
+            const fullQuoteText = generateQuoteTextForDisplay();
             quoteOutput.textContent = fullQuoteText;
 
             clientInfoModal.style.display = 'none';
             finalQuoteModal.style.display = 'flex';
         }
 
-        function generateQuoteTextForDisplay(data) {
-            let text = `
-=========================================
-   OFFICIAL PROPERTY INSURANCE QUOTATION
-=========================================
-Date: ${data.date}
-
-CLIENT & PROPERTY:
-------------------
-Client Name:      ${data.clientName}
-Property Address: ${data.propertyAddress}
-Policy Type:      ${data.policyType}
-
-PREMIUM SUMMARY:
-------------------
-`;
-            data.breakdown.forEach(row => {
-                text += `${row.label.padEnd(30, ' ')} ${row.value}\n`;
-            });
-
-            text += `
------------------------------------------
-TOTAL ANNUAL PREMIUM: ${data.total.padStart(20, ' ')}
-=========================================
-
-This quotation is valid for 30 days.
-Terms and conditions apply.
-`;
+        function generateQuoteTextForDisplay() {
+            let text = `=========================================\n   OFFICIAL PROPERTY INSURANCE QUOTATION\n=========================================\n`;
+            text += `Date: ${new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}\n\n`;
+            text += `CLIENT & PROPERTY:\n------------------\n`;
+            text += `Client Name:      ${quoteDataForPdf.clientName}\n`;
+            text += `Property Address: ${quoteDataForPdf.propertyAddress}\n\n`;
+            
+            const breakdownText = document.getElementById('premium-breakdown').innerText;
+            text += `PREMIUM SUMMARY:\n------------------\n${breakdownText}\n`;
+            
+            const totalPremiumText = document.getElementById('total-premium').innerText;
+            text += `-----------------------------------------\nTOTAL ANNUAL PREMIUM: ${totalPremiumText.padStart(20, ' ')}\n`;
+            text += `=========================================\n\nThis quotation is valid for 30 days.\nTerms and conditions apply.\n`;
             return text.trim();
         }
 
         function generateAndDownloadPDF() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
-            const textToPrint = generateQuoteTextForDisplay(quoteDataForPdf);
+            const textToPrint = generateQuoteTextForDisplay();
 
             doc.setFont("courier", "normal");
             doc.setFontSize(10);
@@ -578,7 +567,8 @@ Terms and conditions apply.
         }
         
         document.getElementById('currentYear').textContent = new Date().getFullYear();
-        handlePolicyTypeChange();
+        document.getElementById('policy-type').addEventListener('change', handlePolicyTypeChange);
+        handlePolicyTypeChange(); // Initial call
     });
     </script>
 </body>
