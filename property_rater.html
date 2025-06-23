@@ -180,16 +180,8 @@
 
                         <!-- Contents Details -->
                         <div id="home-contents-section" class="hidden space-y-4 pl-4 border-l-2 border-[var(--primary-accent)]">
-                            <div class="flex justify-between items-center">
-                                <h3 class="font-semibold text-lg text-[var(--text-secondary)]">Contents Details</h3>
-                                <div class="flex items-center space-x-3">
-                                    <label for="home-all-risk-check" class="text-sm font-medium">"All Risk" Coverage</label>
-                                    <input type="checkbox" id="home-all-risk-check" class="h-5 w-5 rounded text-[var(--primary-accent)] focus:ring-[var(--primary-accent)]">
-                                </div>
-                            </div>
-                            
                             <!-- Itemized Contents -->
-                            <div id="home-itemized-contents" class="space-y-4">
+                            <div class="space-y-4">
                                 <div>
                                     <label for="home-general-contents-si" class="block text-sm font-medium text-[var(--text-muted)]">General Contents Sum Insured ($)</label>
                                     <input type="text" inputmode="numeric" id="home-general-contents-si" class="mt-1 w-full p-2.5" placeholder="e.g., 150,000">
@@ -218,10 +210,10 @@
                                 </div>
                             </div>
                             
-                            <!-- All Risk Contents -->
-                            <div id="home-all-risk-contents" class="hidden">
-                                <label for="home-total-contents-si" class="block text-sm font-medium text-[var(--text-muted)]">Total Contents Sum Insured for "All Risk" ($)</label>
-                                <input type="text" inputmode="numeric" id="home-total-contents-si" class="mt-1 w-full p-2.5" placeholder="e.g., 190,000">
+                            <!-- All Risk Toggle -->
+                            <div class="flex items-center space-x-3 pt-4 border-t border-dashed border-[var(--border-color)]">
+                                <input type="checkbox" id="home-all-risk-check" class="h-5 w-5 rounded text-[var(--primary-accent)] focus:ring-[var(--primary-accent)]">
+                                <label for="home-all-risk-check" class="text-sm font-medium">Add "All Risk" Surcharge for Contents</label>
                             </div>
                         </div>
                     </div>
@@ -358,8 +350,6 @@
         }
 
         function handleAllRiskCheck(e) {
-            document.getElementById('home-itemized-contents').style.display = e.target.checked ? 'none' : 'block';
-            document.getElementById('home-all-risk-contents').style.display = e.target.checked ? 'block' : 'none';
             calculateAndDisplay();
         }
         
@@ -372,8 +362,6 @@
                     if(input.type === 'checkbox') input.checked = false;
                     else input.value = '';
                 });
-                // Ensure dependent sections are also hidden
-                handleAllRiskCheck({target: {checked: false}});
             }
             calculateAndDisplay();
         }
@@ -446,6 +434,7 @@
             // 2. Initialize variables
             let buildingPremium = 0;
             let contentsPremium = 0;
+            let allRiskPremium = 0;
             let breakdownHTML = '';
             let floodNote = '';
             
@@ -467,39 +456,39 @@
 
             // 4. Calculate Contents Premium if opted-in
             if (insureContents) {
+                const generalSI = getFloatValue('home-general-contents-si');
+                const electronicsSI = getFloatValue('home-electronics-si');
+                const jewelrySI = getFloatValue('home-jewelry-si');
+                const specialSI = getFloatValue('home-special-items-si');
+                const jewelryCoverage = document.getElementById('home-jewelry-coverage').value;
+
+                const generalPrem = (generalSI / 1000) * PROPERTY_RATES.homeowners.contents.general;
+                const electronicsPrem = electronicsSI * PROPERTY_RATES.homeowners.contents.electronics;
+                const jewelryPrem = jewelrySI * PROPERTY_RATES.homeowners.contents.jewelry[jewelryCoverage];
+                const specialPrem = specialSI * PROPERTY_RATES.homeowners.contents.special_items;
+                
+                contentsPremium = generalPrem + electronicsPrem + jewelryPrem + specialPrem;
+
+                if (contentsPremium > 0) {
+                    breakdownHTML += `<p>Contents Premium: <strong class="float-right">$${formatCurrency(contentsPremium)}</strong></p>`;
+                    if (generalPrem > 0) breakdownHTML += `<p class="pl-4 text-sm text-[var(--text-muted)]">- General Contents: <strong class="float-right">$${formatCurrency(generalPrem)}</strong></p>`;
+                    if (electronicsPrem > 0) breakdownHTML += `<p class="pl-4 text-sm text-[var(--text-muted)]">- Electronics: <strong class="float-right">$${formatCurrency(electronicsPrem)}</strong></p>`;
+                    if (jewelryPrem > 0) breakdownHTML += `<p class="pl-4 text-sm text-[var(--text-muted)]">- Jewelry (${jewelryCoverage.replace('_',' ')}): <strong class="float-right">$${formatCurrency(jewelryPrem)}</strong></p>`;
+                    if (specialPrem > 0) breakdownHTML += `<p class="pl-4 text-sm text-[var(--text-muted)]">- Special Items: <strong class="float-right">$${formatCurrency(specialPrem)}</strong></p>`;
+                }
+
+                // 4a. Calculate "All Risk" as an additional premium
                 if (isAllRisk) {
-                    const totalContents = getFloatValue('home-total-contents-si');
-                    contentsPremium = totalContents * PROPERTY_RATES.homeowners.contents.all_risk;
-                    if (contentsPremium > 0) {
-                        breakdownHTML += `<p>"All Risk" Contents Premium: <strong class="float-right">$${formatCurrency(contentsPremium)}</strong></p>`;
-                    }
-                } else {
-                    const generalSI = getFloatValue('home-general-contents-si');
-                    const electronicsSI = getFloatValue('home-electronics-si');
-                    const jewelrySI = getFloatValue('home-jewelry-si');
-                    const specialSI = getFloatValue('home-special-items-si');
-                    const jewelryCoverage = document.getElementById('home-jewelry-coverage').value;
-
-                    const generalPrem = (generalSI / 1000) * PROPERTY_RATES.homeowners.contents.general;
-                    const electronicsPrem = electronicsSI * PROPERTY_RATES.homeowners.contents.electronics;
-                    const jewelryPrem = jewelrySI * PROPERTY_RATES.homeowners.contents.jewelry[jewelryCoverage];
-                    const specialPrem = specialSI * PROPERTY_RATES.homeowners.contents.special_items;
-                    
-                    const totalItemizedPremium = generalPrem + electronicsPrem + jewelryPrem + specialPrem;
-                    contentsPremium = totalItemizedPremium;
-
-                    if (totalItemizedPremium > 0) {
-                        breakdownHTML += `<p>Contents Premium: <strong class="float-right">$${formatCurrency(totalItemizedPremium)}</strong></p>`;
-                        if (generalPrem > 0) breakdownHTML += `<p class="pl-4 text-sm text-[var(--text-muted)]">- General Contents: <strong class="float-right">$${formatCurrency(generalPrem)}</strong></p>`;
-                        if (electronicsPrem > 0) breakdownHTML += `<p class="pl-4 text-sm text-[var(--text-muted)]">- Electronics: <strong class="float-right">$${formatCurrency(electronicsPrem)}</strong></p>`;
-                        if (jewelryPrem > 0) breakdownHTML += `<p class="pl-4 text-sm text-[var(--text-muted)]">- Jewelry (${jewelryCoverage.replace('_',' ')}): <strong class="float-right">$${formatCurrency(jewelryPrem)}</strong></p>`;
-                        if (specialPrem > 0) breakdownHTML += `<p class="pl-4 text-sm text-[var(--text-muted)]">- Special Items: <strong class="float-right">$${formatCurrency(specialPrem)}</strong></p>`;
+                    const totalContentsForRisk = generalSI + electronicsSI + jewelrySI + specialSI;
+                    allRiskPremium = totalContentsForRisk * PROPERTY_RATES.homeowners.contents.all_risk;
+                    if (allRiskPremium > 0) {
+                        breakdownHTML += `<p>"All Risk" Surcharge: <strong class="float-right">$${formatCurrency(allRiskPremium)}</strong></p>`;
                     }
                 }
             }
 
             // 5. Calculate Totals and Tax
-            const basePremium = buildingPremium + contentsPremium;
+            const basePremium = buildingPremium + contentsPremium + allRiskPremium;
             const taxRate = (clientAge > 0 && clientAge >= 60) ? 0 : PROPERTY_RATES.tax.ipt;
             const taxAmount = basePremium * taxRate;
             const totalPremium = basePremium + taxAmount;
