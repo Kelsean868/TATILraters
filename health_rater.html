@@ -3,18 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TATIL COVERCARE Premium Rater & Referral Hub</title>
-
-    <!-- PWA Manifest & Meta Tags -->
-    <link rel="manifest" href="./manifest.json">
-    <meta name="theme-color" content="#005f73">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="TATIL Raters">
-    <link rel="apple-touch-icon" href="https://placehold.co/192x192/005f73/FFFFFF?text=TATIL">
-
+    <title>TATIL COVERCARE Premium Rater</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Source+Serif+Pro:wght@600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -93,7 +85,6 @@
         .secondary-btn { background-color: var(--secondary-accent); color: white; }
         .secondary-btn:hover { background-color: var(--secondary-accent-darker); }
         .dark-mode .secondary-btn { color: var(--text-primary); }
-
         
         /* Modal */
         .modal-overlay {
@@ -104,8 +95,7 @@
         }
         .modal-content {
             background-color: var(--bg-bento-box); margin: auto; padding: 2rem; border: 1px solid var(--border-color);
-            width: 90%; 
-            border-radius: 0.75rem; position: relative;
+            width: 90%; max-width: 560px; border-radius: 0.75rem; position: relative;
             box-shadow: var(--shadow-strong);
         }
         
@@ -118,6 +108,8 @@
         .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
         input:checked + .slider:before { transform: translateX(20px); } 
 
+        .breakdown-row { display: flex; justify-content: space-between; flex-wrap: wrap; }
+
         /* Floating WhatsApp Button */
         .whatsapp-float {
             position: fixed; width: 60px; height: 60px; bottom: 40px; right: 40px; background-color: #25d366; color: #FFF; border-radius: 50px;
@@ -125,14 +117,6 @@
             display: flex; align-items: center; justify-content: center; transition: transform 0.2s ease;
         }
         .whatsapp-float:hover { transform: scale(1.1); }
-        .breakdown-row { display: flex; justify-content: space-between; flex-wrap: wrap; }
-        .loader {
-            width: 48px; height: 48px; border: 5px solid var(--primary-accent);
-            border-bottom-color: transparent; border-radius: 50%;
-            display: inline-block; box-sizing: border-box;
-            animation: rotation 1s linear infinite;
-        }
-        @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="min-h-screen p-4 md:p-6 lg:p-8">
@@ -148,21 +132,15 @@
         </div>
     </div>
 
-    <div id="auth-loader" class="text-center p-20">
-        <div class="loader mx-auto"></div>
-        <p class="mt-4 text-[var(--text-secondary)]">Authenticating...</p>
-    </div>
-
-    <div id="health-rater-app" class="w-full max-w-6xl mx-auto my-8 hidden">
+    <div class="w-full max-w-6xl mx-auto my-8">
         <header class="mb-10 text-center">
-            <h1 id="main-header" class="text-4xl sm:text-5xl font-bold mb-3">TATIL COVERCARE Premium Rater</h1>
+            <h1 class="text-4xl sm:text-5xl font-bold mb-3">TATIL COVERCARE Premium Rater</h1>
             <p class="text-xl text-[var(--text-secondary)]">Health Insurance Plans, Simplified.</p>
         </header>
 
         <main class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <!-- Left Column: Inputs -->
             <div class="lg:col-span-2 space-y-8">
-                <!-- Step 1: Plan Selection -->
                 <div class="bento-box">
                     <h2 class="text-2xl font-bold mb-4"><i class="fas fa-users mr-3 text-[var(--secondary-accent)]"></i>Select Insured Details</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -181,7 +159,6 @@
                     </div>
                 </div>
 
-                <!-- Step 2: Plan Options -->
                 <div class="bento-box">
                     <h2 class="text-2xl font-bold mb-4"><i class="fas fa-clipboard-list mr-3 text-[var(--secondary-accent)]"></i>Select Plan Options</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -221,15 +198,9 @@
                     <p id="total-premium-label" class="text-sm text-[var(--text-muted)]">(Total Annual Premium)</p>
                     <div id="premium-breakdown" class="text-left mt-6 pt-4 border-t border-[var(--border-color)] text-[var(--text-secondary)] text-sm space-y-1"></div>
                      <div id="frequency-comparison" class="text-left mt-6 pt-4 border-t border-[var(--border-color)] text-[var(--text-secondary)] text-sm space-y-2"></div>
-                    <div id="finders-fee-section" class="text-left mt-6 pt-4 border-t-2 border-dashed border-[var(--secondary-accent)] hidden">
-                        <h3 class="text-lg font-bold text-[var(--primary-accent)] mb-2">Initial Finder's Fee</h3>
-                        <div id="finders-fee-breakdown" class="text-[var(--text-secondary)] text-sm space-y-1"></div>
-                    </div>
-                    <div class="mt-6">
-                        <button id="proceed-to-quote-btn" class="w-full primary-btn button-base py-3">
-                            Create Referral & Quote
-                        </button>
-                    </div>
+                    <button id="generate-quote-btn" class="mt-6 w-full primary-btn button-base py-3">
+                        Generate Official Quote
+                    </button>
                 </div>
             </div>
         </main>
@@ -239,59 +210,18 @@
         </footer>
     </div>
 
-    <!-- Combined Quote & Referral Modal -->
-    <div id="quote-referral-modal" class="modal-overlay hidden">
-        <div class="modal-content max-w-4xl">
-            <h3 id="modal-header" class="text-2xl font-bold leading-6 mb-6 text-center">Referral & Official Quotation</h3>
-
-            <div class="grid md:grid-cols-2 gap-8">
-                <!-- Left side: Client Info for Referral -->
-                <div>
-                    <h4 class="text-lg font-bold mb-4 text-[var(--primary-accent)]">Step 1: Enter Client Information</h4>
-                    <div class="space-y-4">
-                        <input type="text" id="client-name" placeholder="Client's Full Name" class="w-full" required>
-                        <input type="email" id="client-email" placeholder="Client's Email Address" class="w-full" required>
-                        <input type="text" id="client-contact" placeholder="Client's Contact Number" class="w-full" required>
-                    </div>
-                    <p id="client-modal-error" class="text-red-500 text-sm text-center mt-4 h-4"></p>
-                </div>
-
-                <!-- Right side: Quote Preview -->
-                <div>
-                    <h4 class="text-lg font-bold mb-4 text-[var(--primary-accent)]">Step 2: Review Official Quote</h4>
-                    <div id="quote-output-container" class="w-full h-64 overflow-y-auto bg-[var(--bg-main)] p-4 border border-[var(--border-color)] rounded-md">
-                        <pre id="quote-output" class="whitespace-pre-wrap text-sm font-mono"></pre>
-                    </div>
-                </div>
+    <!-- Final Quote Modal -->
+    <div id="final-quote-modal" class="modal-overlay hidden">
+        <div class="modal-content max-w-2xl">
+            <h3 class="text-xl font-bold leading-6 mb-4">Official COVERCARE Quotation</h3>
+            <div id="quote-output-container" class="w-full h-96 overflow-y-auto bg-[var(--bg-main)] p-4 border border-[var(--border-color)] rounded-md">
+                <pre id="quote-output" class="whitespace-pre-wrap text-sm font-mono"></pre>
             </div>
-            
-            <div class="flex items-center space-x-3 mt-4 pt-4 border-t border-[var(--border-color)]">
-                <input type="checkbox" id="waive-fee-checkbox" class="h-4 w-4">
-                <label for="waive-fee-checkbox" class="text-sm font-medium text-[var(--text-secondary)]">Waive finder's fee for this referral</label>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="mt-8 pt-6 border-t border-[var(--border-color)] flex flex-wrap justify-between items-center gap-4">
-                <div>
-                    <button id="close-modal-btn" type="button" class="button-base bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200 py-2 px-4">Cancel</button>
-                </div>
-                <div class="flex flex-wrap gap-3">
-                    <button id="copy-quote-btn" type="button" class="button-base secondary-btn py-2 px-4">Copy Quote</button>
-                    <button id="download-pdf-btn" type="button" class="button-base secondary-btn py-2 px-4">Download PDF</button>
-                    <button id="submit-referral-btn" type="button" class="button-base primary-btn py-2 px-4">Submit Referral</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Success Modal -->
-    <div id="success-modal" class="modal-overlay hidden">
-        <div class="modal-content text-center">
-            <i class="fas fa-check-circle text-5xl text-green-500 mx-auto mb-4"></i>
-            <h3 id="success-header" class="text-xl font-bold leading-6 mb-2">Referral Submitted!</h3>
-            <p class="text-[var(--text-secondary)]">You can track its status on your dashboard.</p>
-            <div class="mt-6">
-                 <a href="./index.html" class="button-base primary-btn py-2 px-4">Back to Dashboard</a>
+            <div class="mt-6 flex flex-wrap justify-end gap-3">
+                 <input type="text" id="client-name" placeholder="Enter Client's Name for PDF" class="w-full md:w-auto flex-grow p-2 rounded-md border border-[var(--border-color)] bg-[var(--bg-main)]">
+                <button id="close-quote-modal-btn" type="button" class="button-base bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200 py-2 px-4">Close</button>
+                <button id="download-pdf-btn" type="button" class="button-base secondary-btn py-2 px-4">Download PDF</button>
+                <button id="copy-quote-btn" type="button" class="button-base primary-btn py-2 px-4">Copy Quote</button>
             </div>
         </div>
     </div>
@@ -304,225 +234,28 @@
     </a>
     
     <script src="health_rater_data.js"></script>
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signInWithCustomToken, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, getDoc, addDoc, updateDoc, Timestamp, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // --- Firebase Configuration ---
-        // These will be replaced by global variables in the final environment
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { apiKey: "AIza...", authDomain: "...", projectId: "..." };
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        setLogLevel('debug'); // Optional: for detailed Firestore logs
-
-        // --- Global State ---
-        let currentUserData = null;
-        let lastCalculatedData = {};
-        let fullQuoteText = '';
-        let editMode = false;
-        let referralIdToEdit = null;
-
-        // --- DOM ELEMENTS ---
-        const getElement = (id) => document.getElementById(id);
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- GLOBAL HELPER ---
+        function getElement(id) { return document.getElementById(id); }
 
         // --- INITIALIZATION ---
-        document.addEventListener('DOMContentLoaded', () => {
-            if (typeof RATES === 'undefined' || !RATES.vision_dental) {
-                document.body.innerHTML = '<div class="text-red-500 text-center p-8">Error: Could not load rate data. Please ensure health_rater_data.js is present and correct.</div>';
-                return;
-            }
-
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.has('edit')) {
-                editMode = true;
-                referralIdToEdit = urlParams.get('edit');
-            }
-            
-            setupTheme();
-            getElement('currentYear').textContent = new Date().getFullYear();
-
-            onAuthStateChanged(auth, async (user) => {
-                const appEl = getElement('health-rater-app');
-                const loaderEl = getElement('auth-loader');
-                if (user) {
-                    const userDoc = await getDoc(doc(db, "users", user.uid));
-                    currentUserData = userDoc.exists() ? { uid: user.uid, ...userDoc.data() } : null;
-                    
-                    if (!currentUserData) {
-                         loaderEl.innerHTML = `<div class="text-center bento-box max-w-lg mx-auto"><h3 class="text-xl font-bold leading-6 mb-2">User Not Found</h3><p class="text-[var(--text-secondary)]">Your user profile could not be loaded.</p></div>`;
-                        return;
-                    }
-
-                    appEl.classList.remove('hidden');
-                    loaderEl.classList.add('hidden');
-                    if (editMode && referralIdToEdit) {
-                        await initializeRaterForEdit();
-                    } else {
-                        initializeRater();
-                    }
-                } else {
-                    // Sign in if token is available, otherwise show login prompt
-                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                         try {
-                            await signInWithCustomToken(auth, __initial_auth_token);
-                         } catch (error) {
-                             console.error("Custom token sign-in failed:", error);
-                             await signInAnonymously(auth); // Fallback
-                         }
-                    } else {
-                        // Fallback for local testing or if token isn't provided
-                        try {
-                           await signInAnonymously(auth);
-                           console.log("Signed in anonymously for local testing.");
-                        } catch(error) {
-                           loaderEl.innerHTML = `<div class="text-center bento-box max-w-lg mx-auto"><h3 class="text-xl font-bold leading-6 mb-2">Authentication Error</h3><p class="text-[var(--text-secondary)]">You must be logged in to use the rater.</p><div class="mt-6"><a href="./index.html" class="button-base primary-btn py-2 px-4">Go to Login</a></div></div>`;
-                           appEl.classList.add('hidden');
-                           loaderEl.classList.remove('hidden');
-                        }
-                    }
-                }
-            });
-        });
-        
-        function initializeRater() {
-            if(editMode){
-                getElement('main-header').textContent = "Edit Health Referral";
-                getElement('proceed-to-quote-btn').textContent = "Update Referral & Quote";
-                getElement('modal-header').textContent = "Update Referral & Official Quotation";
-                getElement('submit-referral-btn').textContent = "Update Referral";
-                getElement('success-header').textContent = "Referral Updated!";
-            }
-            populateDropdowns();
-            setupEventListeners();
-            calculateAndDisplay();
-        }
-
-        async function initializeRaterForEdit() {
-            const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-            const referralRef = doc(db, "artifacts", appId, "public/data/referrals", referralIdToEdit);
-            const referralDoc = await getDoc(referralRef);
-
-            if (referralDoc.exists()) {
-                const data = referralDoc.data();
-                // Security check: ensure the current user is the one who created the referral
-                if(data.referrerId !== auth.currentUser.uid) {
-                    document.body.innerHTML = `<div class="text-red-500 text-center p-8">Error: You do not have permission to edit this referral.</div>`;
-                    return;
-                }
-                initializeRater(); // Sets up dropdowns, listeners etc.
-                populateFormWithData(data); // Populates the form with existing data
-            } else {
-                 document.body.innerHTML = `<div class="text-red-500 text-center p-8">Error: Referral not found.</div>`;
-            }
+        if (typeof RATES === 'undefined' || !RATES.vision_dental) {
+            document.body.innerHTML = '<div class="text-red-500 text-center p-8">Error: Could not load rate data. Please ensure health_rater_data.js is present and correct.</div>';
+            return;
         }
         
-        function populateFormWithData(data) {
-             const getSelectedText = (el) => el.options[el.selectedIndex].text;
-            
-            // This function maps the stored text value from the DB back to the correct <option value="...">
-            const setValueFromText = (selectId, textValue) => {
-                const selectEl = getElement(selectId);
-                for(let i=0; i<selectEl.options.length; i++) {
-                    if(selectEl.options[i].text === textValue) {
-                        selectEl.value = selectEl.options[i].value;
-                        return;
-                    }
-                }
-            };
-            
-            setValueFromText('family-status', data.familyStatusText);
-            setValueFromText('age-band', data.ageBand);
-            setValueFromText('children-count', data.childrenCountText);
-            setValueFromText('plan-type', data.planType);
-            setValueFromText('payment-frequency', data.premiumFrequency);
-            getElement('dental-vision').value = data.dentalVisionAdded ? 'yes' : 'no';
-            if(getElement('maternity')) {
-                 setValueFromText('maternity', data.maternity);
-            }
-            if(getElement('major-medical-amount')) {
-                 setValueFromText('major-medical-amount', data.mmAmount);
-            }
-            
-            if(data.clientName) getElement('client-name').value = data.clientName;
-            if(data.clientEmail) getElement('client-email').value = data.clientEmail;
-            if(data.clientContact) getElement('client-contact').value = data.clientContact;
-            getElement('waive-fee-checkbox').checked = data.feeWaived || false;
+        // --- LOCAL VARIABLES ---
+        let fullQuoteText = '';
 
-            // Recalculate everything with the loaded data
-            calculateAndDisplay();
-        }
+        // --- INITIALIZE UI ---
+        setupTheme();
+        populateDropdowns();
+        setupEventListeners();
+        calculateAndDisplay();
+        getElement('currentYear').textContent = new Date().getFullYear();
 
-
-        function populateDropdowns() {
-            const options = {
-                'family-status': {'Single Male': 'single_male', 'Single Female': 'single_female', 'Husband & Wife': 'husband_wife'},
-                'age-band': {'Under 40': 'under_40', '40-49': '40_49', '50-59': '50_59', '60-65': '60_65', '66-67': '66_67', '68-70': '68_70'},
-                'children-count': {'0 Children': '0', '1 Child': '1', '2 or More Children': '2+'},
-                'plan-type': {'Base Plan + Major Medical': 'base_and_mm', 'COVERCARE Base Plan Only': 'base_only', 'Major Medical Only': 'mm_only'},
-                'payment-frequency': {'Annual': 'annual', 'Semi-Annual': 'semi', 'Quarterly': 'quarterly'},
-                'dental-vision': {'No': 'no', 'Yes': 'yes'},
-                'maternity': {'No': 'no', 'Yes': 'yes'},
-                'major-medical-amount': {'$50,000': '50000', '$100,000': '100000', '$200,000': '200000', '$300,000': '300000', '$500,000': '500000'}
-            };
-            for(const id in options) {
-                const select = getElement(id);
-                if (select) {
-                   select.innerHTML = Object.entries(options[id]).map(([text, value]) => `<option value="${value}">${text}</option>`).join('');
-                }
-            }
-        }
-        
-        function setupEventListeners() {
-            document.querySelectorAll('#health-rater-app select').forEach(input => input.addEventListener('change', calculateAndDisplay));
-            getElement('proceed-to-quote-btn').addEventListener('click', () => {
-                if (lastCalculatedData.totalPremium > 0) {
-                    getElement('waive-fee-checkbox').checked = currentUserData.waivesAllFees || false;
-                    generateFinalQuoteText();
-                    getElement('quote-referral-modal').style.display = 'flex';
-                } else { 
-                    // Use a more modern notification instead of alert
-                    const btn = getElement('proceed-to-quote-btn');
-                    const originalText = btn.textContent;
-                    btn.textContent = "Please select options first!";
-                    btn.classList.add('bg-red-500', 'hover:bg-red-600');
-                    setTimeout(() => {
-                        btn.textContent = originalText;
-                        btn.classList.remove('bg-red-500', 'hover:bg-red-600');
-                    }, 2500);
-                }
-            });
-            getElement('close-modal-btn').addEventListener('click', () => getElement('quote-referral-modal').style.display = 'none');
-            getElement('copy-quote-btn').addEventListener('click', () => {
-                const textToCopy = getElement('quote-output').innerText;
-                const copyBtn = getElement('copy-quote-btn');
-                try {
-                     navigator.clipboard.writeText(textToCopy).then(() => {
-                        copyBtn.textContent = 'Copied!';
-                        setTimeout(() => { copyBtn.textContent = 'Copy Quote'; }, 2000);
-                    });
-                } catch(e) {
-                     // Fallback for older browsers
-                    const textArea = document.createElement("textarea");
-                    textArea.value = textToCopy;
-                    document.body.appendChild(textArea);
-                    textArea.focus();
-                    textArea.select();
-                    try {
-                        document.execCommand('copy');
-                        copyBtn.textContent = 'Copied!';
-                        setTimeout(() => { copyBtn.textContent = 'Copy Quote'; }, 2000);
-                    } catch (err) {
-                       copyBtn.textContent = 'Failed!';
-                    }
-                    document.body.removeChild(textArea);
-                }
-            });
-            getElement('download-pdf-btn').addEventListener('click', generateAndDownloadPDF);
-            getElement('submit-referral-btn').addEventListener('click', submitReferral);
-        }
-
+        // --- UI SETUP FUNCTIONS ---
         function setupTheme() {
             const themeToggle = getElement('themeToggleCheckbox');
             const themeToggleLabel = getElement('themeToggleLabel');
@@ -538,6 +271,56 @@
             applyTheme(savedTheme === 'dark' || (savedTheme === null && window.matchMedia('(prefers-color-scheme: dark)').matches));
         }
 
+        function populateDropdowns() {
+            const options = {
+                'family-status': {'Single Male': 'single_male', 'Single Female': 'single_female', 'Husband & Wife': 'husband_wife'},
+                'age-band': {'Under 40': 'under_40', '40-49': '40_49', '50-59': '50_59', '60-65': '60_65', '66-67': '66_67', '68-70': '68_70'},
+                'children-count': {'0 Children': '0', '1 Child': '1', '2 or More Children': '2+'},
+                'plan-type': {'Base Plan + Major Medical': 'base_and_mm', 'COVERCARE Base Plan Only': 'base_only', 'Major Medical Only': 'mm_only'},
+                'payment-frequency': {'Annual': 'annual', 'Semi-Annual': 'semi', 'Quarterly': 'quarterly'},
+                'dental-vision': {'No': 'no', 'Yes': 'yes'},
+                'maternity': {'No': 'no', 'Yes': 'yes'},
+                'major-medical-amount': {'$50,000': '50000', '$100,000': '100000', '$200,000': '200000', '$300,000': '300000', '$500,000': '500000'}
+            };
+            for(const id in options) {
+                const select = getElement(id);
+                if (select) {
+                    select.innerHTML = Object.entries(options[id]).map(([text, value]) => `<option value="${value}">${text}</option>`).join('');
+                }
+            }
+        }
+
+        function setupEventListeners() {
+            document.querySelectorAll('select').forEach(input => {
+                input.addEventListener('change', calculateAndDisplay);
+            });
+            
+            getElement('generate-quote-btn').addEventListener('click', () => {
+                generateFinalQuoteText();
+                getElement('final-quote-modal').style.display = 'flex';
+            });
+            getElement('close-quote-modal-btn').addEventListener('click', () => getElement('final-quote-modal').style.display = 'none');
+            getElement('copy-quote-btn').addEventListener('click', () => {
+                const textToCopy = getElement('quote-output').innerText;
+                const copyBtn = getElement('copy-quote-btn');
+                const textArea = document.createElement("textarea");
+                textArea.value = textToCopy;
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    copyBtn.textContent = 'Copied!';
+                    setTimeout(() => { copyBtn.textContent = 'Copy Quote'; }, 2000);
+                } catch (err) {
+                    copyBtn.textContent = 'Failed!';
+                }
+                document.body.removeChild(textArea);
+            });
+            getElement('download-pdf-btn').addEventListener('click', generateAndDownloadPDF);
+        }
+
+        // --- DYNAMIC UI & HELPER FUNCTIONS ---
         function formatCurrency(value) { return (typeof value !== 'number' || isNaN(value)) ? 'N/A' : value.toLocaleString('en-US', { style: 'currency', currency: 'USD' }); }
         
         function handleUIChanges() {
@@ -561,7 +344,7 @@
             }
         }
 
-        // --- CALCULATION ENGINE (Updated) ---
+        // --- CALCULATION ENGINE ---
         function calculateAndDisplay() {
             handleUIChanges();
             const planType = getElement('plan-type').value;
@@ -584,15 +367,12 @@
                 baseRateSet = RATES.base.standard[baseRateKey]?.[ageBand]?.[childrenCount] || {annual:0, semi:0, quarterly:0};
             }
 
-            // 2. Get Vision & Dental Premium (new logic)
+            // 2. Get Vision & Dental Premium
             let vdRateSet = {annual:0, semi:0, quarterly:0};
             if (planType !== 'mm_only' && addDV) {
                 let vdFamilyKey = familyStatus;
-                 if (familyStatus === 'single_female_no_maternity' || familyStatus === 'single_female_with_maternity') {
-                    vdFamilyKey = 'single_female';
-                } else if (familyStatus === 'husband_wife_no_maternity' || familyStatus === 'husband_wife_with_maternity') {
-                    vdFamilyKey = 'husband_wife';
-                }
+                if (familyStatus.includes('single_female')) vdFamilyKey = 'single_female';
+                if (familyStatus.includes('husband_wife')) vdFamilyKey = 'husband_wife';
                 vdRateSet = RATES.vision_dental[vdFamilyKey]?.[childrenCount] || {annual:0, semi:0, quarterly:0};
             }
             
@@ -611,7 +391,7 @@
             const mmPremium = mmRateSet[frequency] || 0;
             
             const subTotal = basePremium + vdPremium + mmPremium;
-            const totalPremium = subTotal; // In case of future taxes/fees
+            const totalPremium = subTotal;
             
             // 5. Display Main Results
             const frequencyLabel = frequency.charAt(0).toUpperCase() + frequency.slice(1);
@@ -619,16 +399,16 @@
             getElement('total-premium-label').textContent = `(Total ${frequencyLabel} Premium)`;
             
             let breakdownHTML = '';
-            if (planType !== 'mm_only') {
-                 let baseLabel = "COVERCARE Base Premium";
-                 if (familyStatus === 'single_female' || familyStatus === 'husband_wife') {
+            if (planType !== 'mm_only' && basePremium > 0) {
+                let baseLabel = "COVERCARE Base Premium";
+                if (familyStatus === 'single_female' || familyStatus === 'husband_wife') {
                     const hasMaternity = maternity === 'yes' && !maternitySelect.disabled;
                     baseLabel += hasMaternity ? " (w/ Maternity)" : " (No Maternity)";
-                 }
-                 breakdownHTML += `<p class="breakdown-row"><span>${baseLabel}:</span> <strong>${formatCurrency(basePremium)}</strong></p>`;
+                }
+                breakdownHTML += `<p class="breakdown-row"><span>${baseLabel}:</span> <strong>${formatCurrency(basePremium)}</strong></p>`;
             }
             if (vdPremium > 0) breakdownHTML += `<p class="breakdown-row"><span>+ Vision & Dental Benefit:</span> <strong>${formatCurrency(vdPremium)}</strong></p>`;
-            if (planType !== 'base_only') breakdownHTML += `<p class="breakdown-row"><span>+ Major Medical:</span> <strong>${formatCurrency(mmPremium)}</strong></p>`;
+            if (planType !== 'base_only' && mmPremium > 0) breakdownHTML += `<p class="breakdown-row"><span>+ Major Medical:</span> <strong>${formatCurrency(mmPremium)}</strong></p>`;
             
             if (subTotal > 0 && (vdPremium > 0 || mmPremium > 0)) {
                 breakdownHTML += `<p class="breakdown-row font-semibold border-t border-dashed border-[var(--border-color)] pt-1 mt-1"><span>Sub-Total:</span> <strong>${formatCurrency(subTotal)}</strong></p>`;
@@ -650,47 +430,9 @@
             });
             comparisonHTML += `</tbody></table>`;
             getElement('frequency-comparison').innerHTML = comparisonHTML;
-
-            // 7. Calculate Finder's Fee
-            const feeBasePremium = basePremium + vdPremium + mmPremium;
-            const findersFee = calculateAndDisplayFindersFee(feeBasePremium);
-            
-            // 8. Store data for referral submission
-            lastCalculatedData = {
-                insuranceType: 'Health',
-                totalPremium,
-                basePremium,
-                vdPremium,
-                mmPremium,
-                findersFee,
-                premiumFrequency: frequency
-            };
         }
 
-        function calculateAndDisplayFindersFee(premium) {
-            const feeSection = getElement('finders-fee-section');
-            if (!currentUserData || currentUserData.waivesAllFees || premium <= 0) { 
-                feeSection.classList.add('hidden'); 
-                return 0;
-            }
-            const commissionSplit = (currentUserData.commissionSplit || 50) / 100;
-
-            const totalCommission = premium * 0.25;
-            const incomeTax = totalCommission * 0.25;
-            const netCommission = totalCommission - incomeTax;
-            const fee = netCommission * commissionSplit;
-            
-            getElement('finders-fee-breakdown').innerHTML = `
-                <div class="breakdown-row"><span>Premium for Fee Calc.</span><span class="font-semibold">${formatCurrency(premium)}</span></div>
-                <div class="breakdown-row mt-2"><span>Total Commission (25%)</span><span class="font-semibold">${formatCurrency(totalCommission)}</span></div>
-                <div class="breakdown-row text-red-600"><span>- Income Tax (25%)</span><span>-${formatCurrency(incomeTax)}</span></div>
-                <div class="breakdown-row font-semibold border-t pt-1 mt-1"><span>Net Commission Payable</span><span>${formatCurrency(netCommission)}</span></div>
-                <div class="breakdown-row text-green-600 mt-2"><span class="font-bold">Your Finder's Fee (${commissionSplit*100}%)</span><span class="font-bold">${formatCurrency(fee)}</span></div>
-            `;
-            feeSection.classList.remove('hidden');
-            return fee;
-        }
-        
+        // --- QUOTE GENERATION & PDF ---
         function generateFinalQuoteText() {
             const getSelectedText = (id) => getElement(id).options[getElement(id).selectedIndex].text;
             let quoteDetails = `
@@ -705,7 +447,7 @@ Number of Children: ${getSelectedText('children-count')}
                 quoteDetails += `Dental & Vision:    ${getSelectedText('dental-vision')}\nMaternity Included: ${maternityStatus}\n`;
             }
             if (getElement('plan-type').value !== 'base_only') {
-                 quoteDetails += `MM Coverage:        ${getSelectedText('major-medical-amount')}\n`;
+                quoteDetails += `MM Coverage:        ${getSelectedText('major-medical-amount')}\n`;
             }
             const breakdownText = getElement('premium-breakdown').innerText;
             const comparisonText = getElement('frequency-comparison').innerText.replace('Payment Options', '\nPAYMENT OPTIONS:\n--------------');
@@ -770,7 +512,7 @@ Number of Children: ${getSelectedText('children-count')}
                     planDetails.push(['Dental & Vision:', getSelectedText('dental-vision')]);
                     planDetails.push(['Maternity Included:', maternityStatus]);
                 }
-                 if (getElement('plan-type').value !== 'base_only') {
+                if (getElement('plan-type').value !== 'base_only') {
                     planDetails.push(['Major Medical Coverage:', getSelectedText('major-medical-amount')]);
                 }
 
@@ -813,7 +555,7 @@ Number of Children: ${getSelectedText('children-count')}
                     doc.text(label, 16, yPos);
                     doc.text(value, 198, yPos, { align: 'right' });
                     yPos += 7;
-                     if (label.toLowerCase().includes('total')) {
+                    if (label.toLowerCase().includes('total')) {
                         doc.setFont('helvetica', 'normal');
                     }
                 });
@@ -827,68 +569,7 @@ Number of Children: ${getSelectedText('children-count')}
             drawPage(doc);
             doc.save(`COVERCARE_Quote_for_${clientName.replace(/\s/g, '_')}.pdf`);
         }
-
-        async function submitReferral() {
-            const clientName = getElement('client-name').value, clientEmail = getElement('client-email').value, clientContact = getElement('client-contact').value;
-            const errorEl = getElement('client-modal-error');
-            if (!clientName || !clientEmail || !clientContact) {
-                errorEl.textContent = "Please fill out all client fields."; return;
-            }
-            errorEl.textContent = "";
-
-            const submitBtn = getElement('submit-referral-btn');
-            submitBtn.innerHTML = '<span class="loader !w-6 !h-6 !border-white/50 !border-b-transparent"></span>';
-            submitBtn.disabled = true;
-
-            const feeWaived = getElement('waive-fee-checkbox').checked;
-            const getSelectedText = (id) => getElement(id).options[getElement(id).selectedIndex].text;
-            const planType = getElement('plan-type').value;
-            const maternitySelect = getElement('maternity');
-            const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-            
-            const submissionData = {
-                ...lastCalculatedData,
-                feeWaived,
-                findersFee: feeWaived ? 0 : lastCalculatedData.findersFee,
-                commissionSplitAtTimeOfReferral: currentUserData.commissionSplit || 50,
-                planType: getSelectedText('plan-type'),
-                familyStatusText: getSelectedText('family-status'),
-                ageBand: getSelectedText('age-band'),
-                childrenCountText: getSelectedText('children-count'),
-                premiumFrequency: getSelectedText('payment-frequency'),
-                dentalVisionAdded: getElement('dental-vision').value === 'yes',
-                maternity: (planType !== 'mm_only' && !maternitySelect.disabled) ? getSelectedText('maternity') : 'N/A',
-                mmAmount: planType !== 'base_only' ? getSelectedText('major-medical-amount') : 'N/A',
-                clientName, clientEmail, clientContact,
-            };
-
-            try {
-                if (editMode) {
-                    const referralRef = doc(db, "artifacts", appId, "public/data/referrals", referralIdToEdit);
-                    await updateDoc(referralRef, {
-                        ...submissionData,
-                        status: 'Resubmitted',
-                        lastUpdatedAt: Timestamp.now()
-                    });
-                } else {
-                    await addDoc(collection(db, "artifacts", appId, "public/data/referrals"), {
-                        ...submissionData,
-                        referrerId: auth.currentUser.uid,
-                        referrerName: currentUserData.name || 'N/A',
-                        status: 'Pending',
-                        createdAt: Timestamp.now()
-                    });
-                }
-                getElement('quote-referral-modal').style.display = 'none';
-                getElement('success-modal').style.display = 'flex';
-            } catch (error) {
-                console.error("Error submitting referral: ", error);
-                errorEl.textContent = "Could not submit referral. Please try again.";
-            } finally {
-                submitBtn.innerHTML = editMode ? 'Update Referral' : 'Submit Referral';
-                submitBtn.disabled = false;
-            }
-        }
+    });
     </script>
     <script>
     if ('serviceWorker' in navigator) {
