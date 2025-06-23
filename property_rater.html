@@ -105,13 +105,6 @@
         
         .form-section { display: none; }
         .form-section.active { display: block; }
-
-        .advanced-section {
-            display: none;
-            background-color: color-mix(in srgb, var(--secondary-accent) 10%, transparent);
-            border: 1px solid var(--secondary-accent);
-            border-radius: 0.5rem; padding: 1rem; margin-top: 1.5rem;
-        }
     </style>
 </head>
 <body class="min-h-screen p-4 md:p-6 lg:p-8">
@@ -177,8 +170,16 @@
                             </div>
                         </div>
 
-                        <!-- Contents Details -->
+                        <!-- Contents Section Toggle -->
                         <div class="space-y-4 border-t border-dashed border-[var(--border-color)] pt-4">
+                             <div class="flex items-center space-x-3">
+                                <input type="checkbox" id="home-insure-contents-check" class="h-5 w-5 rounded text-[var(--primary-accent)] focus:ring-[var(--primary-accent)]">
+                                <label for="home-insure-contents-check" class="text-lg font-semibold text-[var(--text-secondary)]">Insure Contents?</label>
+                            </div>
+                        </div>
+
+                        <!-- Contents Details -->
+                        <div id="home-contents-section" class="hidden space-y-4 pl-4 border-l-2 border-[var(--primary-accent)]">
                             <div class="flex justify-between items-center">
                                 <h3 class="font-semibold text-lg text-[var(--text-secondary)]">Contents Details</h3>
                                 <div class="flex items-center space-x-3">
@@ -340,7 +341,7 @@
         // Homeowners specific listeners
         document.getElementById('home-flood-prone-check').addEventListener('change', handleFloodCheck);
         document.getElementById('home-all-risk-check').addEventListener('change', handleAllRiskCheck);
-
+        document.getElementById('home-insure-contents-check').addEventListener('change', handleInsureContentsCheck);
 
         // --- UI & HELPER FUNCTIONS ---
         function handlePolicyTypeChange() {
@@ -359,6 +360,21 @@
         function handleAllRiskCheck(e) {
             document.getElementById('home-itemized-contents').style.display = e.target.checked ? 'none' : 'block';
             document.getElementById('home-all-risk-contents').style.display = e.target.checked ? 'block' : 'none';
+            calculateAndDisplay();
+        }
+        
+        function handleInsureContentsCheck(e) {
+            const contentsSection = document.getElementById('home-contents-section');
+            contentsSection.style.display = e.target.checked ? 'block' : 'none';
+            if (!e.target.checked) {
+                // Clear all content inputs if unchecked
+                contentsSection.querySelectorAll('input, select').forEach(input => {
+                    if(input.type === 'checkbox') input.checked = false;
+                    else input.value = '';
+                });
+                // Ensure dependent sections are also hidden
+                handleAllRiskCheck({target: {checked: false}});
+            }
             calculateAndDisplay();
         }
 
@@ -401,7 +417,10 @@
             }
 
             const policyType = document.getElementById('policy-type').value;
-            if (!policyType) return;
+            if (!policyType) {
+                 document.getElementById('results-section').classList.add('hidden');
+                return;
+            };
             document.getElementById('results-section').classList.remove('hidden');
 
             let results = {};
@@ -416,66 +435,71 @@
         }
 
         function calculateHomeownersPremium() {
+            // 1. Get all input values
+            const buildingSI = getFloatValue('home-building-sum-insured');
+            const isFloodProne = document.getElementById('home-flood-prone-check').checked;
+            const floodAction = document.getElementById('home-flood-action').value;
+            const insureContents = document.getElementById('home-insure-contents-check').checked;
+            const isAllRisk = document.getElementById('home-all-risk-check').checked;
+            const clientAge = getFloatValue('home-client-age');
+
+            // 2. Initialize variables
+            let buildingPremium = 0;
+            let contentsPremium = 0;
             let breakdownHTML = '';
             let floodNote = '';
             
-            // Building Premium
-            const buildingSumInsured = getFloatValue('home-building-sum-insured');
-            const isFloodProne = document.getElementById('home-flood-prone-check').checked;
-            const floodAction = document.getElementById('home-flood-action').value;
-            
-            let buildingRate = PROPERTY_RATES.homeowners.building.individual; // Default
+            // 3. Calculate Building Premium
+            let buildingRate = PROPERTY_RATES.homeowners.building.individual;
             let buildingPremiumLabel = "Building Premium";
-
-            if (isFloodProne && floodAction === 'increase_rate') {
-                buildingRate = PROPERTY_RATES.homeowners.building.flood_prone;
-                buildingPremiumLabel += " (Flood Rate)";
+            if (isFloodProne) {
+                if (floodAction === 'increase_rate') {
+                    buildingRate = PROPERTY_RATES.homeowners.building.flood_prone;
+                    buildingPremiumLabel += " (Flood Rate)";
+                } else {
+                    floodNote = `<p class="font-bold text-red-600 dark:text-red-400 text-center p-2 my-2 bg-red-100 dark:bg-red-900/30 rounded-md">FLOOD EXCESS INCREASED TO $${formatCurrency(PROPERTY_RATES.homeowners.excess.increased_flood)}</p>`;
+                }
             }
-            
-            const buildingPremium = (buildingSumInsured / 1000) * buildingRate;
+            buildingPremium = (buildingSI / 1000) * buildingRate;
             if (buildingPremium > 0) {
                 breakdownHTML += `<p>${buildingPremiumLabel}: <strong class="float-right">$${formatCurrency(buildingPremium)}</strong></p>`;
             }
-            if (isFloodProne && floodAction === 'increase_excess') {
-                 floodNote = `<p class="font-bold text-red-600 dark:text-red-400 text-center p-2 my-2 bg-red-100 dark:bg-red-900/30 rounded-md">FLOOD EXCESS INCREASED TO $${formatCurrency(PROPERTY_RATES.homeowners.excess.increased_flood)}</p>`;
-            }
 
-            // Contents Premium
-            const isAllRisk = document.getElementById('home-all-risk-check').checked;
-            let contentsPremium = 0;
-            let contentsBreakdown = '';
-            
-            if (isAllRisk) {
-                const totalContents = getFloatValue('home-total-contents-si');
-                contentsPremium = totalContents * PROPERTY_RATES.homeowners.contents.all_risk;
-                if (contentsPremium > 0) {
-                    contentsBreakdown += `<p>"All Risk" Contents Premium: <strong class="float-right">$${formatCurrency(contentsPremium)}</strong></p>`;
+            // 4. Calculate Contents Premium if opted-in
+            if (insureContents) {
+                if (isAllRisk) {
+                    const totalContents = getFloatValue('home-total-contents-si');
+                    contentsPremium = totalContents * PROPERTY_RATES.homeowners.contents.all_risk;
+                    if (contentsPremium > 0) {
+                        breakdownHTML += `<p>"All Risk" Contents Premium: <strong class="float-right">$${formatCurrency(contentsPremium)}</strong></p>`;
+                    }
+                } else {
+                    const generalSI = getFloatValue('home-general-contents-si');
+                    const electronicsSI = getFloatValue('home-electronics-si');
+                    const jewelrySI = getFloatValue('home-jewelry-si');
+                    const specialSI = getFloatValue('home-special-items-si');
+                    const jewelryCoverage = document.getElementById('home-jewelry-coverage').value;
+
+                    const generalPrem = (generalSI / 1000) * PROPERTY_RATES.homeowners.contents.general;
+                    const electronicsPrem = electronicsSI * PROPERTY_RATES.homeowners.contents.electronics;
+                    const jewelryPrem = jewelrySI * PROPERTY_RATES.homeowners.contents.jewelry[jewelryCoverage];
+                    const specialPrem = specialSI * PROPERTY_RATES.homeowners.contents.special_items;
+                    
+                    const totalItemizedPremium = generalPrem + electronicsPrem + jewelryPrem + specialPrem;
+                    contentsPremium = totalItemizedPremium;
+
+                    if (totalItemizedPremium > 0) {
+                        breakdownHTML += `<p>Contents Premium: <strong class="float-right">$${formatCurrency(totalItemizedPremium)}</strong></p>`;
+                        if (generalPrem > 0) breakdownHTML += `<p class="pl-4 text-sm text-[var(--text-muted)]">- General Contents: <strong class="float-right">$${formatCurrency(generalPrem)}</strong></p>`;
+                        if (electronicsPrem > 0) breakdownHTML += `<p class="pl-4 text-sm text-[var(--text-muted)]">- Electronics: <strong class="float-right">$${formatCurrency(electronicsPrem)}</strong></p>`;
+                        if (jewelryPrem > 0) breakdownHTML += `<p class="pl-4 text-sm text-[var(--text-muted)]">- Jewelry (${jewelryCoverage.replace('_',' ')}): <strong class="float-right">$${formatCurrency(jewelryPrem)}</strong></p>`;
+                        if (specialPrem > 0) breakdownHTML += `<p class="pl-4 text-sm text-[var(--text-muted)]">- Special Items: <strong class="float-right">$${formatCurrency(specialPrem)}</strong></p>`;
+                    }
                 }
-            } else {
-                const generalSI = getFloatValue('home-general-contents-si');
-                const electronicsSI = getFloatValue('home-electronics-si');
-                const jewelrySI = getFloatValue('home-jewelry-si');
-                const specialSI = getFloatValue('home-special-items-si');
-                const jewelryCoverage = document.getElementById('home-jewelry-coverage').value;
-
-                const generalPrem = (generalSI / 1000) * PROPERTY_RATES.homeowners.contents.general;
-                const electronicsPrem = electronicsSI * PROPERTY_RATES.homeowners.contents.electronics;
-                const jewelryPrem = jewelrySI * PROPERTY_RATES.homeowners.contents.jewelry[jewelryCoverage];
-                const specialPrem = specialSI * PROPERTY_RATES.homeowners.contents.special_items;
-                
-                contentsPremium = generalPrem + electronicsPrem + jewelryPrem + specialPrem;
-
-                if (generalPrem > 0) contentsBreakdown += `<p class="pl-2">- General Contents: <strong class="float-right">$${formatCurrency(generalPrem)}</strong></p>`;
-                if (electronicsPrem > 0) contentsBreakdown += `<p class="pl-2">- Electronics: <strong class="float-right">$${formatCurrency(electronicsPrem)}</strong></p>`;
-                if (jewelryPrem > 0) contentsBreakdown += `<p class="pl-2">- Jewelry: <strong class="float-right">$${formatCurrency(jewelryPrem)}</strong></p>`;
-                if (specialPrem > 0) contentsBreakdown += `<p class="pl-2">- Special Items: <strong class="float-right">$${formatCurrency(specialPrem)}</strong></p>`;
-                if (contentsPremium > 0) contentsBreakdown = `<p>Contents Premium: <strong class="float-right">$${formatCurrency(contentsPremium)}</strong></p>${contentsBreakdown}`;
             }
 
-            breakdownHTML += contentsBreakdown;
-            
+            // 5. Calculate Totals and Tax
             const basePremium = buildingPremium + contentsPremium;
-            const clientAge = getFloatValue('home-client-age');
             const taxRate = (clientAge > 0 && clientAge >= 60) ? 0 : PROPERTY_RATES.tax.ipt;
             const taxAmount = basePremium * taxRate;
             const totalPremium = basePremium + taxAmount;
@@ -486,7 +510,7 @@
                 breakdownHTML += `<p>Insurance Premium Tax (6%): <strong class="float-right">${taxLabel}</strong></p>`;
             }
 
-            breakdownHTML += floodNote; // Add the flood note at the end of the breakdown.
+            breakdownHTML += floodNote; // Add the flood note at the end
 
             return { totalPremium, breakdownHTML };
         }
@@ -515,16 +539,12 @@
 
         // --- QUOTE & PDF LOGIC ---
         function generateFinalQuote() {
-            // This function now just shows the final modal
             quoteDataForPdf = {
                 clientName: document.getElementById('client-name').value || 'Valued Client',
                 propertyAddress: document.getElementById('property-address').value || 'N/A',
-                // other data will be gathered in the display function
             };
-
             const fullQuoteText = generateQuoteTextForDisplay();
             quoteOutput.textContent = fullQuoteText;
-
             clientInfoModal.style.display = 'none';
             finalQuoteModal.style.display = 'flex';
         }
