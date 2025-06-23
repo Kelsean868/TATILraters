@@ -150,9 +150,17 @@
                             <input type="number" id="home-client-age" class="mt-1 w-full p-2.5" placeholder="e.g., 55" min="18" max="120">
                             <p id="age-validation-error" class="text-red-500 text-xs mt-1 hidden">Age must be between 18 and 120.</p>
                         </div>
+                        
+                        <!-- Building Section Toggle -->
+                        <div class="space-y-4 border-t border-dashed border-[var(--border-color)] pt-4">
+                             <div class="flex items-center space-x-3">
+                                <input type="checkbox" id="home-insure-building-check" class="h-5 w-5 rounded text-[var(--primary-accent)] focus:ring-[var(--primary-accent)]" checked>
+                                <label for="home-insure-building-check" class="text-lg font-semibold text-[var(--text-secondary)]">Insure Building?</label>
+                            </div>
+                        </div>
 
                         <!-- Building & Risk Details -->
-                        <div class="space-y-4 border-t border-dashed border-[var(--border-color)] pt-4">
+                        <div id="home-building-section" class="space-y-4 pl-4 border-l-2 border-[var(--primary-accent)]">
                             <h3 class="font-semibold text-lg text-[var(--text-secondary)]">Building & Risk Details</h3>
                             <div>
                                 <label for="home-building-sum-insured" class="block text-sm font-medium text-[var(--text-muted)]">Building Sum Insured ($)</label>
@@ -181,7 +189,6 @@
 
                         <!-- Contents Details -->
                         <div id="home-contents-section" class="hidden space-y-4 pl-4 border-l-2 border-[var(--primary-accent)]">
-                            <!-- Itemized Contents -->
                             <div class="space-y-4">
                                 <div>
                                     <label for="home-general-contents-si" class="block text-sm font-medium text-[var(--text-muted)]">General Contents Sum Insured ($)</label>
@@ -332,8 +339,9 @@
         copyQuoteBtn.addEventListener('click', copyQuoteToClipboard);
         
         // Homeowners specific listeners
+        document.getElementById('home-insure-building-check').addEventListener('change', handleInsureBuildingCheck);
         document.getElementById('home-flood-prone-check').addEventListener('change', handleFloodCheck);
-        document.getElementById('home-all-risk-check').addEventListener('change', calculateAndDisplay); // Direct call
+        document.getElementById('home-all-risk-check').addEventListener('change', calculateAndDisplay);
         document.getElementById('home-insure-contents-check').addEventListener('change', handleInsureContentsCheck);
         document.getElementById('home-client-age').addEventListener('input', validateAge);
 
@@ -344,6 +352,16 @@
             document.getElementById('homeowners-section').classList.toggle('active', selectedType === 'homeowners');
             document.getElementById('commercial-section').classList.toggle('active', selectedType === 'commercial');
             document.getElementById('results-section').classList.toggle('hidden', !selectedType);
+            calculateAndDisplay();
+        }
+
+        function handleInsureBuildingCheck(e) {
+            document.getElementById('home-building-section').style.display = e.target.checked ? 'block' : 'none';
+            if(!e.target.checked) {
+                document.getElementById('home-building-sum-insured').value = '';
+                document.getElementById('home-flood-prone-check').checked = false;
+                handleFloodCheck({target: {checked: false}});
+            }
             calculateAndDisplay();
         }
         
@@ -442,10 +460,15 @@
                 return { totalPremium: 0, breakdownHTML: '<p class="text-red-500 text-center">Please enter a valid age (18-120).</p>'};
             }
             
-            const buildingSI = getFloatValue('home-building-sum-insured');
+            const insureBuilding = document.getElementById('home-insure-building-check').checked;
+            const insureContents = document.getElementById('home-insure-contents-check').checked;
+            
+            if (!insureBuilding && !insureContents) {
+                return { totalPremium: 0, breakdownHTML: '<p class="text-center text-[var(--text-muted)]">Please select to insure a building and/or contents.</p>' };
+            }
+            
             const isFloodProne = document.getElementById('home-flood-prone-check').checked;
             const floodAction = document.getElementById('home-flood-action').value;
-            const insureContents = document.getElementById('home-insure-contents-check').checked;
             const isAllRisk = document.getElementById('home-all-risk-check').checked;
             
             // 2. Initialize variables
@@ -456,19 +479,22 @@
             let floodNote = '';
             
             // 3. Calculate Building Premium
-            let buildingRate = PROPERTY_RATES.homeowners.building.individual;
-            let buildingPremiumLabel = "Building Premium";
-            if (isFloodProne) {
-                if (floodAction === 'increase_rate') {
-                    buildingRate = PROPERTY_RATES.homeowners.building.flood_prone;
-                    buildingPremiumLabel += " (Flood Rate)";
-                } else {
-                    floodNote = `<p class="font-bold text-red-600 dark:text-red-400 text-center p-2 my-2 bg-red-100 dark:bg-red-900/30 rounded-md">FLOOD EXCESS INCREASED TO $${formatCurrency(PROPERTY_RATES.homeowners.excess.increased_flood)}</p>`;
+            if (insureBuilding) {
+                const buildingSI = getFloatValue('home-building-sum-insured');
+                let buildingRate = PROPERTY_RATES.homeowners.building.individual;
+                let buildingPremiumLabel = "Building Premium";
+                if (isFloodProne) {
+                    if (floodAction === 'increase_rate') {
+                        buildingRate = PROPERTY_RATES.homeowners.building.flood_prone;
+                        buildingPremiumLabel += " (Flood Rate)";
+                    } else {
+                        floodNote = `<p class="font-bold text-red-600 dark:text-red-400 text-center p-2 my-2 bg-red-100 dark:bg-red-900/30 rounded-md">FLOOD EXCESS INCREASED TO $${formatCurrency(PROPERTY_RATES.homeowners.excess.increased_flood)}</p>`;
+                    }
                 }
-            }
-            buildingPremium = (buildingSI / 1000) * buildingRate;
-            if (buildingPremium > 0) {
-                breakdownHTML += `<p>${buildingPremiumLabel}: <strong class="float-right">$${formatCurrency(buildingPremium)}</strong></p>`;
+                buildingPremium = (buildingSI / 1000) * buildingRate;
+                if (buildingPremium > 0) {
+                    breakdownHTML += `<p>${buildingPremiumLabel}: <strong class="float-right">$${formatCurrency(buildingPremium)}</strong></p>`;
+                }
             }
 
             // 4. Calculate Contents Premium if opted-in
@@ -494,7 +520,6 @@
                     if (specialPrem > 0) breakdownHTML += `<p class="pl-4 text-sm text-[var(--text-muted)]">- Special Items: <strong class="float-right">$${formatCurrency(specialPrem)}</strong></p>`;
                 }
 
-                // 4a. Calculate "All Risk" as an additional premium
                 if (isAllRisk) {
                     const totalContentsForRisk = generalSI + electronicsSI + jewelrySI + specialSI;
                     allRiskPremium = totalContentsForRisk * PROPERTY_RATES.homeowners.contents.all_risk;
