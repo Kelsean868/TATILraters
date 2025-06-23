@@ -322,10 +322,13 @@
                         </div>
                          <h3 class="text-lg font-bold text-[var(--text-secondary)] border-t border-[var(--border-color)] pt-6 mt-6">Optional Benefits</h3>
                         <div id="p-benefits-container" class="space-y-4">
-                            <div class="flex items-center">
-                                <input id="p-windscreen-check" type="checkbox" class="h-4 w-4 text-[var(--primary-accent)] bg-gray-700 border-gray-600 rounded">
-                                <label for="p-windscreen-check" class="ml-3 block text-sm font-medium">Windscreen Cover (First $5,000 Free)</label>
-                                <input type="text" inputmode="numeric" id="p-windscreen-value" class="ml-4 w-40 p-1.5" placeholder="Total Value ($)" disabled>
+                            <div>
+                                <div class="flex items-center">
+                                    <input id="p-windscreen-check" type="checkbox" class="h-4 w-4 text-[var(--primary-accent)] bg-gray-700 border-gray-600 rounded">
+                                    <label id="p-windscreen-label" for="p-windscreen-check" class="ml-3 block text-sm font-medium">Windscreen Cover</label>
+                                    <input type="text" inputmode="numeric" id="p-windscreen-value" class="ml-4 w-40 p-1.5" placeholder="Total Value ($)" disabled>
+                                </div>
+                                <p id="p-windscreen-error" class="text-red-500 text-xs mt-1 ml-7 hidden">Value cannot exceed $7,000.</p>
                             </div>
                              <div id="p-woe-container" class="flex items-center">
                                 <input id="p-woe-check" type="checkbox" class="h-4 w-4 text-[var(--primary-accent)] bg-gray-700 border-gray-600 rounded">
@@ -337,7 +340,7 @@
                             </div>
                             <div class="flex items-center">
                                 <input id="p-pa-check" type="checkbox" class="h-4 w-4 text-[var(--primary-accent)] bg-gray-700 border-gray-600 rounded">
-                                <label id="p-pa-label" for="p-pa-check" class="ml-3 block text-sm font-medium">Personal Accident ($200k Coverage)</label>
+                                <label id="p-pa-label" for="p-pa-check" class="ml-3 block text-sm font-medium">Personal Accident</label>
                             </div>
                         </div>
                     </div>
@@ -726,20 +729,7 @@
     <script src="./motor_rater_data.js"></script>
 
     <script>
-        // --- Register Service Worker ---
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js')
-                    .then(registration => {
-                        console.log('Service Worker registered successfully:', registration);
-                    })
-                    .catch(error => {
-                        console.log('Service Worker registration failed:', error);
-                    });
-            });
-        }
-        
-        document.addEventListener('DOMContentLoaded', () => {
+       window.addEventListener('load', () => {
             // --- EMAILJS INITIALIZATION ---
             (function() {
                  // emailjs.init({ publicKey: 'YOUR_PUBLIC_KEY' });
@@ -809,6 +799,7 @@
             });
     
             setupCheckboxToggle('p-windscreen-check', 'p-windscreen-value');
+            getElement('p-windscreen-value').addEventListener('input', validateWindscreenValue);
             setupCheckboxToggle('pl-windscreen-check', 'pl-windscreen-value');
             document.getElementById('p-coverage-type').addEventListener('change', handlePrivateCoverageChange);
             document.getElementById('c-coverage-type').addEventListener('change', handleCommercialCoverageChange);
@@ -820,7 +811,7 @@
             submitQuoteBtn.addEventListener('click', generateFinalQuote);
             closeQuoteModalBtn.addEventListener('click', () => {
                 finalQuoteModal.style.display = 'none';
-                getElement('email-status').textContent = ''; // Clear email status on close
+                if(getElement('email-status')) getElement('email-status').textContent = '';
             });
             copyQuoteBtn.addEventListener('click', copyQuoteToClipboard);
             downloadPdfBtn.addEventListener('click', generateAndDownloadPDF);
@@ -830,55 +821,34 @@
             // --- HELPER & UI FUNCTIONS ---
             function getElement(id) { return document.getElementById(id); }
             
-            /**
-             * Gets the raw numeric value from an input, removing commas.
-             * @param {string} id - The ID of the input element.
-             * @returns {number} The parsed float value.
-             */
             function getFloatValue(id) {
                 const element = getElement(id);
                 if (!element) return 0;
                 const value = element.value || '';
-                // Remove commas before parsing
                 const cleanValue = value.replace(/,/g, '');
                 return parseFloat(cleanValue) || 0;
             }
 
-            /**
-             * Formats the value of a number input field with commas.
-             * @param {Event} e - The input event.
-             */
             function formatNumberInput(e) {
                 const input = e.target;
-                // 1. Get the cursor position
                 let cursorPosition = input.selectionStart;
-                // 2. Get the original value and length
                 let originalValue = input.value;
                 let originalLength = originalValue.length;
-                // 3. Remove non-digit characters
                 let rawValue = originalValue.replace(/\D/g, '');
-                // 4. Format with commas
                 let formattedValue = rawValue.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-                // 5. Update the input value
                 input.value = formattedValue;
-                // 6. Restore cursor position
                 let newLength = formattedValue.length;
                 let newCursorPosition = cursorPosition + (newLength - originalLength);
                 input.setSelectionRange(newCursorPosition, newCursorPosition);
             }
 
-            // --- Attach formatting to number inputs ---
-            const numberInputsToFormat = [
-                'p-sum-insured', 'pl-sum-insured', 'c-sum-insured',
-                'p-windscreen-value', 'pl-windscreen-value'
-            ];
+            const numberInputsToFormat = ['p-sum-insured', 'pl-sum-insured', 'c-sum-insured', 'p-windscreen-value', 'pl-windscreen-value'];
             numberInputsToFormat.forEach(id => {
                 const input = getElement(id);
                 if (input) {
                     input.addEventListener('input', formatNumberInput);
                 }
             });
-
 
             function formatCurrency(value) {
                 if(isNaN(value)) return '0.00';
@@ -895,29 +865,47 @@
             }
             
             function handlePrivateCoverageChange() {
-                 const pCoverageType = getElement('p-coverage-type');
+                const pCoverageType = getElement('p-coverage-type');
                 if (!pCoverageType) return;
                 const isComprehensive = pCoverageType.value === 'comprehensive';
-                
-                const pSumInsuredContainer = getElement('p-sum-insured-container');
-                if (pSumInsuredContainer) pSumInsuredContainer.style.display = isComprehensive ? 'block' : 'none';
-                
-                const pWoeContainer = getElement('p-woe-container');
-                if (pWoeContainer) pWoeContainer.style.display = isComprehensive ? 'flex' : 'none';
-                
-                const pLouContainer = getElement('p-lou-container');
-                if (pLouContainer) pLouContainer.style.display = isComprehensive ? 'flex' : 'none';
 
-                const pPaLabel = getElement('p-pa-label');
-                if (pPaLabel) pPaLabel.textContent = isComprehensive ? "Personal Accident ($200k)" : "Personal Accident ($100k)";
+                getElement('p-sum-insured-container').style.display = isComprehensive ? 'block' : 'none';
+                getElement('p-woe-container').style.display = isComprehensive ? 'flex' : 'none';
+                getElement('p-lou-container').style.display = isComprehensive ? 'flex' : 'none';
+                
+                const windscreenLabel = getElement('p-windscreen-label');
+                const paLabel = getElement('p-pa-label');
+
+                if (isComprehensive) {
+                    windscreenLabel.textContent = `Windscreen Cover (First $${OPTIONAL_BENEFITS.windscreen.comprehensive.free_limit.toLocaleString()} Free)`;
+                    paLabel.textContent = `Personal Accident ($${OPTIONAL_BENEFITS.personal_accident.comprehensive.toLocaleString('en-US')}k Coverage)`;
+                    getElement('p-windscreen-error').classList.add('hidden');
+                } else {
+                    windscreenLabel.textContent = `Windscreen Cover (Max $${OPTIONAL_BENEFITS.windscreen.third_party.max_value.toLocaleString()})`;
+                    paLabel.textContent = `Personal Accident ($${OPTIONAL_BENEFITS.personal_accident.third_party.toLocaleString('en-US')}k Coverage)`;
+                    validateWindscreenValue();
+                }
                 
                 if (!isComprehensive) {
-                    const pWoeCheck = getElement('p-woe-check');
-                    if (pWoeCheck) pWoeCheck.checked = false;
-                    
-                    const pLouCheck = getElement('p-lou-check');
-                    if (pLouCheck) pLouCheck.checked = false;
+                    getElement('p-woe-check').checked = false;
+                    getElement('p-lou-check').checked = false;
                 }
+                calculatePremium();
+            }
+
+            function validateWindscreenValue() {
+                const coverageType = getElement('p-coverage-type').value;
+                const errorEl = getElement('p-windscreen-error');
+                if (coverageType === 'third-party') {
+                    const val = getFloatValue('p-windscreen-value');
+                    const maxVal = OPTIONAL_BENEFITS.windscreen.third_party.max_value;
+                    if (val > maxVal) {
+                        errorEl.classList.remove('hidden');
+                        return false;
+                    }
+                }
+                errorEl.classList.add('hidden');
+                return true;
             }
             
             function handleCommercialCoverageChange() {
@@ -925,14 +913,9 @@
                 if (!cCoverageType) return;
                 const isComprehensive = cCoverageType.value === 'comprehensive';
 
-                const cSumInsuredContainer = getElement('c-sum-insured-container');
-                if(cSumInsuredContainer) cSumInsuredContainer.style.display = isComprehensive ? 'block' : 'none';
-
-                const cUsageContainer = getElement('c-usage-container');
-                if(cUsageContainer) cUsageContainer.style.display = isComprehensive ? 'block' : 'none';
-                
-                const cHpContainer = getElement('c-hp-container');
-                if(cHpContainer) cHpContainer.style.display = isComprehensive ? 'none' : 'block';
+                getElement('c-sum-insured-container').style.display = isComprehensive ? 'block' : 'none';
+                getElement('c-usage-container').style.display = isComprehensive ? 'block' : 'none';
+                getElement('c-hp-container').style.display = isComprehensive ? 'none' : 'block';
             }
     
             function handleCommercialUsageChange() {
@@ -1043,10 +1026,8 @@
                 const selectedType = vehicleTypeSelector.value;
                 if (!selectedType) return;
                 
-                // Ensure rate data is loaded before calculating
-                if (typeof NCD_RATES === 'undefined' || typeof SPECIAL_DISCOUNTS === 'undefined') {
+                if (typeof NCD_RATES === 'undefined' || typeof SPECIAL_DISCOUNTS === 'undefined' || typeof OPTIONAL_BENEFITS === 'undefined') {
                     console.error("Rate data from motor_rater_data.js is not loaded!");
-                    // Optionally display an error to the user
                     resultsSection.classList.remove('hidden');
                     totalPremiumEl.textContent = 'Error';
                     premiumBreakdownEl.innerHTML = '<div class="text-red-500">Could not load rate data. Please check connection and refresh.</div>';
@@ -1285,8 +1266,9 @@
                     corePremium = calculateCorePremium(sumInsured, 0.08, engine === 'under-2000' ? 1700 : 2000);
                     if (getElement('p-windscreen-check').checked) {
                         const val = getFloatValue('p-windscreen-value');
-                        if (val > 5000) {
-                            const prem = (val - 5000) * 0.10;
+                        const wsConfig = OPTIONAL_BENEFITS.windscreen.comprehensive;
+                        if (val > wsConfig.free_limit) {
+                            const prem = (val - wsConfig.free_limit) * wsConfig.rate;
                             optionalPremiums += prem;
                             optionalBreakdown += `<div class="breakdown-row pl-4 text-[var(--text-muted)]"><span class="breakdown-label">+ Windscreen Cover</span><span class="breakdown-value">$${formatCurrency(prem)}</span></div>`;
                         }
@@ -1297,26 +1279,27 @@
                         optionalBreakdown += `<div class="breakdown-row pl-4 text-[var(--text-muted)]"><span class="breakdown-label">+ Waiver of Excess</span><span class="breakdown-value">$${formatCurrency(prem)}</span></div>`;
                     }
                     if (getElement('p-lou-check').checked) {
-                        optionalPremiums += 400;
-                        optionalBreakdown += `<div class="breakdown-row pl-4 text-[var(--text-muted)]"><span class="breakdown-label">+ Loss of Use</span><span class="breakdown-value">$${formatCurrency(400)}</span></div>`;
+                        optionalPremiums += OPTIONAL_BENEFITS.loss_of_use;
+                        optionalBreakdown += `<div class="breakdown-row pl-4 text-[var(--text-muted)]"><span class="breakdown-label">+ Loss of Use</span><span class="breakdown-value">$${formatCurrency(OPTIONAL_BENEFITS.loss_of_use)}</span></div>`;
                     }
                     if (getElement('p-pa-check').checked) {
-                        optionalPremiums += 200;
-                        optionalBreakdown += `<div class="breakdown-row pl-4 text-[var(--text-muted)]"><span class="breakdown-label">+ Personal Accident ($200k)</span><span class="breakdown-value">$${formatCurrency(200)}</span></div>`;
+                        optionalPremiums += OPTIONAL_BENEFITS.personal_accident.comprehensive;
+                        optionalBreakdown += `<div class="breakdown-row pl-4 text-[var(--text-muted)]"><span class="breakdown-label">+ Personal Accident</span><span class="breakdown-value">$${formatCurrency(OPTIONAL_BENEFITS.personal_accident.comprehensive)}</span></div>`;
                     }
                 } else { // Third Party
                     corePremium = calculateCorePremium(0, 0, engine === 'under-2000' ? 1700 : 2000);
-                     if (getElement('p-windscreen-check').checked) {
+                     if (getElement('p-windscreen-check').checked && validateWindscreenValue()) {
                         const val = getFloatValue('p-windscreen-value');
-                        if (val > 5000) {
-                             const prem = (val - 5000) * 0.10;
+                        const wsConfig = OPTIONAL_BENEFITS.windscreen.third_party;
+                        if (val > 0) {
+                             const prem = val * wsConfig.rate;
                              optionalPremiums += prem;
                              optionalBreakdown += `<div class="breakdown-row pl-4 text-[var(--text-muted)]"><span class="breakdown-label">+ Windscreen Cover</span><span class="breakdown-value">$${formatCurrency(prem)}</span></div>`;
                         }
                     }
                     if (getElement('p-pa-check').checked) {
-                        optionalPremiums += 100;
-                        optionalBreakdown += `<div class="breakdown-row pl-4 text-[var(--text-muted)]"><span class="breakdown-label">+ Personal Accident ($100k)</span><span class="breakdown-value">$${formatCurrency(100)}</span></div>`;
+                        optionalPremiums += OPTIONAL_BENEFITS.personal_accident.third_party;
+                        optionalBreakdown += `<div class="breakdown-row pl-4 text-[var(--text-muted)]"><span class="breakdown-label">+ Personal Accident</span><span class="breakdown-value">$${formatCurrency(OPTIONAL_BENEFITS.personal_accident.third_party)}</span></div>`;
                     }
                 }
                 return { corePremium, optionalPremiums, optionalBreakdown, referralMessage, excess };
@@ -1339,8 +1322,9 @@
                 
                 if (getElement('pl-windscreen-check').checked) {
                     const val = getFloatValue('pl-windscreen-value');
-                    if (val > 20000) {
-                        const prem = (val - 20000) * 0.10;
+                    const wsConfig = OPTIONAL_BENEFITS.windscreen.comprehensive;
+                    if (val > 20000) { // Platinum has a higher free limit built-in
+                        const prem = (val - 20000) * wsConfig.rate;
                         optionalPremiums += prem;
                         optionalBreakdown += `<div class="breakdown-row pl-4 text-[var(--text-muted)]"><span class="breakdown-label">+ Increased Windscreen Cover</span><span class="breakdown-value">$${formatCurrency(prem)}</span></div>`;
                     }
@@ -1351,12 +1335,12 @@
                      optionalBreakdown += `<div class="breakdown-row pl-4 text-[var(--text-muted)]"><span class="breakdown-label">+ Waiver of Excess</span><span class="breakdown-value">$${formatCurrency(prem)}</span></div>`;
                 }
                 if (getElement('pl-pa-check').checked) {
-                     optionalPremiums += 200;
-                     optionalBreakdown += `<div class="breakdown-row pl-4 text-[var(--text-muted)]"><span class="breakdown-label">+ Personal Accident ($200k)</span><span class="breakdown-value">$${formatCurrency(200)}</span></div>`;
+                     optionalPremiums += OPTIONAL_BENEFITS.personal_accident.comprehensive;
+                     optionalBreakdown += `<div class="breakdown-row pl-4 text-[var(--text-muted)]"><span class="breakdown-label">+ Personal Accident</span><span class="breakdown-value">$${formatCurrency(OPTIONAL_BENEFITS.personal_accident.comprehensive)}</span></div>`;
                 }
                  if (getElement('pl-tpl-check').checked) {
-                    optionalPremiums += 2500;
-                    optionalBreakdown += `<div class="breakdown-row pl-4 text-[var(--text-muted)]"><span class="breakdown-label">+ Increased TPL</span><span class="breakdown-value">$${formatCurrency(2500)}</span></div>`;
+                    optionalPremiums += OPTIONAL_BENEFITS.increased_tpl;
+                    optionalBreakdown += `<div class="breakdown-row pl-4 text-[var(--text-muted)]"><span class="breakdown-label">+ Increased TPL</span><span class="breakdown-value">$${formatCurrency(OPTIONAL_BENEFITS.increased_tpl)}</span></div>`;
                 }
                 return { corePremium, optionalPremiums, optionalBreakdown, referralMessage, excess };
             }
