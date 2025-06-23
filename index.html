@@ -113,9 +113,25 @@
         input:checked + .slider:before { transform: translateX(20px); }
         #themeToggleLabel { color: var(--text-secondary); font-size: 0.7rem; font-weight: 600; letter-spacing: 0.025em;}
 
+        /* Update Notification */
+        #update-notification {
+            transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+            transform: translateY(200%);
+            opacity: 0;
+        }
+        #update-notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
     </style>
 </head>
 <body class="min-h-screen p-4 md:p-6 lg:p-8">
+
+    <!-- NEW: Update Notification Banner -->
+    <div id="update-notification" class="fixed bottom-4 right-4 z-[200] bg-gray-800 text-white p-4 rounded-lg shadow-lg flex items-center space-x-4">
+        <span>A new version is available.</span>
+        <button id="refresh-button" class="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded-md font-semibold">Refresh</button>
+    </div>
 
     <div class="w-full max-w-5xl mx-auto my-8">
         <!-- Header container with Theme Toggle and Install Button -->
@@ -202,60 +218,12 @@
     </div>
     
     <script>
-        // --- Register Service Worker ---
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js')
-                    .then(registration => {
-                        console.log('Service Worker registered successfully:', registration);
-                    })
-                    .catch(error => {
-                        console.log('Service Worker registration failed:', error);
-                    });
-            });
-        }
-
-        // --- PWA Install Prompt Logic ---
-        let deferredPrompt;
-        const installButton = document.getElementById('install-button');
-
-        window.addEventListener('beforeinstallprompt', (e) => {
-            // Prevent the mini-infobar from appearing on mobile
-            e.preventDefault();
-            // Stash the event so it can be triggered later.
-            deferredPrompt = e;
-            // Update UI to notify the user they can add to home screen
-            installButton.classList.remove('hidden');
-        });
-
-        installButton.addEventListener('click', (e) => {
-            // Hide the install button
-            installButton.classList.add('hidden');
-            // Show the prompt
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                // Wait for the user to respond to the prompt
-                deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === 'accepted') {
-                        console.log('User accepted the A2HS prompt');
-                    } else {
-                        console.log('User dismissed the A2HS prompt');
-                    }
-                    deferredPrompt = null;
-                });
-            }
-        });
-        
-        window.addEventListener('appinstalled', (evt) => {
-            console.log('App was successfully installed');
-            // Hide the install button if the app is installed
-            installButton.classList.add('hidden');
-        });
-
-        // --- Standard Page Logic ---
-        document.addEventListener('DOMContentLoaded', function() {
-            const themeToggle = document.getElementById('themeToggleCheckbox');
-            const themeToggleLabel = document.getElementById('themeToggleLabel');
+        window.addEventListener('load', () => {
+            const getElement = (id) => document.getElementById(id);
+            
+            // --- Theme Logic ---
+            const themeToggle = getElement('themeToggleCheckbox');
+            const themeToggleLabel = getElement('themeToggleLabel');
 
             function initializeTheme() {
                 const savedTheme = localStorage.getItem('theme');
@@ -273,25 +241,71 @@
                 }
             }
 
-            function toggleTheme() {
-                const root = document.documentElement;
-                const isDarkMode = root.classList.contains('dark-mode');
-
-                if (isDarkMode) {
-                    root.classList.remove('dark-mode');
-                    localStorage.setItem('theme', 'light');
-                    if (themeToggleLabel) themeToggleLabel.textContent = 'LIGHT';
-                } else {
-                    root.classList.add('dark-mode');
-                    localStorage.setItem('theme', 'dark');
-                    if (themeToggleLabel) themeToggleLabel.textContent = 'DARK';
-                }
-            }
-
-            document.getElementById('currentYear').textContent = new Date().getFullYear();
-            initializeTheme();
             if (themeToggle) {
-                themeToggle.addEventListener('change', toggleTheme);
+                themeToggle.addEventListener('change', () => {
+                    document.documentElement.classList.toggle('dark-mode');
+                    const isDarkMode = document.documentElement.classList.contains('dark-mode');
+                    localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+                    if (themeToggleLabel) themeToggleLabel.textContent = isDarkMode ? 'DARK' : 'LIGHT';
+                });
+            }
+            
+            getElement('currentYear').textContent = new Date().getFullYear();
+            initializeTheme();
+            
+            // --- PWA Install Logic ---
+            let deferredPrompt;
+            const installButton = getElement('install-button');
+
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                if (installButton) installButton.classList.remove('hidden');
+            });
+
+            if (installButton) {
+                installButton.addEventListener('click', (e) => {
+                    installButton.classList.add('hidden');
+                    if (deferredPrompt) {
+                        deferredPrompt.prompt();
+                        deferredPrompt.userChoice.then((choiceResult) => {
+                            deferredPrompt = null;
+                        });
+                    }
+                });
+            }
+            
+            window.addEventListener('appinstalled', () => {
+                if (installButton) installButton.classList.add('hidden');
+            });
+
+            // --- Service Worker Update Logic ---
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => {
+                        console.log('Service Worker registration successful:', reg);
+                        reg.addEventListener('updatefound', () => {
+                            const newWorker = reg.installing;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    const updateNotif = document.getElementById('update-notification');
+                                    if (updateNotif) {
+                                        updateNotif.classList.add('show');
+                                    }
+                                }
+                            });
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Service Worker registration failed:', error);
+                    });
+
+                const refreshButton = getElement('refresh-button');
+                if (refreshButton) {
+                    refreshButton.addEventListener('click', () => {
+                        window.location.reload();
+                    });
+                }
             }
         });
     </script>
