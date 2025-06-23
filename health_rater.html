@@ -3,12 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TATIL COVERCARE Premium Rater</title>
+    <title>TATIL COVERCARE Premium Rater & Referral Hub</title>
+
+    <!-- PWA Manifest & Meta Tags -->
+    <link rel="manifest" href="./manifest.json">
+    <meta name="theme-color" content="#005f73">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="TATIL Raters">
+    <link rel="apple-touch-icon" href="https://placehold.co/192x192/005f73/FFFFFF?text=TATIL">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <!-- EmailJS for sending emails -->
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Source+Serif+Pro:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
             --bg-main: #f4f6f9; 
@@ -74,16 +82,18 @@
             font-weight: 600; padding-top: 0.85rem; padding-bottom: 0.85rem; border-radius: 0.375rem;
             transition: background-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
             box-shadow: var(--shadow-soft); text-transform: uppercase; letter-spacing: 0.025em;
+            cursor: pointer;
         }
         .button-base:hover { transform: translateY(-2px); box-shadow: var(--shadow-medium); }
         
         .primary-btn { background-color: var(--primary-accent); color: white; }
         .primary-btn:hover { background-color: var(--primary-accent-darker); }
-        .dark-mode .primary-btn { color: var(--bg-bento-box); }
+        .dark-mode .primary-btn { color: var(--text-primary); }
 
         .secondary-btn { background-color: var(--secondary-accent); color: white; }
         .secondary-btn:hover { background-color: var(--secondary-accent-darker); }
         .dark-mode .secondary-btn { color: var(--text-primary); }
+
         
         /* Modal */
         .modal-overlay {
@@ -94,7 +104,8 @@
         }
         .modal-content {
             background-color: var(--bg-bento-box); margin: auto; padding: 2rem; border: 1px solid var(--border-color);
-            width: 90%; max-width: 560px; border-radius: 0.75rem; position: relative;
+            width: 90%; 
+            border-radius: 0.75rem; position: relative;
             box-shadow: var(--shadow-strong);
         }
         
@@ -114,6 +125,14 @@
             display: flex; align-items: center; justify-content: center; transition: transform 0.2s ease;
         }
         .whatsapp-float:hover { transform: scale(1.1); }
+        .breakdown-row { display: flex; justify-content: space-between; flex-wrap: wrap; }
+        .loader {
+            width: 48px; height: 48px; border: 5px solid var(--primary-accent);
+            border-bottom-color: transparent; border-radius: 50%;
+            display: inline-block; box-sizing: border-box;
+            animation: rotation 1s linear infinite;
+        }
+        @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="min-h-screen p-4 md:p-6 lg:p-8">
@@ -129,10 +148,14 @@
         </div>
     </div>
 
+    <div id="auth-loader" class="text-center p-20">
+        <div class="loader mx-auto"></div>
+        <p class="mt-4 text-[var(--text-secondary)]">Authenticating...</p>
+    </div>
 
-    <div class="w-full max-w-6xl mx-auto my-8">
+    <div id="health-rater-app" class="w-full max-w-6xl mx-auto my-8 hidden">
         <header class="mb-10 text-center">
-            <h1 class="text-4xl sm:text-5xl font-bold mb-3">TATIL COVERCARE Premium Rater</h1>
+            <h1 id="main-header" class="text-4xl sm:text-5xl font-bold mb-3">TATIL COVERCARE Premium Rater</h1>
             <p class="text-xl text-[var(--text-secondary)]">Health Insurance Plans, Simplified.</p>
         </header>
 
@@ -141,84 +164,49 @@
             <div class="lg:col-span-2 space-y-8">
                 <!-- Step 1: Plan Selection -->
                 <div class="bento-box">
-                    <h2 class="text-2xl font-bold mb-4"><span class="inline-block bg-[var(--secondary-accent)] text-white rounded-full h-8 w-8 text-center leading-8 mr-3 text-lg">1</span>Select Insured Details</h2>
+                    <h2 class="text-2xl font-bold mb-4"><i class="fas fa-users mr-3 text-[var(--secondary-accent)]"></i>Select Insured Details</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label for="family-status" class="block text-sm font-medium text-[var(--text-muted)]">Family Status</label>
-                            <select id="family-status" class="mt-1 w-full p-2.5">
-                                <option value="single_male">Single Male</option>
-                                <option value="single_female">Single Female</option>
-                                <option value="husband_wife">Husband & Wife</option>
-                            </select>
+                            <select id="family-status" class="mt-1 w-full p-2.5"></select>
                         </div>
                         <div>
                             <label for="age-band" class="block text-sm font-medium text-[var(--text-muted)]">Age Band</label>
-                            <select id="age-band" class="mt-1 w-full p-2.5">
-                                <option value="under_40">Under 40</option>
-                                <option value="40_49">40-49</option>
-                                <option value="50_59">50-59</option>
-                                <option value="60_65">60-65</option>
-                                <option value="66_67">66-67</option>
-                                <option value="68_70">68-70</option>
-                            </select>
+                            <select id="age-band" class="mt-1 w-full p-2.5"></select>
                         </div>
                         <div>
                             <label for="children-count" class="block text-sm font-medium text-[var(--text-muted)]">Number of Children</label>
-                            <select id="children-count" class="mt-1 w-full p-2.5">
-                                <option value="0">0 Children</option>
-                                <option value="1">1 Child</option>
-                                <option value="2+">2 or More Children</option>
-                            </select>
+                            <select id="children-count" class="mt-1 w-full p-2.5"></select>
                         </div>
                     </div>
                 </div>
 
                 <!-- Step 2: Plan Options -->
                 <div class="bento-box">
-                    <h2 class="text-2xl font-bold mb-4"><span class="inline-block bg-[var(--secondary-accent)] text-white rounded-full h-8 w-8 text-center leading-8 mr-3 text-lg">2</span>Select Plan Options</h2>
+                    <h2 class="text-2xl font-bold mb-4"><i class="fas fa-clipboard-list mr-3 text-[var(--secondary-accent)]"></i>Select Plan Options</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label for="plan-type" class="block text-sm font-medium text-[var(--text-muted)]">Plan Type</label>
-                             <select id="plan-type" class="mt-1 w-full p-2.5">
-                                <option value="base_and_mm">Base Plan + Major Medical</option>
-                                <option value="base_only">COVERCARE Base Plan Only</option>
-                                <option value="mm_only">Major Medical Only</option>
-                            </select>
+                             <select id="plan-type" class="mt-1 w-full p-2.5"></select>
                         </div>
                         <div>
                             <label for="payment-frequency" class="block text-sm font-medium text-[var(--text-muted)]">Payment Frequency</label>
-                            <select id="payment-frequency" class="mt-1 w-full p-2.5">
-                                <option value="annual">Annual</option>
-                                <option value="semi">Semi-Annual</option>
-                                <option value="quarterly">Quarterly</option>
-                            </select>
+                            <select id="payment-frequency" class="mt-1 w-full p-2.5"></select>
                         </div>
                         <div id="base-plan-options" class="contents">
                             <div>
-                                <label for="dental-vision" class="block text-sm font-medium text-[var(--text-muted)]">Dental & Vision Included</label>
-                                <select id="dental-vision" class="mt-1 w-full p-2.5">
-                                    <option value="no">No</option>
-                                    <option value="yes">Yes</option>
-                                </select>
+                                <label for="dental-vision" class="block text-sm font-medium text-[var(--text-muted)]">Add Dental & Vision</label>
+                                <select id="dental-vision" class="mt-1 w-full p-2.5"></select>
                             </div>
                             <div id="maternity-container">
                                 <label for="maternity" class="block text-sm font-medium text-[var(--text-muted)]">Maternity Coverage</label>
-                                 <select id="maternity" class="mt-1 w-full p-2.5">
-                                    <option value="no">No</option>
-                                    <option value="yes">Yes</option>
-                                </select>
+                                 <select id="maternity" class="mt-1 w-full p-2.5"></select>
                             </div>
                         </div>
                          <div id="major-medical-options" class="contents">
                              <div>
                                 <label for="major-medical-amount" class="block text-sm font-medium text-[var(--text-muted)]">Major Medical Coverage</label>
-                                <select id="major-medical-amount" class="mt-1 w-full p-2.5">
-                                    <option value="50000">$50,000</option>
-                                    <option value="100000">$100,000</option>
-                                    <option value="200000">$200,000</option>
-                                    <option value="300000">$300,000</option>
-                                    <option value="500000">$500,000</option>
-                                </select>
+                                <select id="major-medical-amount" class="mt-1 w-full p-2.5"></select>
                             </div>
                         </div>
                     </div>
@@ -228,18 +216,20 @@
             <!-- Right Column: Results -->
             <div class="lg:col-span-1 space-y-8">
                  <div id="results-section" class="bento-box sticky top-8 text-center">
-                    <h2 class="text-2xl font-bold mb-2"><span class="inline-block bg-[var(--secondary-accent)] text-white rounded-full h-8 w-8 text-center leading-8 mr-3 text-lg">3</span>Premium Summary</h2>
+                    <h2 class="text-2xl font-bold mb-2"><i class="fas fa-receipt mr-3 text-[var(--secondary-accent)]"></i>Premium Summary</h2>
                     <p id="total-premium" class="text-4xl font-bold text-[var(--primary-accent)] mt-4">$0.00</p>
                     <p id="total-premium-label" class="text-sm text-[var(--text-muted)]">(Total Annual Premium)</p>
-                    <div id="premium-breakdown" class="text-left mt-6 pt-4 border-t border-[var(--border-color)] text-[var(--text-secondary)] text-sm space-y-1">
-                        <!-- Breakdown will be populated by JS -->
+                    <div id="premium-breakdown" class="text-left mt-6 pt-4 border-t border-[var(--border-color)] text-[var(--text-secondary)] text-sm space-y-1"></div>
+                     <div id="frequency-comparison" class="text-left mt-6 pt-4 border-t border-[var(--border-color)] text-[var(--text-secondary)] text-sm space-y-2"></div>
+                    <div id="finders-fee-section" class="text-left mt-6 pt-4 border-t-2 border-dashed border-[var(--secondary-accent)] hidden">
+                        <h3 class="text-lg font-bold text-[var(--primary-accent)] mb-2">Initial Finder's Fee</h3>
+                        <div id="finders-fee-breakdown" class="text-[var(--text-secondary)] text-sm space-y-1"></div>
                     </div>
-                     <div id="frequency-comparison" class="text-left mt-6 pt-4 border-t border-[var(--border-color)] text-[var(--text-secondary)] text-sm space-y-2">
-                        <!-- Frequency comparison will be populated by JS -->
+                    <div class="mt-6">
+                        <button id="proceed-to-quote-btn" class="w-full primary-btn button-base py-3">
+                            Create Referral & Quote
+                        </button>
                     </div>
-                    <button id="generate-quote-btn" class="mt-6 w-full primary-btn button-base py-3">
-                        Generate Official Quote
-                    </button>
                 </div>
             </div>
         </main>
@@ -249,18 +239,59 @@
         </footer>
     </div>
 
-    <!-- Final Quote Modal -->
-    <div id="final-quote-modal" class="modal-overlay hidden">
-        <div class="modal-content max-w-2xl">
-            <h3 class="text-xl font-bold leading-6 mb-4">Official COVERCARE Quotation</h3>
-            <div id="quote-output-container" class="w-full h-96 overflow-y-auto bg-[var(--bg-main)] p-4 border border-[var(--border-color)] rounded-md">
-                <pre id="quote-output" class="whitespace-pre-wrap text-sm font-mono"></pre>
+    <!-- Combined Quote & Referral Modal -->
+    <div id="quote-referral-modal" class="modal-overlay hidden">
+        <div class="modal-content max-w-4xl">
+            <h3 id="modal-header" class="text-2xl font-bold leading-6 mb-6 text-center">Referral & Official Quotation</h3>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <!-- Left side: Client Info for Referral -->
+                <div>
+                    <h4 class="text-lg font-bold mb-4 text-[var(--primary-accent)]">Step 1: Enter Client Information</h4>
+                    <div class="space-y-4">
+                        <input type="text" id="client-name" placeholder="Client's Full Name" class="w-full" required>
+                        <input type="email" id="client-email" placeholder="Client's Email Address" class="w-full" required>
+                        <input type="text" id="client-contact" placeholder="Client's Contact Number" class="w-full" required>
+                    </div>
+                    <p id="client-modal-error" class="text-red-500 text-sm text-center mt-4 h-4"></p>
+                </div>
+
+                <!-- Right side: Quote Preview -->
+                <div>
+                    <h4 class="text-lg font-bold mb-4 text-[var(--primary-accent)]">Step 2: Review Official Quote</h4>
+                    <div id="quote-output-container" class="w-full h-64 overflow-y-auto bg-[var(--bg-main)] p-4 border border-[var(--border-color)] rounded-md">
+                        <pre id="quote-output" class="whitespace-pre-wrap text-sm font-mono"></pre>
+                    </div>
+                </div>
             </div>
-            <div class="mt-6 flex flex-wrap justify-end gap-3">
-                 <input type="text" id="client-name" placeholder="Enter Client's Name for PDF" class="w-full md:w-auto flex-grow p-2 rounded-md border border-[var(--border-color)] bg-[var(--bg-main)]">
-                <button id="close-quote-modal-btn" type="button" class="button-base bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200 py-2 px-4">Close</button>
-                <button id="download-pdf-btn" type="button" class="button-base secondary-btn py-2 px-4">Download PDF</button>
-                <button id="copy-quote-btn" type="button" class="button-base primary-btn py-2 px-4">Copy Quote</button>
+            
+            <div class="flex items-center space-x-3 mt-4 pt-4 border-t border-[var(--border-color)]">
+                <input type="checkbox" id="waive-fee-checkbox" class="h-4 w-4">
+                <label for="waive-fee-checkbox" class="text-sm font-medium text-[var(--text-secondary)]">Waive finder's fee for this referral</label>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="mt-8 pt-6 border-t border-[var(--border-color)] flex flex-wrap justify-between items-center gap-4">
+                <div>
+                    <button id="close-modal-btn" type="button" class="button-base bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200 py-2 px-4">Cancel</button>
+                </div>
+                <div class="flex flex-wrap gap-3">
+                    <button id="copy-quote-btn" type="button" class="button-base secondary-btn py-2 px-4">Copy Quote</button>
+                    <button id="download-pdf-btn" type="button" class="button-base secondary-btn py-2 px-4">Download PDF</button>
+                    <button id="submit-referral-btn" type="button" class="button-base primary-btn py-2 px-4">Submit Referral</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="success-modal" class="modal-overlay hidden">
+        <div class="modal-content text-center">
+            <i class="fas fa-check-circle text-5xl text-green-500 mx-auto mb-4"></i>
+            <h3 id="success-header" class="text-xl font-bold leading-6 mb-2">Referral Submitted!</h3>
+            <p class="text-[var(--text-secondary)]">You can track its status on your dashboard.</p>
+            <div class="mt-6">
+                 <a href="./index.html" class="button-base primary-btn py-2 px-4">Back to Dashboard</a>
             </div>
         </div>
     </div>
@@ -272,230 +303,414 @@
         </svg>
     </a>
     
-    <!-- **** IMPORTANT CHANGE **** -->
-    <!-- Load the rate data from an external file BEFORE the main logic script -->
     <script src="health_rater_data.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signInWithCustomToken, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, getDoc, addDoc, updateDoc, Timestamp, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        // --- EMAILJS INITIALIZATION ---
-        (function() {
-            emailjs.init('Jh4IovuJz5JmRBKOc');
-        })();
+        // --- Firebase Configuration ---
+        // These will be replaced by global variables in the final environment
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { apiKey: "AIza...", authDomain: "...", projectId: "..." };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        setLogLevel('debug'); // Optional: for detailed Firestore logs
 
-        // --- THEME TOGGLE ---
-        const themeToggle = document.getElementById('themeToggleCheckbox');
-        const themeToggleLabel = document.getElementById('themeToggleLabel');
-        function applyTheme(isDark) {
-            document.documentElement.classList.toggle('dark-mode', isDark);
-            document.body.classList.toggle('dark-mode', isDark);
-            if(themeToggleLabel) themeToggleLabel.textContent = isDark ? 'DARK' : 'LIGHT';
-            if(themeToggle) themeToggle.checked = isDark;
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
-        }
-        themeToggle.addEventListener('change', () => applyTheme(themeToggle.checked));
-        const savedTheme = localStorage.getItem('theme');
-        applyTheme(savedTheme === 'dark' || (savedTheme === null && window.matchMedia('(prefers-color-scheme: dark)').matches));
-        
-        // --- DATA CONSTANTS ---
-        // The large 'RATES' object has been moved to health_rater_data.js
-        // and is loaded before this script runs.
+        // --- Global State ---
+        let currentUserData = null;
+        let lastCalculatedData = {};
+        let fullQuoteText = '';
+        let editMode = false;
+        let referralIdToEdit = null;
 
         // --- DOM ELEMENTS ---
-        const allInputs = document.querySelectorAll('select');
-        
-        // --- EVENT LISTENERS ---
-        allInputs.forEach(input => {
-            input.addEventListener('change', calculateAndDisplay);
-        });
-        
-        // --- MODAL & QUOTE LOGIC ---
-        const generateQuoteBtn = document.getElementById('generate-quote-btn');
-        const finalQuoteModal = document.getElementById('final-quote-modal');
-        const closeQuoteModalBtn = document.getElementById('close-quote-modal-btn');
-        const quoteOutput = document.getElementById('quote-output');
-        const copyQuoteBtn = document.getElementById('copy-quote-btn');
-        const downloadPdfBtn = document.getElementById('download-pdf-btn');
-        let fullQuoteText = '';
+        const getElement = (id) => document.getElementById(id);
 
-        generateQuoteBtn.addEventListener('click', () => {
-             generateFinalQuoteText();
-            finalQuoteModal.style.display = 'flex';
-        });
-        closeQuoteModalBtn.addEventListener('click', () => finalQuoteModal.style.display = 'none');
-        copyQuoteBtn.addEventListener('click', () => {
-            navigator.clipboard.writeText(quoteOutput.innerText).then(() => {
-                copyQuoteBtn.textContent = 'Copied!';
-                setTimeout(() => { copyQuoteBtn.textContent = 'Copy Quote'; }, 2000);
+        // --- INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof RATES === 'undefined' || !RATES.vision_dental) {
+                document.body.innerHTML = '<div class="text-red-500 text-center p-8">Error: Could not load rate data. Please ensure health_rater_data.js is present and correct.</div>';
+                return;
+            }
+
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('edit')) {
+                editMode = true;
+                referralIdToEdit = urlParams.get('edit');
+            }
+            
+            setupTheme();
+            getElement('currentYear').textContent = new Date().getFullYear();
+
+            onAuthStateChanged(auth, async (user) => {
+                const appEl = getElement('health-rater-app');
+                const loaderEl = getElement('auth-loader');
+                if (user) {
+                    const userDoc = await getDoc(doc(db, "users", user.uid));
+                    currentUserData = userDoc.exists() ? { uid: user.uid, ...userDoc.data() } : null;
+                    
+                    if (!currentUserData) {
+                         loaderEl.innerHTML = `<div class="text-center bento-box max-w-lg mx-auto"><h3 class="text-xl font-bold leading-6 mb-2">User Not Found</h3><p class="text-[var(--text-secondary)]">Your user profile could not be loaded.</p></div>`;
+                        return;
+                    }
+
+                    appEl.classList.remove('hidden');
+                    loaderEl.classList.add('hidden');
+                    if (editMode && referralIdToEdit) {
+                        await initializeRaterForEdit();
+                    } else {
+                        initializeRater();
+                    }
+                } else {
+                    // Sign in if token is available, otherwise show login prompt
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                         try {
+                            await signInWithCustomToken(auth, __initial_auth_token);
+                         } catch (error) {
+                             console.error("Custom token sign-in failed:", error);
+                             await signInAnonymously(auth); // Fallback
+                         }
+                    } else {
+                        // Fallback for local testing or if token isn't provided
+                        try {
+                           await signInAnonymously(auth);
+                           console.log("Signed in anonymously for local testing.");
+                        } catch(error) {
+                           loaderEl.innerHTML = `<div class="text-center bento-box max-w-lg mx-auto"><h3 class="text-xl font-bold leading-6 mb-2">Authentication Error</h3><p class="text-[var(--text-secondary)]">You must be logged in to use the rater.</p><div class="mt-6"><a href="./index.html" class="button-base primary-btn py-2 px-4">Go to Login</a></div></div>`;
+                           appEl.classList.add('hidden');
+                           loaderEl.classList.remove('hidden');
+                        }
+                    }
+                }
             });
         });
-        downloadPdfBtn.addEventListener('click', generateAndDownloadPDF);
-        document.getElementById('currentYear').textContent = new Date().getFullYear();
-
-        // --- UI & HELPER FUNCTIONS ---
-        function getElement(id) { return document.getElementById(id); }
         
-        function formatCurrency(value) {
-            if (typeof value !== 'number' || isNaN(value)) {
-                return 'N/A';
+        function initializeRater() {
+            if(editMode){
+                getElement('main-header').textContent = "Edit Health Referral";
+                getElement('proceed-to-quote-btn').textContent = "Update Referral & Quote";
+                getElement('modal-header').textContent = "Update Referral & Official Quotation";
+                getElement('submit-referral-btn').textContent = "Update Referral";
+                getElement('success-header').textContent = "Referral Updated!";
             }
-            return value.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+            populateDropdowns();
+            setupEventListeners();
+            calculateAndDisplay();
         }
+
+        async function initializeRaterForEdit() {
+            const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+            const referralRef = doc(db, "artifacts", appId, "public/data/referrals", referralIdToEdit);
+            const referralDoc = await getDoc(referralRef);
+
+            if (referralDoc.exists()) {
+                const data = referralDoc.data();
+                // Security check: ensure the current user is the one who created the referral
+                if(data.referrerId !== auth.currentUser.uid) {
+                    document.body.innerHTML = `<div class="text-red-500 text-center p-8">Error: You do not have permission to edit this referral.</div>`;
+                    return;
+                }
+                initializeRater(); // Sets up dropdowns, listeners etc.
+                populateFormWithData(data); // Populates the form with existing data
+            } else {
+                 document.body.innerHTML = `<div class="text-red-500 text-center p-8">Error: Referral not found.</div>`;
+            }
+        }
+        
+        function populateFormWithData(data) {
+             const getSelectedText = (el) => el.options[el.selectedIndex].text;
+            
+            // This function maps the stored text value from the DB back to the correct <option value="...">
+            const setValueFromText = (selectId, textValue) => {
+                const selectEl = getElement(selectId);
+                for(let i=0; i<selectEl.options.length; i++) {
+                    if(selectEl.options[i].text === textValue) {
+                        selectEl.value = selectEl.options[i].value;
+                        return;
+                    }
+                }
+            };
+            
+            setValueFromText('family-status', data.familyStatusText);
+            setValueFromText('age-band', data.ageBand);
+            setValueFromText('children-count', data.childrenCountText);
+            setValueFromText('plan-type', data.planType);
+            setValueFromText('payment-frequency', data.premiumFrequency);
+            getElement('dental-vision').value = data.dentalVisionAdded ? 'yes' : 'no';
+            if(getElement('maternity')) {
+                 setValueFromText('maternity', data.maternity);
+            }
+            if(getElement('major-medical-amount')) {
+                 setValueFromText('major-medical-amount', data.mmAmount);
+            }
+            
+            if(data.clientName) getElement('client-name').value = data.clientName;
+            if(data.clientEmail) getElement('client-email').value = data.clientEmail;
+            if(data.clientContact) getElement('client-contact').value = data.clientContact;
+            getElement('waive-fee-checkbox').checked = data.feeWaived || false;
+
+            // Recalculate everything with the loaded data
+            calculateAndDisplay();
+        }
+
+
+        function populateDropdowns() {
+            const options = {
+                'family-status': {'Single Male': 'single_male', 'Single Female': 'single_female', 'Husband & Wife': 'husband_wife'},
+                'age-band': {'Under 40': 'under_40', '40-49': '40_49', '50-59': '50_59', '60-65': '60_65', '66-67': '66_67', '68-70': '68_70'},
+                'children-count': {'0 Children': '0', '1 Child': '1', '2 or More Children': '2+'},
+                'plan-type': {'Base Plan + Major Medical': 'base_and_mm', 'COVERCARE Base Plan Only': 'base_only', 'Major Medical Only': 'mm_only'},
+                'payment-frequency': {'Annual': 'annual', 'Semi-Annual': 'semi', 'Quarterly': 'quarterly'},
+                'dental-vision': {'No': 'no', 'Yes': 'yes'},
+                'maternity': {'No': 'no', 'Yes': 'yes'},
+                'major-medical-amount': {'$50,000': '50000', '$100,000': '100000', '$200,000': '200000', '$300,000': '300000', '$500,000': '500000'}
+            };
+            for(const id in options) {
+                const select = getElement(id);
+                if (select) {
+                   select.innerHTML = Object.entries(options[id]).map(([text, value]) => `<option value="${value}">${text}</option>`).join('');
+                }
+            }
+        }
+        
+        function setupEventListeners() {
+            document.querySelectorAll('#health-rater-app select').forEach(input => input.addEventListener('change', calculateAndDisplay));
+            getElement('proceed-to-quote-btn').addEventListener('click', () => {
+                if (lastCalculatedData.totalPremium > 0) {
+                    getElement('waive-fee-checkbox').checked = currentUserData.waivesAllFees || false;
+                    generateFinalQuoteText();
+                    getElement('quote-referral-modal').style.display = 'flex';
+                } else { 
+                    // Use a more modern notification instead of alert
+                    const btn = getElement('proceed-to-quote-btn');
+                    const originalText = btn.textContent;
+                    btn.textContent = "Please select options first!";
+                    btn.classList.add('bg-red-500', 'hover:bg-red-600');
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                        btn.classList.remove('bg-red-500', 'hover:bg-red-600');
+                    }, 2500);
+                }
+            });
+            getElement('close-modal-btn').addEventListener('click', () => getElement('quote-referral-modal').style.display = 'none');
+            getElement('copy-quote-btn').addEventListener('click', () => {
+                const textToCopy = getElement('quote-output').innerText;
+                const copyBtn = getElement('copy-quote-btn');
+                try {
+                     navigator.clipboard.writeText(textToCopy).then(() => {
+                        copyBtn.textContent = 'Copied!';
+                        setTimeout(() => { copyBtn.textContent = 'Copy Quote'; }, 2000);
+                    });
+                } catch(e) {
+                     // Fallback for older browsers
+                    const textArea = document.createElement("textarea");
+                    textArea.value = textToCopy;
+                    document.body.appendChild(textArea);
+                    textArea.focus();
+                    textArea.select();
+                    try {
+                        document.execCommand('copy');
+                        copyBtn.textContent = 'Copied!';
+                        setTimeout(() => { copyBtn.textContent = 'Copy Quote'; }, 2000);
+                    } catch (err) {
+                       copyBtn.textContent = 'Failed!';
+                    }
+                    document.body.removeChild(textArea);
+                }
+            });
+            getElement('download-pdf-btn').addEventListener('click', generateAndDownloadPDF);
+            getElement('submit-referral-btn').addEventListener('click', submitReferral);
+        }
+
+        function setupTheme() {
+            const themeToggle = getElement('themeToggleCheckbox');
+            const themeToggleLabel = getElement('themeToggleLabel');
+            function applyTheme(isDark) {
+                document.documentElement.classList.toggle('dark-mode', isDark);
+                document.body.classList.toggle('dark-mode', isDark);
+                if(themeToggleLabel) themeToggleLabel.textContent = isDark ? 'DARK' : 'LIGHT';
+                if(themeToggle) themeToggle.checked = isDark;
+                localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            }
+            themeToggle.addEventListener('change', () => applyTheme(themeToggle.checked));
+            const savedTheme = localStorage.getItem('theme');
+            applyTheme(savedTheme === 'dark' || (savedTheme === null && window.matchMedia('(prefers-color-scheme: dark)').matches));
+        }
+
+        function formatCurrency(value) { return (typeof value !== 'number' || isNaN(value)) ? 'N/A' : value.toLocaleString('en-US', { style: 'currency', currency: 'USD' }); }
         
         function handleUIChanges() {
             const planType = getElement('plan-type').value;
             const familyStatus = getElement('family-status').value;
             const ageBand = getElement('age-band').value;
             
-            const basePlanOptions = document.getElementById('base-plan-options');
-            const majorMedicalOptions = document.getElementById('major-medical-options');
-            const maternityContainer = document.getElementById('maternity-container');
-            const maternitySelect = getElement('maternity');
-
-            // Show/hide based on Plan Type
-            basePlanOptions.style.display = (planType === 'mm_only') ? 'none' : 'contents';
-            majorMedicalOptions.style.display = (planType === 'base_only') ? 'none' : 'contents';
+            getElement('base-plan-options').style.display = (planType === 'mm_only') ? 'none' : 'contents';
+            getElement('major-medical-options').style.display = (planType === 'base_only') ? 'none' : 'contents';
             
-            // Handle Maternity visibility and disable state
+            const maternityContainer = getElement('maternity-container');
+            const maternitySelect = getElement('maternity');
             if ((familyStatus === 'single_female' || familyStatus === 'husband_wife') && planType !== 'mm_only') {
                 maternityContainer.style.display = 'block';
-                if (['50_59', '60_65', '66_67', '68_70'].includes(ageBand)) {
-                    maternitySelect.value = 'no';
-                    maternitySelect.disabled = true;
-                } else {
-                    maternitySelect.disabled = false;
-                }
+                const isMaternityEligible = !['50_59', '60_65', '66_67', '68_70'].includes(ageBand);
+                maternitySelect.disabled = !isMaternityEligible;
+                if(!isMaternityEligible) maternitySelect.value = 'no';
             } else {
                 maternityContainer.style.display = 'none';
+                maternitySelect.value = 'no';
             }
         }
 
-        // --- CALCULATION ENGINE ---
+        // --- CALCULATION ENGINE (Updated) ---
         function calculateAndDisplay() {
             handleUIChanges();
-
             const planType = getElement('plan-type').value;
             const familyStatus = getElement('family-status').value;
             const ageBand = getElement('age-band').value;
             const childrenCount = getElement('children-count').value;
-            const maternity = getElement('maternity').value;
-            const withDV = getElement('dental-vision').value === 'yes';
+            const maternitySelect = getElement('maternity');
+            const maternity = maternitySelect.disabled ? 'no' : maternitySelect.value;
+            const addDV = getElement('dental-vision').value === 'yes';
             const mmAmount = getElement('major-medical-amount').value;
             const frequency = getElement('payment-frequency').value;
 
-            // --- 1. Get Rate Sets ---
-            let baseRateSet = {annual:0, semi:0, quarterly:0, monthly:0};
+            // 1. Get Base Plan Premium
+            let baseRateSet = {annual:0, semi:0, quarterly:0};
             if (planType !== 'mm_only') {
                 let baseRateKey = familyStatus;
                 if (familyStatus === 'single_female' || familyStatus === 'husband_wife') {
-                    baseRateKey += (maternity === 'yes' && !getElement('maternity').disabled) ? '_with_maternity' : '_no_maternity';
+                    baseRateKey += (maternity === 'yes') ? '_with_maternity' : '_no_maternity';
                 }
-                const baseRateTable = withDV ? RATES.base.with_dv : RATES.base.standard;
-                baseRateSet = baseRateTable[baseRateKey]?.[ageBand]?.[childrenCount] || baseRateSet;
+                baseRateSet = RATES.base.standard[baseRateKey]?.[ageBand]?.[childrenCount] || {annual:0, semi:0, quarterly:0};
             }
 
-            let mmRateSet = {annual:0, semi:0, quarterly:0, monthly:0};
+            // 2. Get Vision & Dental Premium (new logic)
+            let vdRateSet = {annual:0, semi:0, quarterly:0};
+            if (planType !== 'mm_only' && addDV) {
+                let vdFamilyKey = familyStatus;
+                 if (familyStatus === 'single_female_no_maternity' || familyStatus === 'single_female_with_maternity') {
+                    vdFamilyKey = 'single_female';
+                } else if (familyStatus === 'husband_wife_no_maternity' || familyStatus === 'husband_wife_with_maternity') {
+                    vdFamilyKey = 'husband_wife';
+                }
+                vdRateSet = RATES.vision_dental[vdFamilyKey]?.[childrenCount] || {annual:0, semi:0, quarterly:0};
+            }
+            
+            // 3. Get Major Medical Premium
+            let mmRateSet = {annual:0, semi:0, quarterly:0};
             if (planType !== 'base_only') {
                 let mmRateKey = familyStatus;
                 if (familyStatus.startsWith('single_female')) mmRateKey = 'single_female';
                 const mmChildrenKey = (childrenCount === '0') ? '0' : '1+';
-                mmRateSet = RATES.major_medical[mmAmount]?.[mmRateKey]?.[ageBand]?.[mmChildrenKey] || mmRateSet;
+                mmRateSet = RATES.major_medical[mmAmount]?.[mmRateKey]?.[ageBand]?.[mmChildrenKey] || {annual:0, semi:0, quarterly:0};
             }
 
-            // --- 2. Calculate Premiums for Selected Frequency ---
+            // 4. Sum up premiums for the selected frequency
             const basePremium = baseRateSet[frequency] || 0;
+            const vdPremium = vdRateSet[frequency] || 0;
             const mmPremium = mmRateSet[frequency] || 0;
-            const totalPremium = basePremium + mmPremium;
-
-            // --- 3. Display Main Results ---
-            getElement('total-premium').textContent = formatCurrency(totalPremium);
+            
+            const subTotal = basePremium + vdPremium + mmPremium;
+            const totalPremium = subTotal; // In case of future taxes/fees
+            
+            // 5. Display Main Results
             const frequencyLabel = frequency.charAt(0).toUpperCase() + frequency.slice(1);
+            getElement('total-premium').textContent = formatCurrency(totalPremium);
             getElement('total-premium-label').textContent = `(Total ${frequencyLabel} Premium)`;
             
             let breakdownHTML = '';
             if (planType !== 'mm_only') {
-                breakdownHTML += `<p>COVERCARE Base Premium: <strong class="float-right">${formatCurrency(basePremium)}</strong></p>`;
+                 let baseLabel = "COVERCARE Base Premium";
+                 if (familyStatus === 'single_female' || familyStatus === 'husband_wife') {
+                    const hasMaternity = maternity === 'yes' && !maternitySelect.disabled;
+                    baseLabel += hasMaternity ? " (w/ Maternity)" : " (No Maternity)";
+                 }
+                 breakdownHTML += `<p class="breakdown-row"><span>${baseLabel}:</span> <strong>${formatCurrency(basePremium)}</strong></p>`;
             }
-            if (planType !== 'base_only') {
-                breakdownHTML += `<p>Major Medical: <strong class="float-right">${formatCurrency(mmPremium)}</strong></p>`;
+            if (vdPremium > 0) breakdownHTML += `<p class="breakdown-row"><span>+ Vision & Dental Benefit:</span> <strong>${formatCurrency(vdPremium)}</strong></p>`;
+            if (planType !== 'base_only') breakdownHTML += `<p class="breakdown-row"><span>+ Major Medical:</span> <strong>${formatCurrency(mmPremium)}</strong></p>`;
+            
+            if (subTotal > 0 && (vdPremium > 0 || mmPremium > 0)) {
+                breakdownHTML += `<p class="breakdown-row font-semibold border-t border-dashed border-[var(--border-color)] pt-1 mt-1"><span>Sub-Total:</span> <strong>${formatCurrency(subTotal)}</strong></p>`;
             }
-            breakdownHTML += `<p class="font-bold text-lg border-t border-[var(--border-color)] pt-2 mt-2">Total ${frequencyLabel} Premium: <strong class="float-right">${formatCurrency(totalPremium)}</strong></p>`;
+
+            breakdownHTML += `<p class="breakdown-row font-bold text-lg border-t-2 border-[var(--primary-accent)] pt-2 mt-2"><span>Total ${frequencyLabel} Premium:</span> <strong>${formatCurrency(totalPremium)}</strong></p>`;
             getElement('premium-breakdown').innerHTML = breakdownHTML;
             
-            // --- 4. Display Frequency Comparison ---
-            let comparisonHTML = `<h4 class="font-bold text-md text-[var(--text-primary)]">Payment Options</h4>`;
-            comparisonHTML += `<table class="w-full mt-2 text-xs"><thead><tr class="text-left"><th class="font-semibold pb-1">Frequency</th><th class="font-semibold pb-1 text-right">Premium</th><th class="font-semibold pb-1 text-right">Saving vs. Annual</th></tr></thead><tbody>`;
-            const annualTotal = (baseRateSet.annual || 0) + (mmRateSet.annual || 0);
-
+            // 6. Display Frequency Comparison
+            let comparisonHTML = `<h4 class="font-bold text-md text-[var(--text-primary)]">Payment Options</h4><table class="w-full mt-2 text-xs"><thead><tr class="text-left"><th class="font-semibold pb-1">Frequency</th><th class="font-semibold pb-1 text-right">Premium</th><th class="font-semibold pb-1 text-right">Saving vs. Annual</th></tr></thead><tbody>`;
+            const annualTotal = (baseRateSet.annual || 0) + (vdRateSet.annual || 0) + (mmRateSet.annual || 0);
             ['annual', 'semi', 'quarterly'].forEach(freq => {
-                const freqPremium = (baseRateSet[freq] || 0) + (mmRateSet[freq] || 0);
+                const freqPremium = (baseRateSet[freq] || 0) + (vdRateSet[freq] || 0) + (mmRateSet[freq] || 0);
                 const multiplier = { annual: 1, semi: 2, quarterly: 4}[freq];
                 const effectiveAnnualCost = freqPremium * multiplier;
                 const saving = annualTotal - effectiveAnnualCost;
-                
                 const isSelected = freq === frequency ? 'font-bold text-[var(--primary-accent)]' : '';
-                
-                comparisonHTML += `<tr class="${isSelected}">
-                    <td>${freq.charAt(0).toUpperCase() + freq.slice(1)}</td>
-                    <td class="text-right">${formatCurrency(freqPremium)}</td>
-                    <td class="text-right">${formatCurrency(saving)}</td>
-                </tr>`;
+                comparisonHTML += `<tr class="${isSelected}"><td>${freq.charAt(0).toUpperCase() + freq.slice(1)}</td><td class="text-right">${formatCurrency(freqPremium)}</td><td class="text-right">${formatCurrency(saving)}</td></tr>`;
             });
-
             comparisonHTML += `</tbody></table>`;
             getElement('frequency-comparison').innerHTML = comparisonHTML;
+
+            // 7. Calculate Finder's Fee
+            const feeBasePremium = basePremium + vdPremium + mmPremium;
+            const findersFee = calculateAndDisplayFindersFee(feeBasePremium);
+            
+            // 8. Store data for referral submission
+            lastCalculatedData = {
+                insuranceType: 'Health',
+                totalPremium,
+                basePremium,
+                vdPremium,
+                mmPremium,
+                findersFee,
+                premiumFrequency: frequency
+            };
         }
 
-        // --- QUOTE GENERATION & PDF ---
+        function calculateAndDisplayFindersFee(premium) {
+            const feeSection = getElement('finders-fee-section');
+            if (!currentUserData || currentUserData.waivesAllFees || premium <= 0) { 
+                feeSection.classList.add('hidden'); 
+                return 0;
+            }
+            const commissionSplit = (currentUserData.commissionSplit || 50) / 100;
+
+            const totalCommission = premium * 0.25;
+            const incomeTax = totalCommission * 0.25;
+            const netCommission = totalCommission - incomeTax;
+            const fee = netCommission * commissionSplit;
+            
+            getElement('finders-fee-breakdown').innerHTML = `
+                <div class="breakdown-row"><span>Premium for Fee Calc.</span><span class="font-semibold">${formatCurrency(premium)}</span></div>
+                <div class="breakdown-row mt-2"><span>Total Commission (25%)</span><span class="font-semibold">${formatCurrency(totalCommission)}</span></div>
+                <div class="breakdown-row text-red-600"><span>- Income Tax (25%)</span><span>-${formatCurrency(incomeTax)}</span></div>
+                <div class="breakdown-row font-semibold border-t pt-1 mt-1"><span>Net Commission Payable</span><span>${formatCurrency(netCommission)}</span></div>
+                <div class="breakdown-row text-green-600 mt-2"><span class="font-bold">Your Finder's Fee (${commissionSplit*100}%)</span><span class="font-bold">${formatCurrency(fee)}</span></div>
+            `;
+            feeSection.classList.remove('hidden');
+            return fee;
+        }
+        
         function generateFinalQuoteText() {
-            const planTypeText = getElement('plan-type').options[getElement('plan-type').selectedIndex].text;
-            const familyStatusText = getElement('family-status').options[getElement('family-status').selectedIndex].text;
-            const ageBandText = getElement('age-band').options[getElement('age-band').selectedIndex].text;
-            const childrenCountText = getElement('children-count').options[getElement('children-count').selectedIndex].text;
-            
+            const getSelectedText = (id) => getElement(id).options[getElement(id).selectedIndex].text;
             let quoteDetails = `
-Plan Type:          ${planTypeText}
-Family Status:      ${familyStatusText}
-Age Band:           ${ageBandText}
-Number of Children: ${childrenCountText}
+Plan Type:          ${getSelectedText('plan-type')}
+Family Status:      ${getSelectedText('family-status')}
+Age Band:           ${getSelectedText('age-band')}
+Number of Children: ${getSelectedText('children-count')}
 `;
-            
-            const planType = getElement('plan-type').value;
-
-            if (planType !== 'mm_only') {
-                const withDVText = getElement('dental-vision').value === 'yes' ? 'Yes' : 'No';
-                const maternityText = getElement('maternity').disabled ? 'N/A' : (getElement('maternity').value === 'yes' ? 'Yes' : 'No');
-                quoteDetails += `Dental & Vision:    ${withDVText}\nMaternity Included: ${maternityText}\n`;
+            if (getElement('plan-type').value !== 'mm_only') {
+                const maternitySelect = getElement('maternity');
+                const maternityStatus = maternitySelect.disabled ? 'N/A' : getSelectedText('maternity');
+                quoteDetails += `Dental & Vision:    ${getSelectedText('dental-vision')}\nMaternity Included: ${maternityStatus}\n`;
             }
-            
-            if (planType !== 'base_only') {
-                 const mmAmountText = formatCurrency(parseInt(getElement('major-medical-amount').value));
-                 quoteDetails += `MM Coverage:        ${mmAmountText}\n`;
+            if (getElement('plan-type').value !== 'base_only') {
+                 quoteDetails += `MM Coverage:        ${getSelectedText('major-medical-amount')}\n`;
             }
-
             const breakdownText = getElement('premium-breakdown').innerText;
-            const comparisonText = getElement('frequency-comparison').innerText;
-
-            fullQuoteText = `
-=========================================
-    OFFICIAL COVERCARE INSURANCE QUOTATION
-=========================================
-Date: ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-
-CLIENT & PLAN DETAILS:
-----------------------
-${quoteDetails}
-PREMIUM SUMMARY:
------------------
-${breakdownText}
-
-${comparisonText}
-=========================================
-
-This quotation is valid for 30 days.
-Terms and conditions apply.
-`;
-            quoteOutput.textContent = fullQuoteText.trim();
+            const comparisonText = getElement('frequency-comparison').innerText.replace('Payment Options', '\nPAYMENT OPTIONS:\n--------------');
+            fullQuoteText = `=========================================\n    OFFICIAL COVERCARE INSURANCE QUOTATION\n=========================================\nDate: ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}\n\nCLIENT & PLAN DETAILS:\n----------------------\n${quoteDetails.trim()}\n\nPREMIUM SUMMARY:\n-----------------\n${breakdownText}\n\n${comparisonText}\n=========================================\n\nThis quotation is valid for 30 days.\nTerms and conditions apply.`;
+            getElement('quote-output').textContent = fullQuoteText.trim();
         }
 
         function generateAndDownloadPDF() {
@@ -503,22 +718,190 @@ Terms and conditions apply.
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
             
-            generateFinalQuoteText();
+            const drawPage = (doc) => {
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(24);
+                doc.setTextColor('#005f73');
+                doc.text('TATIL', 14, 20);
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(10);
+                doc.setTextColor('#1d2d35');
+                doc.text('TATIL Building, 11 Maraval Road, Port of Spain', 14, 28);
 
-            doc.setFont("courier", "normal");
-            doc.setFontSize(10);
-            doc.text(fullQuoteText, 10, 10);
+                doc.setFontSize(18);
+                doc.setTextColor('#ae8625');
+                doc.text('COVERCARE Health Insurance Quotation', 200, 24, { align: 'right' });
+                
+                doc.setDrawColor('#dce1e7');
+                doc.line(14, 35, 200, 35);
+
+                let yPos = 45;
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'bold');
+                doc.text('Date:', 14, yPos);
+                doc.setFont('helvetica', 'normal');
+                doc.text(new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }), 35, yPos);
+                
+                doc.setFont('helvetica', 'bold');
+                doc.text('Prepared For:', 14, yPos + 7);
+                doc.setFont('helvetica', 'normal');
+                doc.text(clientName, 42, yPos + 7);
+
+                yPos += 20;
+
+                doc.setFontSize(12);
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor('#005f73');
+                doc.text('Selected Plan Details', 14, yPos);
+                doc.setDrawColor('#dce1e7');
+                doc.line(14, yPos + 2, 200, yPos + 2);
+                yPos += 10;
+                
+                const getSelectedText = (id) => getElement(id).options[getElement(id).selectedIndex].text;
+                const planDetails = [];
+                planDetails.push(['Plan Type:', getSelectedText('plan-type')]);
+                planDetails.push(['Family Status:', getSelectedText('family-status')]);
+                planDetails.push(['Age Band:', getSelectedText('age-band')]);
+                planDetails.push(['Number of Children:', getSelectedText('children-count')]);
+
+                if (getElement('plan-type').value !== 'mm_only') {
+                    const maternitySelect = getElement('maternity');
+                    const maternityStatus = maternitySelect.disabled ? 'N/A' : getSelectedText('maternity');
+                    planDetails.push(['Dental & Vision:', getSelectedText('dental-vision')]);
+                    planDetails.push(['Maternity Included:', maternityStatus]);
+                }
+                 if (getElement('plan-type').value !== 'base_only') {
+                    planDetails.push(['Major Medical Coverage:', getSelectedText('major-medical-amount')]);
+                }
+
+                doc.setFontSize(10);
+                doc.setTextColor('#1d2d35');
+                planDetails.forEach(detail => {
+                    doc.setFont('helvetica', 'bold');
+                    doc.text(detail[0], 16, yPos);
+                    doc.setFont('helvetica', 'normal');
+                    doc.text(detail[1], 60, yPos);
+                    yPos += 7;
+                });
+                yPos += 5;
+
+                doc.setFontSize(12);
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor('#005f73');
+                doc.text('Premium Summary', 14, yPos);
+                doc.line(14, yPos + 2, 200, yPos + 2);
+                yPos += 10;
+
+                doc.setFillColor('#f4f6f9');
+                doc.rect(14, yPos - 2, 186, 8, 'F');
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'bold');
+                doc.text('Benefit Description', 16, yPos + 4);
+                doc.text('Premium', 198, yPos + 4, { align: 'right' });
+                yPos += 10;
+
+                doc.setFont('helvetica', 'normal');
+                const breakdownRows = Array.from(getElement('premium-breakdown').querySelectorAll('.breakdown-row'));
+                breakdownRows.forEach(row => {
+                    const label = row.children[0].textContent;
+                    const value = row.children[1].textContent;
+                    if (label.toLowerCase().includes('total')) {
+                        doc.setFont('helvetica', 'bold');
+                        doc.setDrawColor('#dce1e7');
+                        doc.line(14, yPos - 2, 200, yPos - 2);
+                    }
+                    doc.text(label, 16, yPos);
+                    doc.text(value, 198, yPos, { align: 'right' });
+                    yPos += 7;
+                     if (label.toLowerCase().includes('total')) {
+                        doc.setFont('helvetica', 'normal');
+                    }
+                });
+                
+                doc.setFontSize(8);
+                doc.setTextColor('#718096');
+                doc.text('This is an unofficial quotation and is valid for 30 days. All premiums are in USD. Terms and conditions apply.', 105, 285, { align: 'center' });
+                doc.text('Generated by the TATIL Referral Hub.', 105, 290, { align: 'center' });
+            };
+
+            drawPage(doc);
             doc.save(`COVERCARE_Quote_for_${clientName.replace(/\s/g, '_')}.pdf`);
         }
 
-        // --- Initial UI Setup ---
-        // Check if the RATES object is loaded, if not, show an error.
-        if (typeof RATES === 'undefined') {
-            document.body.innerHTML = '<div class="text-red-500 text-center p-8">Error: Could not load rate data. Please ensure health_rater_data.js is present.</div>';
-        } else {
-            calculateAndDisplay();
+        async function submitReferral() {
+            const clientName = getElement('client-name').value, clientEmail = getElement('client-email').value, clientContact = getElement('client-contact').value;
+            const errorEl = getElement('client-modal-error');
+            if (!clientName || !clientEmail || !clientContact) {
+                errorEl.textContent = "Please fill out all client fields."; return;
+            }
+            errorEl.textContent = "";
+
+            const submitBtn = getElement('submit-referral-btn');
+            submitBtn.innerHTML = '<span class="loader !w-6 !h-6 !border-white/50 !border-b-transparent"></span>';
+            submitBtn.disabled = true;
+
+            const feeWaived = getElement('waive-fee-checkbox').checked;
+            const getSelectedText = (id) => getElement(id).options[getElement(id).selectedIndex].text;
+            const planType = getElement('plan-type').value;
+            const maternitySelect = getElement('maternity');
+            const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+            
+            const submissionData = {
+                ...lastCalculatedData,
+                feeWaived,
+                findersFee: feeWaived ? 0 : lastCalculatedData.findersFee,
+                commissionSplitAtTimeOfReferral: currentUserData.commissionSplit || 50,
+                planType: getSelectedText('plan-type'),
+                familyStatusText: getSelectedText('family-status'),
+                ageBand: getSelectedText('age-band'),
+                childrenCountText: getSelectedText('children-count'),
+                premiumFrequency: getSelectedText('payment-frequency'),
+                dentalVisionAdded: getElement('dental-vision').value === 'yes',
+                maternity: (planType !== 'mm_only' && !maternitySelect.disabled) ? getSelectedText('maternity') : 'N/A',
+                mmAmount: planType !== 'base_only' ? getSelectedText('major-medical-amount') : 'N/A',
+                clientName, clientEmail, clientContact,
+            };
+
+            try {
+                if (editMode) {
+                    const referralRef = doc(db, "artifacts", appId, "public/data/referrals", referralIdToEdit);
+                    await updateDoc(referralRef, {
+                        ...submissionData,
+                        status: 'Resubmitted',
+                        lastUpdatedAt: Timestamp.now()
+                    });
+                } else {
+                    await addDoc(collection(db, "artifacts", appId, "public/data/referrals"), {
+                        ...submissionData,
+                        referrerId: auth.currentUser.uid,
+                        referrerName: currentUserData.name || 'N/A',
+                        status: 'Pending',
+                        createdAt: Timestamp.now()
+                    });
+                }
+                getElement('quote-referral-modal').style.display = 'none';
+                getElement('success-modal').style.display = 'flex';
+            } catch (error) {
+                console.error("Error submitting referral: ", error);
+                errorEl.textContent = "Could not submit referral. Please try again.";
+            } finally {
+                submitBtn.innerHTML = editMode ? 'Update Referral' : 'Submit Referral';
+                submitBtn.disabled = false;
+            }
         }
-    });
     </script>
+    <script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js')
+                .then(registration => {
+                    console.log('Service Worker registered with scope:', registration.scope);
+                })
+                .catch(err => {
+                    console.log('Service Worker registration failed:', err);
+                });
+        });
+    }
+</script>
 </body>
 </html>
